@@ -3,7 +3,11 @@
 function App() {
 
   return (
-    <h1>PHP {"<<<"}</h1>
+    <>
+      <header></header>
+      <main>PHP 2</main>
+      <footer></footer>
+    </>
   );
 }
 
