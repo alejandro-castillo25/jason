@@ -1,0 +1,12 @@
+button {
+  cursor: pointer;
+}
+
+
+
+#open-sidebar-btn > svg{
+  scale: 1.8;
+}
+
+
+
