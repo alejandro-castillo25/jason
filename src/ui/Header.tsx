@@ -5,14 +5,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { GetIcon } from "./Icons";
+
+
 import { SidebarContent } from "./SidebarContent";
-
-
 
 
 function OpenOptionsBtn() {
   return (
-    <Sheet>
+    <Sheet >
       <SheetTrigger className="ml-auto">
         <Button
           variant={"ghost"}

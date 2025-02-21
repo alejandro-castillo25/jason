@@ -7,16 +7,19 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useContext } from "react";
 import { GetIcon } from "./Icons";
 import { toES } from "./Language";
 
 import type { IconName } from "./Icons";
 
-export function SidebarContent() {
-  type Lang = "en" | "es";
+import {  AppContext } from "../AppContext";
 
-  const [lang, _setLang] = useState<Lang>("en");
+export function SidebarContent() {
+
+
+  const [lang, _setLang] = useContext(AppContext)?.lang!;
+
 
   const buttonsTexts = [
     "Create New",
@@ -43,7 +46,6 @@ export function SidebarContent() {
 
 
 
-
   function getIconName(name: (typeof buttonsTexts)[number]): IconName {
     const dict = {
       "Create New": "Plus",
@@ -58,16 +60,18 @@ export function SidebarContent() {
   }
 
   return (
-    <SheetContent>
+    <SheetContent >
+      
       <SheetHeader>
         <SheetTitle className="text-2xl">
           {lang === "en" ? "Options" : toES("Options")}
         </SheetTitle>
         <SheetDescription>
+          <Separator orientation="horizontal" className="mt-6 mb-2" />
+
           {buttonsTexts.map((text) => {
             return (
               <>
-                <Separator orientation="horizontal" className="mt-3 mb-3" />
                 <Button
                   variant={
                     text !== "Clear"
@@ -84,10 +88,10 @@ export function SidebarContent() {
                     {lang === "es" ? toES(text) : text}
                   </span>
                 </Button>
+                <Separator orientation="horizontal" className="mt-3 mb-3" />
               </>
             );
           })}
-          <Separator orientation="horizontal" className="mt-3 mb-3" />
         </SheetDescription>
       </SheetHeader>
     </SheetContent>
