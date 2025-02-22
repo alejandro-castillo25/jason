@@ -13,4 +13,13 @@ button {
 }
 
 
+main {
+  scrollbar-width: none;
+  overflow: auto;
+}
+
+
+.jason-item {
+  word-wrap: break-word;
+}
 

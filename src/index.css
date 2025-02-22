@@ -16,7 +16,7 @@ html {
   user-select: none;
 }
 body {
-  /* overflow: hidden; */
+  overflow: hidden;
   overscroll-behavior: none;
 
 }
@@ -92,6 +92,7 @@ body {
 }
 
 #root {
+  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;

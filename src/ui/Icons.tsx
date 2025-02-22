@@ -1,8 +1,8 @@
 const BurgerIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={24} // Corrected width to match viewBox
-    height={24} // Corrected height to match viewBox
+    width={24}
+    height={24}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -137,6 +137,44 @@ const TrashIcon = () => (
   </svg>
 );
 
+const ObjectIcon = ({className = ""}: {className: string}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-braces ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M7 4a2 2 0 0 0 -2 2v3a2 3 0 0 1 -2 3a2 3 0 0 1 2 3v3a2 2 0 0 0 2 2" />
+    <path d="M17 4a2 2 0 0 1 2 2v3a2 3 0 0 0 2 3a2 3 0 0 0 -2 3v3a2 2 0 0 1 -2 2" />
+  </svg>
+);
+
+const ArrayIcon = ({ className = ""}: { className: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-brackets ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M8 4h-3v16h3" />
+    <path d="M16 4h3v16h-3" />
+  </svg>
+);
+
 const Icons = {
   Burger: BurgerIcon,
   Plus: PlusIcon,
@@ -144,15 +182,18 @@ const Icons = {
   Paste: PasteIcon,
   Download: DownloadIcon, 
   Settings: SettingsIcon,
-  Trash: TrashIcon
+  Trash: TrashIcon,
+  ArrayIcon,
+  ObjectIcon
 } as const;
 
 export type IconName = keyof typeof Icons;
 
 interface GetIconProps {
   name: IconName;
+  className?: string
 }
 
-export function GetIcon({ name }: GetIconProps) {
-  return (Icons[name] ?? <></>)() ;
+export function GetIcon({ name , className = "" }: GetIconProps) {
+  return (Icons[name]({ className }) ?? <></>);
 }

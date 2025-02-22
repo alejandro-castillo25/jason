@@ -60,13 +60,13 @@ export function SidebarContent() {
   }
 
   return (
-    <SheetContent >
+    <SheetContent>
       
       <SheetHeader>
         <SheetTitle className="text-2xl">
           {lang === "en" ? "Options" : toES("Options")}
         </SheetTitle>
-        <SheetDescription>
+        <SheetDescription >
           <Separator orientation="horizontal" className="mt-6 mb-2" />
 
           {buttonsTexts.map((text) => {
