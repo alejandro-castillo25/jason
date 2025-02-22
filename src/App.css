@@ -3,9 +3,13 @@ button {
 }
 
 
+#open-sidebar-btn {
+  display: grid;
+  place-content: center;
+}
 
 #open-sidebar-btn > svg{
-  scale: 1.8;
+  scale: 1.55;
 }
 
 

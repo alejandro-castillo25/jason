@@ -16,7 +16,9 @@ html {
   user-select: none;
 }
 body {
-  overflow: hidden;
+  /* overflow: hidden; */
+  overscroll-behavior: none;
+
 }
 
 * {
