@@ -1,0 +1,282 @@
+{
+  "systemName": "DataAggregationPlatform",
+  "version": "2.1.0",
+  "status": "operational",
+  "creationTimestamp": "2024-03-20T10:00:00Z",
+  "dataSources": [
+    {
+      "sourceId": "src-123",
+      "sourceName": "SensorNetworkAlpha",
+      "sourceType": "sensor",
+      "connectionDetails": {
+        "protocol": "MQTT",
+        "brokerAddress": "mqtt.example.com",
+        "topic": "sensors/alpha/#"
+      },
+      "dataFields": ["temperature", "humidity", "pressure", "lightLevel"],
+      "isActive": true,
+      "lastHeartbeat": "2024-03-20T09:58:30Z",
+      "errorLog": [],
+      "processedDataPoints": 54321
+    },
+    {
+      "sourceId": "src-456",
+      "sourceName": "ExternalAPI_Weather",
+      "sourceType": "api",
+      "connectionDetails": {
+        "apiEndpoint": "https://api.weatherprovider.net/current",
+        "apiKeyRequired": true,
+        "authenticationMethod": "OAuth2"
+      },
+      "dataFields": [
+        "currentTemperature",
+        "windSpeed",
+        "precipitation",
+        "weatherConditionCode"
+      ],
+      "isActive": false,
+      "lastHeartbeat": null,
+      "errorLog": [
+        { "timestamp": "2024-03-19T18:00:00Z", "message": "API key expired" },
+        {
+          "timestamp": "2024-03-20T08:00:00Z",
+          "message": "Authentication failed"
+        }
+      ],
+      "processedDataPoints": 0
+    },
+    {
+      "sourceId": "src-789",
+      "sourceName": "LegacyDatabase_Analytics",
+      "sourceType": "database",
+      "connectionDetails": {
+        "dbType": "PostgreSQL",
+        "host": "db.legacy.internal",
+        "port": 5432,
+        "databaseName": "analytics_db",
+        "credentialsRequired": true
+      },
+      "dataFields": [
+        "userId",
+        "sessionDuration",
+        "pageViews",
+        "conversionRate"
+      ],
+      "isActive": true,
+      "lastHeartbeat": "2024-03-20T09:55:00Z",
+      "errorLog": [],
+      "processedDataPoints": 1234567
+    },
+    {
+      "sourceId": "src-abc",
+      "sourceName": "SocialMediaFeed_Trends",
+      "sourceType": "social_media",
+      "connectionDetails": {
+        "platform": "Twitter",
+        "apiCredentials": {},
+        "queryFilters": ["#trending", "#dataanalytics"]
+      },
+      "dataFields": [
+        "tweetId",
+        "tweetText",
+        "retweetCount",
+        "likeCount",
+        "sentimentScore"
+      ],
+      "isActive": false,
+      "lastHeartbeat": null,
+      "errorLog": [],
+      "processedDataPoints": 0
+    },
+    {
+      "sourceId": "src-def",
+      "sourceName": "InternalLogFiles",
+      "sourceType": "log_file",
+      "connectionDetails": {
+        "filePaths": ["/var/log/app1.log", "/var/log/app2.log"],
+        "logFormat": "JSON",
+        "parsingRules": {}
+      },
+      "dataFields": [
+        "timestamp",
+        "logLevel",
+        "message",
+        "componentId",
+        "errorCode"
+      ],
+      "isActive": true,
+      "lastHeartbeat": "2024-03-20T09:59:15Z",
+      "errorLog": [],
+      "processedDataPoints": 98765
+    }
+  ],
+  "dataPipelines": [
+    {
+      "pipelineId": "pipe-001",
+      "pipelineName": "WeatherDataPipeline",
+      "sourceData": ["src-456", "src-123"],
+      "transformations": [
+        { "step": "filter", "field": "temperature", "condition": ">25" },
+        {
+          "step": "aggregate",
+          "fields": ["temperature", "humidity"],
+          "operation": "average"
+        }
+      ],
+      "destination": "dataWarehouse_Weather",
+      "isActive": true,
+      "creationDate": "2024-03-15T14:00:00Z",
+      "runHistory": []
+    },
+    {
+      "pipelineId": "pipe-002",
+      "pipelineName": "UserActivityAnalysis",
+      "sourceData": ["src-789"],
+      "transformations": [
+        {
+          "step": "calculate",
+          "newField": "avgSessionTime",
+          "expression": "sessionDuration / pageViews"
+        },
+        {
+          "step": "groupBy",
+          "field": "userId",
+          "aggregates": ["avgSessionTime"]
+        }
+      ],
+      "destination": "analyticsDB_UserInsights",
+      "isActive": false,
+      "creationDate": "2024-03-10T09:00:00Z",
+      "runHistory": [
+        {
+          "startTime": "2024-03-18T10:00:00Z",
+          "endTime": "2024-03-18T10:30:00Z",
+          "status": "success",
+          "processedRecords": 50000
+        },
+        {
+          "startTime": "2024-03-19T10:00:00Z",
+          "endTime": "2024-03-19T10:35:00Z",
+          "status": "failed",
+          "error": "Database connection error"
+        }
+      ]
+    },
+    {
+      "pipelineId": "pipe-003",
+      "pipelineName": "SocialMediaInsights",
+      "sourceData": ["src-abc"],
+      "transformations": [],
+      "destination": "dashboard_SocialTrends",
+      "isActive": false,
+      "creationDate": "2024-03-18T16:00:00Z",
+      "runHistory": []
+    },
+    {
+      "pipelineId": "pipe-004",
+      "pipelineName": "SystemLogAnalysis",
+      "sourceData": ["src-def"],
+      "transformations": [
+        {
+          "step": "filter",
+          "field": "logLevel",
+          "condition": "ERROR|CRITICAL"
+        },
+        {
+          "step": "count",
+          "groupBy": "componentId",
+          "outputField": "errorCount"
+        }
+      ],
+      "destination": "alertingSystem_LogErrors",
+      "isActive": true,
+      "creationDate": "2024-03-19T11:00:00Z",
+      "runHistory": []
+    }
+  ],
+  "dataWarehouses": [
+    {
+      "warehouseId": "dw-001",
+      "warehouseName": "dataWarehouse_Weather",
+      "storageType": "cloud_storage",
+      "location": "us-east-1",
+      "dataSchema": {
+        "fields": [
+          { "fieldName": "avgTemperature", "dataType": "float" },
+          { "fieldName": "avgHumidity", "dataType": "float" },
+          { "fieldName": "timestamp", "dataType": "datetime" }
+        ]
+      },
+      "accessControlList": [],
+      "storageMetrics": {
+        "totalStorageUsedGB": 120.5,
+        "lastUpdated": "2024-03-20T10:00:00Z"
+      },
+      "dataRetentionPolicy": {
+        "durationDays": 365,
+        "policyType": "rolling"
+      }
+    },
+    {
+      "warehouseId": "dw-002",
+      "warehouseName": "analyticsDB_UserInsights",
+      "storageType": "relational_database",
+      "location": "eu-central-1",
+      "dataSchema": {
+        "fields": [
+          { "fieldName": "userId", "dataType": "string" },
+          { "fieldName": "avgSessionTime", "dataType": "integer" }
+        ]
+      },
+      "accessControlList": [
+        { "userRole": "analyst", "permissions": ["read", "query"] }
+      ],
+      "storageMetrics": {
+        "totalStorageUsedGB": 50.2,
+        "lastUpdated": "2024-03-20T09:30:00Z"
+      },
+      "dataRetentionPolicy": {}
+    },
+    {
+      "warehouseId": "dw-003",
+      "warehouseName": "dashboard_SocialTrends",
+      "storageType": "in_memory_cache",
+      "location": "local",
+      "dataSchema": {
+        "fields": [
+          { "fieldName": "trendingTopic", "dataType": "string" },
+          { "fieldName": "averageSentiment", "dataType": "float" }
+        ]
+      },
+      "accessControlList": [],
+      "storageMetrics": {},
+      "dataRetentionPolicy": {}
+    },
+    {
+      "warehouseId": "dw-004",
+      "warehouseName": "alertingSystem_LogErrors",
+      "storageType": "message_queue",
+      "location": "local",
+      "dataSchema": {
+        "fields": [
+          { "fieldName": "componentId", "dataType": "string" },
+          { "fieldName": "errorCount", "dataType": "integer" }
+        ]
+      },
+      "accessControlList": [],
+      "storageMetrics": {},
+      "dataRetentionPolicy": {}
+    }
+  ],
+  "systemMetrics": {
+    "cpuUtilization": 0.65,
+    "memoryUsageGB": 32.1,
+    "networkTrafficMbps": 150.8,
+    "activeConnections": 235,
+    "diskSpaceRemainingGB": 500,
+    "errorRates": [],
+    "performanceStats": {}
+  },
+  "alerts": [],
+  "auditLogs": []
+}

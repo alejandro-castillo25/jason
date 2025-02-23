@@ -23,3 +23,10 @@ main {
   word-wrap: break-word;
 }
 
+.jason-item > * {
+  transition: scale 0.2s ease-out;
+}
+
+.jason-item:hover > * {
+  scale: 0.98;
+}

@@ -1,0 +1,314 @@
+{
+  "topLevelConfigurationContainer": {
+    "applicationDeploymentSettings": {
+      "environmentSpecificConfigurations": {
+        "productionEnvironment": {
+          "serverInstanceDetails": {
+            "primaryDatabaseConnectionParameters": {
+              "databaseHostAddress": "production-db-server-01.datacenter-east.example.corp",
+              "databasePortNumberForConnections": 5432,
+              "databaseUsernameForAccess": "app_user_read_write_prod_01",
+              "databasePasswordEncryptedBase64": "jklMnoPqRstUvWxYzAbCdEfGhIj=="
+            },
+            "applicationServerInstanceProfile": {
+              "instanceTypeIdentifier": "large-memory-optimized-v3",
+              "operatingSystemNameVersion": "Ubuntu Server 22.04 LTS",
+              "allocatedCPUCoreCount": 16,
+              "allocatedRAMInGigabytes": 128,
+              "diskStorageCapacityInTerabytes": 2
+            },
+            "networkInterfaceConfiguration": {
+              "primaryNetworkInterfaceCard": {
+                "interfaceNameIdentifier": "eth0",
+                "assignedIpAddressV4": "192.168.1.100",
+                "subnetMaskCidrNotation": "/24",
+                "defaultGatewayIpAddress": "192.168.1.1"
+              },
+              "secondaryNetworkInterfaceCardPresent": false
+            }
+          },
+          "applicationSpecificSettings": {
+            "apiRateLimitingConfiguration": {
+              "defaultRequestLimitPerMinute": 5000,
+              "burstRequestLimit": 10000,
+              "rateLimitingEnabledGlobally": true,
+              "exemptedClientIpAddresses": ["192.168.10.0/24", "10.0.0.50"]
+            },
+            "userAuthenticationMechanismDetails": {
+              "authenticationTypeUsed": "OAuth2.0",
+              "tokenEndpointUrl": "https://auth.example.corp/oauth2/token",
+              "clientIdForApplication": "app-deployment-prod-client-id",
+              "clientSecretEncryptedSha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+            },
+            "loggingAndMonitoringConfiguration": {
+              "logLevelThreshold": "INFO",
+              "logOutputDestination": "centralized-logging-service",
+              "monitoringAgentEnabled": true,
+              "performanceMetricsCollectionIntervalSeconds": 60
+            }
+          }
+        },
+        "stagingEnvironment": {
+          "serverInstanceDetails": {
+            "primaryDatabaseConnectionParameters": {
+              "databaseHostAddress": "staging-db-server-02.datacenter-west.example.corp",
+              "databasePortNumberForConnections": 5432,
+              "databaseUsernameForAccess": "app_user_read_write_stage_01",
+              "databasePasswordEncryptedBase64": "RstUvWxYzAbCdEfGhIjklMnoPq=="
+            },
+            "applicationServerInstanceProfile": {
+              "instanceTypeIdentifier": "medium-compute-optimized-v2",
+              "operatingSystemNameVersion": "CentOS 7",
+              "allocatedCPUCoreCount": 8,
+              "allocatedRAMInGigabytes": 64,
+              "diskStorageCapacityInTerabytes": 1
+            },
+            "networkInterfaceConfiguration": {
+              "primaryNetworkInterfaceCard": {
+                "interfaceNameIdentifier": "ens192",
+                "assignedIpAddressV4": "10.0.1.50",
+                "subnetMaskCidrNotation": "/24",
+                "defaultGatewayIpAddress": "10.0.1.1"
+              },
+              "secondaryNetworkInterfaceCardPresent": false
+            }
+          },
+          "applicationSpecificSettings": {
+            "apiRateLimitingConfiguration": {
+              "defaultRequestLimitPerMinute": 2000,
+              "burstRequestLimit": 4000,
+              "rateLimitingEnabledGlobally": false,
+              "exemptedClientIpAddresses": []
+            },
+            "userAuthenticationMechanismDetails": {
+              "authenticationTypeUsed": "BasicAuth",
+              "basicAuthCredentialsFilePath": "/opt/app/config/staging_auth.conf",
+              "clientIdForApplication": null,
+              "clientSecretEncryptedSha256": null
+            },
+            "loggingAndMonitoringConfiguration": {
+              "logLevelThreshold": "DEBUG",
+              "logOutputDestination": "local-file-system",
+              "monitoringAgentEnabled": false,
+              "performanceMetricsCollectionIntervalSeconds": 300
+            }
+          }
+        },
+        "developmentEnvironment": {
+          "serverInstanceDetails": {
+            "primaryDatabaseConnectionParameters": {
+              "databaseHostAddress": "localhost",
+              "databasePortNumberForConnections": 5432,
+              "databaseUsernameForAccess": "dev_user",
+              "databasePasswordEncryptedBase64": "PasswordDev123=="
+            },
+            "applicationServerInstanceProfile": {
+              "instanceTypeIdentifier": "small-general-purpose-v1",
+              "operatingSystemNameVersion": "macOS Monterey",
+              "allocatedCPUCoreCount": 4,
+              "allocatedRAMInGigabytes": 16,
+              "diskStorageCapacityInTerabytes": 0.5
+            },
+            "networkInterfaceConfiguration": {
+              "primaryNetworkInterfaceCard": {
+                "interfaceNameIdentifier": "en0",
+                "assignedIpAddressV4": "127.0.0.1",
+                "subnetMaskCidrNotation": "/32",
+                "defaultGatewayIpAddress": null
+              },
+              "secondaryNetworkInterfaceCardPresent": false
+            }
+          },
+          "applicationSpecificSettings": {
+            "apiRateLimitingConfiguration": {
+              "defaultRequestLimitPerMinute": 100000,
+              "burstRequestLimit": 200000,
+              "rateLimitingEnabledGlobally": false,
+              "exemptedClientIpAddresses": ["127.0.0.1"]
+            },
+            "userAuthenticationMechanismDetails": {
+              "authenticationTypeUsed": "None",
+              "tokenEndpointUrl": null,
+              "clientIdForApplication": null,
+              "clientSecretEncryptedSha256": null
+            },
+            "loggingAndMonitoringConfiguration": {
+              "logLevelThreshold": "TRACE",
+              "logOutputDestination": "console-output",
+              "monitoringAgentEnabled": true,
+              "performanceMetricsCollectionIntervalSeconds": 10
+            }
+          }
+        }
+      },
+      "deploymentStrategyDetails": {
+        "deploymentType": "blue-green",
+        "blueEnvironmentInstanceCount": 3,
+        "greenEnvironmentInstanceCount": 3,
+        "trafficShiftPercentageIncrement": 20,
+        "healthCheckEndpointPath": "/healthz",
+        "rollbackProcedureDocumentLocation": "/docs/deployment/rollback-procedure.md"
+      },
+      "resourceAllocationParameters": {
+        "initialInstanceCount": 3,
+        "maximumInstanceCount": 10,
+        "autoScalingPolicyEnabled": true,
+        "cpuBasedScalingThresholdPercentage": 75,
+        "memoryBasedScalingThresholdPercentage": 80,
+        "minimumFreeDiskSpacePercentageForScaling": 15
+      }
+    },
+    "databaseSchemaDefinitions": {
+      "customerDataTableSchema": {
+        "tableName": "customers_v2",
+        "tableDescription": "Schema definition for the customer data table in the primary database.",
+        "columnDefinitions": [
+          {
+            "columnName": "customerUniqueIdentifierId",
+            "dataType": "UUID",
+            "isPrimaryKey": true,
+            "isNullable": false,
+            "columnDescription": "Unique identifier for each customer record."
+          },
+          {
+            "columnName": "customerFirstName",
+            "dataType": "VARCHAR(255)",
+            "isPrimaryKey": false,
+            "isNullable": false,
+            "columnDescription": "First name of the customer."
+          },
+          {
+            "columnName": "customerLastName",
+            "dataType": "VARCHAR(255)",
+            "isPrimaryKey": false,
+            "isNullable": false,
+            "columnDescription": "Last name of the customer."
+          },
+          {
+            "columnName": "customerEmailAddress",
+            "dataType": "VARCHAR(255)",
+            "isPrimaryKey": false,
+            "isNullable": true,
+            "columnDescription": "Email address of the customer, may be null."
+          },
+          {
+            "columnName": "customerRegistrationTimestamp",
+            "dataType": "TIMESTAMP WITH TIME ZONE",
+            "isPrimaryKey": false,
+            "isNullable": false,
+            "columnDescription": "Timestamp when the customer registered."
+          }
+        ],
+        "tableIndices": [
+          {
+            "indexName": "idx_customer_email",
+            "indexedColumns": ["customerEmailAddress"],
+            "indexType": "BTREE",
+            "isUniqueIndex": true,
+            "indexDescription": "Index on customer email for fast lookups."
+          }
+        ]
+      },
+      "orderTransactionTableSchema": {
+        "tableName": "order_transactions_v1",
+        "tableDescription": "Schema for storing order transaction details.",
+        "columnDefinitions": [],
+        "tableIndices": []
+      },
+      "productCatalogTableSchema": {
+        "tableName": "product_catalog_master",
+        "tableDescription": "Master catalog of all products offered.",
+        "columnDefinitions": [],
+        "tableIndices": []
+      }
+    },
+    "securityPolicyEnforcements": {
+      "crossOriginResourceSharingPolicy": {
+        "allowedOrigins": [
+          "https://app.example.com",
+          "https://dashboard.example.corp"
+        ],
+        "allowedHttpMethods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allowedHttpHeaders": [
+          "Content-Type",
+          "Authorization",
+          "X-Requested-With"
+        ],
+        "credentialsAllowed": true,
+        "maxAgeSecondsForPreflight": 3600
+      },
+      "contentSecurityPolicyDirectives": {
+        "defaultSourceDirective": "'self'",
+        "scriptSourceDirective": ["'self'", "https://cdn.example.com"],
+        "styleSourceDirective": ["'self'", "'unsafe-inline'"],
+        "imageSourceDirective": ["'self'", "data:"],
+        "connectSourceDirective": ["'self'", "wss://api.example.com"]
+      },
+      "inputValidationRulesets": {
+        "customerInputValidation": {
+          "rules": [
+            {
+              "fieldName": "customerFirstName",
+              "validationType": "string",
+              "maxLength": 255,
+              "isRequired": true
+            },
+            {
+              "fieldName": "customerLastName",
+              "validationType": "string",
+              "maxLength": 255,
+              "isRequired": true
+            },
+            {
+              "fieldName": "customerEmailAddress",
+              "validationType": "email",
+              "isRequired": false
+            }
+          ]
+        },
+        "orderInputValidation": {
+          "rules": []
+        }
+      }
+    },
+    "featureToggleConfigurations": {
+      "featureFlags": {
+        "newDashboardUiEnabled": {
+          "featureName": "newDashboardUi",
+          "isEnabledByDefault": false,
+          "environmentOverrides": {
+            "productionEnvironment": true,
+            "stagingEnvironment": true
+          },
+          "userGroupTargeting": {
+            "enabledForUserGroups": [
+              "beta-testers-group",
+              "internal-employees-group"
+            ]
+          },
+          "featureDescription": "Enables the redesigned user interface for the main dashboard."
+        },
+        "advancedAnalyticsEngineActive": {
+          "featureName": "advancedAnalyticsEngine",
+          "isEnabledByDefault": true,
+          "environmentOverrides": {},
+          "userGroupTargeting": {},
+          "featureDescription": "Activates the next-generation analytics engine for enhanced reporting."
+        }
+      },
+      "rolloutStrategy": {
+        "strategyType": "gradual-percentage-rollout",
+        "rolloutPercentageStep": 10,
+        "rolloutIntervalDays": 7,
+        "rollbackThresholdPercentage": 5,
+        "monitoringMetricsForRollback": ["errorRate", "performanceDegradation"]
+      },
+      "maintenanceModeSettings": {
+        "isMaintenanceModeActive": false,
+        "maintenanceStartTimeUtc": null,
+        "maintenanceEndTimeUtc": null,
+        "maintenanceMessageToDisplay": "System maintenance in progress. Please check back later."
+      }
+    }
+  }
+}

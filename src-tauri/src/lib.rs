@@ -1,7 +1,29 @@
+#![allow(unused)]
+#![warn(unused_variables, unreachable_code, unused_parens)]
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
+
+
+
+//? sisias.sd.ale.cosa
+// #[tauri::command]
+// fn get_parent_length(path: &str) -> usize {
+//     let mut res: usize = 0;
+
+//     let mut endIndex: usize = 0;
+
+//     for ch in path.chars().rev(). {
+//         if ch == '.' {
+//             endIndex = 
+//         }
+//     }
+
+
+//     res
+// }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
