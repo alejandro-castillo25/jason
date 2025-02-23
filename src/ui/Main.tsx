@@ -1,6 +1,5 @@
 import { AppContext } from "@/AppContext";
 import { useContext } from "react";
-import mergeWith from "lodash/mergeWith"
 
 import {
   Accordion,
@@ -15,9 +14,7 @@ import {
   getPathCurrentParentOnly,
   getObjectLength,
   getMarginLeft,
-  unwrapIndex,
   isValidPointNotation,
-  pathIterator,
 } from "./util";
 
 //TODO Add edit ... Button to each element
@@ -97,47 +94,37 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
     array?: boolean;
   }
 
-  const [jason0, setJason] = useContext(AppContext)?.jason!;
+  const [_jason, setJason] = useContext(AppContext)?.jason!;
 
-  function insertJasonItemToObject({ name, value, path, array = false }: JasonItem) {
-    let items = Array.from(pathIterator(path));
-    items.shift();
-    items = items.reverse();
+  function insertJasonItem({ name, value, path, array = false }: JasonItem) {
 
-    let newJson: any = array ? [] : {};
 
-    if(array) {
-      newJson.push(value);
-    }else {
-      newJson[name] = value;
+    function evalFormat(value: string | number | null | object | boolean): string {
+      if(typeof value === "string") return `"${value}"`
+      if (typeof value === "number") return `${value}`;
+      if (typeof value === "boolean") return `${value.toString()}`;
+      if (value === null) return "null";
+      if (typeof value === "object") return `${JSON.stringify(value)}`;
+      return ""
     }
-
-    let isNextArray = false;
-    for (let subPath of items) {
-      if (subPath.endsWith("]") && !subPath.endsWith('"]')) 
-        isNextArray = true;
-
-      if(subPath.endsWith('"]')) {
-        subPath = unwrapIndex(subPath as any)
-      }
-      
-
-      if(isNextArray) {
-        newJson = [newJson];
-        isNextArray = false;
-        continue;
-      }
-
-      newJson = {
-        [subPath]: newJson,
-      };
-    }
-
-    console.log(JSON.stringify(newJson, null, 2));
 
     setJason(oldJason => {
-      return mergeWith({}, oldJason, newJson)
+
+
+
+      console.log(
+        `oldJason${path.substring(1)}.${name} = ${evalFormat(value)}`
+      );
+      
+      if(!array)
+        eval(`oldJason${path.substring(1)}.${name} = ${evalFormat(value)}`);
+      else
+        eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
+      
+      
+      return { ...oldJason };
     })
+
   }
 
   if (root)
@@ -224,11 +211,11 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
                 className="m-0 mr-3.5 h-[2rem] aspect-square bg-black/15 hover:bg-black/25 w-[2rem] flex items-center justify-center rounded-(--radius)"
                 onClick={(e) => {
                   e.preventDefault();
-                  insertJasonItemToObject({
+                  insertJasonItem({
                     name: "MHM",
                     path: itemPath,
                     array: objType === "array" ,
-                    value: "Hii!",
+                    value: "Hii",
                   });
                 }}
               >

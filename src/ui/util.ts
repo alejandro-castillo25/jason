@@ -22,7 +22,7 @@ export function getMarginLeft(offset: number): string {
 }
 
 export function isValidPointNotation(k: string): boolean {
-  const UNVALID_CHARS: Array<string> = [".", "[", "]", " "];
+  const UNVALID_CHARS: Array<string> = [".", "[", "]", " ", "|", "<", ">", "!", "\"", "\'", "{", "}", "@", "#", "^", "*", "+", "-", "~", "&", "?", "\\", "/", "(", ")"];
 
   for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
 
