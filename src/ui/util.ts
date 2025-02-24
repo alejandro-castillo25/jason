@@ -22,7 +22,34 @@ export function getMarginLeft(offset: number): string {
 }
 
 export function isValidPointNotation(k: string): boolean {
-  const UNVALID_CHARS: Array<string> = [".", "[", "]", " ", "|", "<", ">", "!", "\"", "\'", "{", "}", "@", "#", "^", "*", "+", "-", "~", "&", "?", "\\", "/", "(", ")"];
+  const UNVALID_CHARS: Array<string> = [
+    ".",
+    "[",
+    "]",
+    " ",
+    "|",
+    "<",
+    ">",
+    "!",
+    '"',
+    "'",
+    "{",
+    "}",
+    "@",
+    "#",
+    "^",
+    "*",
+    "+",
+    "-",
+    "~",
+    "&",
+    "?",
+    "\\",
+    "/",
+    "(",
+    ")",
+    "=",
+  ];
 
   for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
 
@@ -61,10 +88,8 @@ export function* pathIterator(path: string) {
   const items: null | Array<string> = path.match(pathRegExp);
   if (items === null) return;
 
-  for(let i: number = 0; i < items.length; i++) 
-   yield items[i]
+  for (let i: number = 0; i < items.length; i++) yield items[i];
 }
-
 
 type Item = `["${string}"]`;
 
@@ -74,5 +99,4 @@ export function unwrapIndex(item: Item): string {
   const unwrapped = item.match(unwrapRegExp)![0];
 
   return unwrapped;
-
 }

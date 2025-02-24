@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import egg2 from "./hud_screen.json";
+import example from "./hud_screen.json";
 
 type Lang = "en" | "es";
 
@@ -11,7 +11,7 @@ type AppContextProps = {
   jasonBracketGuides: AppContextProp<boolean>;
   jasonItemsOffset: AppContextProp<number>;
   jasonPaths: AppContextProp<boolean>;
-  jasonPathsOnlyParent: AppContextProp<boolean>; //TODO Replace name with "jasonPathsShowNearParentOnly"
+  jasonPathsNearPathOnly: AppContextProp<boolean>; //TODO Replace name with "jasonPathsNearPathOnly"
   jasonRoot: AppContextProp<boolean>;
   jasonWordWrap: AppContextProp<boolean>;
 };
@@ -26,13 +26,13 @@ export function AppContextProvider({
   const [lang, setLang] = useState<Lang>("en");
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
   const [jasonPaths, setJasonPaths] = useState<boolean>(true);
-  const [jasonPathsOnlyParent, setJasonPathsOnlyParent] = useState<boolean>(false);
+  const [jasonPathsNearPathOnly, setjasonPathsNearPathOnly] = useState<boolean>(false);
   const [jasonRoot, setJasonRoot] = useState<boolean>(true);
   const [jasonWordWrap, setJasonWordWrap] = useState<boolean>(true);
   const [jasonItemsOffset, setJasonItemsOffset] = useState<number>(4);
 
 
-  const [jason, setJason] = useState(egg2);
+  const [jason, setJason] = useState(example);
 
   useEffect(() => {
     function handleKeys(e: KeyboardEvent) {
@@ -51,13 +51,6 @@ export function AppContextProvider({
       } else if (e.ctrlKey && key === "w") {
         e.preventDefault();
         setJasonWordWrap((wrap) => !wrap);
-      } else if (e.ctrlKey && key === "n") {
-        e.preventDefault();
-        setJason((json: any) => {
-          return {...json, a: {
-            lol: 34
-          }}
-        });
       }
     }
 
@@ -76,7 +69,7 @@ export function AppContextProvider({
         jasonItemsOffset: [jasonItemsOffset, setJasonItemsOffset],
         jasonBracketGuides: [jasonBracketGuides, setJasonBracketGuides],
         jasonPaths: [jasonPaths, setJasonPaths],
-        jasonPathsOnlyParent: [jasonPathsOnlyParent, setJasonPathsOnlyParent],
+        jasonPathsNearPathOnly: [jasonPathsNearPathOnly, setjasonPathsNearPathOnly],
         jasonRoot: [jasonRoot, setJasonRoot],
         jasonWordWrap: [jasonWordWrap, setJasonWordWrap],
       }}

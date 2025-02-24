@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 
 import {
+  Sheet,
   SheetContent,
+  SheetTrigger,
   SheetDescription,
   SheetHeader,
   SheetTitle,
@@ -13,13 +15,10 @@ import { toES } from "./Language";
 
 import type { IconName } from "./Icons";
 
-import {  AppContext } from "../AppContext";
+import { AppContext } from "../AppContext";
 
 export function SidebarContent() {
-
-
   const [lang, _setLang] = useContext(AppContext)?.lang!;
-
 
   const buttonsTexts = [
     "Create New",
@@ -38,13 +37,11 @@ export function SidebarContent() {
       "Paste Text": () => {},
       Clear: () => {},
       Download: () => {},
-      Settings: () => {}
-    }
+      Settings: () => {},
+    };
 
     actions[action]();
-  }
-
-
+  };
 
   function getIconName(name: (typeof buttonsTexts)[number]): IconName {
     const dict = {
@@ -59,20 +56,41 @@ export function SidebarContent() {
     return dict[name] ?? null;
   }
 
-  return (
-    <SheetContent>
-      
-      <SheetHeader>
-        <SheetTitle className="text-2xl">
-          {lang === "en" ? "Options" : toES("Options")}
-        </SheetTitle>
-        <SheetDescription >
-          <Separator orientation="horizontal" className="mt-6 mb-2" />
+  /*
 
-          {buttonsTexts.map((text) => {
-            return (
-              <>
+  <Sheet>
+  <SheetTrigger>Open</SheetTrigger>
+  <SheetContent>
+    <SheetHeader>
+      <SheetTitle>Are you absolutely sure?</SheetTitle>
+      <SheetDescription>
+        This action cannot be undone. This will permanently delete your account
+        and remove your data from our servers.
+      </SheetDescription>
+    </SheetHeader>
+  </SheetContent>
+</Sheet>
+
+   
+   */
+  return (
+    <Sheet>
+      <SheetTrigger
+        className="ml-auto aspect-square h-[100%]"
+        id="open-sidebar-btn"
+      >
+        <GetIcon name="Burger" className="h-[1.5rem] w-[1.5rem]" />
+      </SheetTrigger>
+      <SheetContent key={"sheet-content"}>
+        <SheetHeader key={"sheet-header"}>
+          <SheetTitle className="text-2xl" key={"sheet-title"}>
+            {lang === "en" ? "Options" : toES("Options")}
+          </SheetTitle>
+          <SheetDescription key={"sheetDesc"} >
+            {buttonsTexts.map((text, i) => {
+              return (
                 <Button
+                  key={`sidebar-btn-${i}`}
                   variant={
                     text !== "Clear"
                       ? text !== "Settings"
@@ -80,7 +98,7 @@ export function SidebarContent() {
                         : "outline"
                       : "destructive"
                   }
-                  className="w-[100%] flex"
+                  className="w-[100%] flex mt-4 mb-4"
                   onClick={() => executeAction(text)}
                 >
                   <GetIcon name={getIconName(text)} />
@@ -88,12 +106,11 @@ export function SidebarContent() {
                     {lang === "es" ? toES(text) : text}
                   </span>
                 </Button>
-                <Separator orientation="horizontal" className="mt-3 mb-3" />
-              </>
-            );
-          })}
-        </SheetDescription>
-      </SheetHeader>
-    </SheetContent>
+              );
+            })}
+          </SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
   );
 }
