@@ -33,6 +33,7 @@ export function isValidPointNotation(k: string): boolean {
     "!",
     '"',
     "'",
+    "`",
     "{",
     "}",
     "@",
@@ -49,6 +50,7 @@ export function isValidPointNotation(k: string): boolean {
     "(",
     ")",
     "=",
+    "%",
   ];
 
   for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
@@ -91,7 +93,7 @@ export function* pathIterator(path: string) {
   for (let i: number = 0; i < items.length; i++) yield items[i];
 }
 
-type Item = `["${string}"]`;
+type Item = `["${string}"]` | `[${number}]`;
 
 export function unwrapIndex(item: Item): string {
   const unwrapRegExp: RegExp = /(?<=\[\").+(?=\"\])|(?<=\[)\d+(?=\])/g;
@@ -99,4 +101,13 @@ export function unwrapIndex(item: Item): string {
   const unwrapped = item.match(unwrapRegExp)![0];
 
   return unwrapped;
+}
+
+export function evalFormat(value: string | number | null | object | boolean): string {
+  if (typeof value === "string") return `"${value}"`;
+  if (typeof value === "number") return `${value}`;
+  if (typeof value === "boolean") return `${value.toString()}`;
+  if (value === null) return "null";
+  if (typeof value === "object") return `${JSON.stringify(value)}`;
+  return "";
 }

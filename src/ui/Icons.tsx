@@ -17,7 +17,7 @@ const BurgerIcon = ({className = ""}: {className: string}) => (
     <path d="M4 18l16 0" />
   </svg>
 );
-const PlusIcon = () => (
+const PlusIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -28,7 +28,7 @@ const PlusIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-plus"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-plus ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M12 5l0 14" />
@@ -36,7 +36,7 @@ const PlusIcon = () => (
   </svg>
 );
 
-const LoadFileIcon = () => (
+const LoadFileIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -47,7 +47,7 @@ const LoadFileIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-file-upload"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-file-upload ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M14 3v4a1 1 0 0 0 1 1h4" />
@@ -57,7 +57,7 @@ const LoadFileIcon = () => (
   </svg>
 );
 
-const PasteIcon = () => (
+const PasteIcon = ({className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -68,7 +68,7 @@ const PasteIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-clipboard"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-clipboard ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
@@ -76,7 +76,7 @@ const PasteIcon = () => (
   </svg>
 );
 
-const DownloadIcon = () => (
+const DownloadIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -87,7 +87,7 @@ const DownloadIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-download"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-download ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
@@ -96,7 +96,7 @@ const DownloadIcon = () => (
   </svg>
 );
 
-const SettingsIcon = () => (
+const SettingsIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -107,7 +107,7 @@ const SettingsIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-settings"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-settings ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
@@ -115,7 +115,7 @@ const SettingsIcon = () => (
   </svg>
 );
 
-const TrashIcon = () => (
+const TrashIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -126,7 +126,7 @@ const TrashIcon = () => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-trash"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-trash ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M4 7l16 0" />
@@ -137,7 +137,7 @@ const TrashIcon = () => (
   </svg>
 );
 
-const ObjectIcon = ({className = ""}: {className: string}) => (
+const ObjectIcon = ({className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -156,7 +156,7 @@ const ObjectIcon = ({className = ""}: {className: string}) => (
   </svg>
 );
 
-const ArrayIcon = ({ className = ""}: { className: string }) => (
+const ArrayIcon = ({ className = ""}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -175,7 +175,7 @@ const ArrayIcon = ({ className = ""}: { className: string }) => (
   </svg>
 );
 
-const LogoIcon = ({ className = "" }: { className: string }) => (
+const LogoIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -196,6 +196,69 @@ const LogoIcon = ({ className = "" }: { className: string }) => (
   </svg>
 );
 
+const ValueIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-circles ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+    <path d="M6.5 17m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+    <path d="M17.5 17m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+  </svg>
+);
+
+const CopyIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-copy ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
+    <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+  </svg>
+);
+
+const FromTextIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-text-scan-2 ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+    <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+    <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+    <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+    <path d="M8 12h8" />
+    <path d="M8 9h6" />
+    <path d="M8 15h4" />
+  </svg>
+);
+
 const Icons = {
   Burger: BurgerIcon,
   Plus: PlusIcon,
@@ -206,7 +269,10 @@ const Icons = {
   Trash: TrashIcon,
   ArrayIcon,
   ObjectIcon,
-  Logo: LogoIcon
+  Logo: LogoIcon,
+  Value: ValueIcon,
+  Copy: CopyIcon,
+  FromText: FromTextIcon
 } as const;
 
 export type IconName = keyof typeof Icons;

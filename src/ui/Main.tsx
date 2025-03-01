@@ -1,5 +1,5 @@
 import { AppContext } from "@/AppContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import {
   Accordion,
@@ -15,10 +15,20 @@ import {
   getObjectLength,
   getMarginLeft,
   isValidPointNotation,
+  evalFormat,
 } from "./util";
 
-//TODO Add edit ... Button to each element
-//? On it! (im talking alone help)
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function GetFomattedValue({
   children,
@@ -85,42 +95,7 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
     useContext(AppContext)?.jasonWordWrap!;
 
   const [jasonPathsOnlyParent, _setjasonPathsOnlyParent] =
-    useContext(AppContext)?.jasonPathsOnlyParent!;
-
-  interface JasonItem {
-    name: string;
-    value: any; //!
-    path: string;
-    array?: boolean;
-  }
-
-  const [jason0, setJason] = useContext(AppContext)?.jason!;
-
-  function insertJasonItem({ name, value, path, array = false }: JasonItem) {
-    function evalFormat(
-      value: string | number | null | object | boolean
-    ): string {
-      if (typeof value === "string") return `"${value}"`;
-      if (typeof value === "number") return `${value}`;
-      if (typeof value === "boolean") return `${value.toString()}`;
-      if (value === null) return "null";
-      if (typeof value === "object") return `${JSON.stringify(value)}`;
-      return "";
-    }
-
-    const oldJason = !Array.isArray(jason0)
-      ? { ...jason0 }
-      : [...(jason0 as Array<any>)];
-
-    if (!array) {
-      eval(`oldJason${path.substring(1)}.${name} = ${evalFormat(value)}`);
-      
-      setJason({ ...oldJason });
-    } else {
-      eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
-    }
-    setJason({ ...oldJason });
-  }
+    useContext(AppContext)?.jasonPathsNearPathOnly!;
 
   type ObjectType = "array" | "object";
 
@@ -129,18 +104,42 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
 
     return (
       <>
-        <AccordionItem value={path} className="border-b-0" key={"root"}>
-          <AccordionTrigger className="jason-item bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80">
+        <AccordionItem
+          value={path}
+          className="border-b-0 relative"
+          key={"root"}
+        >
+          <AccordionTrigger
+            className="jason-item bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80"
+            onContextMenu={(e) => {
+              e.preventDefault();
+              const $optionsDialog: HTMLButtonElement =
+                document.querySelector("#itemOptionsDialog")!;
+
+              $optionsDialog.setAttribute("data-type", objType);
+
+              $optionsDialog.setAttribute("data-path", path);
+
+              $optionsDialog.click();
+            }}
+          >
             <span
               className="m-0 mr-3.5 h-[2.5rem] w-[2.5rem]  aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
               onClick={(e) => {
                 e.preventDefault();
-                insertJasonItem({
-                  name: "MHM",
-                  path,
-                  array: objType === "array",
-                  value: "Hii",
-                });
+                const $dialog: HTMLButtonElement =
+                  document.querySelector("#itemOptionsDialog")!;
+
+                $dialog.setAttribute("data-type", objType);
+                $dialog.setAttribute("data-path", path);
+
+                $dialog.click();
+                // insertJasonItem({
+                //   name: "MHM",
+                //   path,
+                //   array: objType === "array",
+                //   value: "Hii",
+                // });
               }}
             >
               <GetIcon
@@ -148,16 +147,8 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
                 className="scale-75 w-full h-full"
               />
             </span>
-            {/* <span className="flex">
-              {Array.isArray(jason) ? (
-                <GetIcon name="ArrayIcon" className="h-[1.5rem] w-[1.5rem]" />
-              ) : (
-                <GetIcon name="ObjectIcon" className="h-[1.5rem] w-[1.5rem]" />
-              )}
-              <span className="text-gray-300 ml-1">{"  : "}</span>
-              {jasonPaths && <i className="ml-4 opacity-30">{path}</i>}
-            </span> */}
           </AccordionTrigger>
+
           <AccordionContent
             className={`${getMarginLeft(jasonItemsOffset)} w-max p-0 ${
               jasonBracketGuides && "border-l-1"
@@ -216,17 +207,36 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
             } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
               isEmpty ? "text-foreground/50" : ""
             } w-max`}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              const $optionsDialog: HTMLButtonElement =
+                document.querySelector("#itemOptionsDialog")!;
+
+              $optionsDialog.setAttribute("data-type", objType);
+
+              $optionsDialog.setAttribute("data-path", itemPath);
+
+              $optionsDialog.click();
+            }}
           >
             <span
               className="m-0 mr-3.5 h-[2rem] aspect-square bg-black/15 hover:bg-black/25 w-[2rem] flex items-center justify-center rounded-(--radius)"
               onClick={(e) => {
                 e.preventDefault();
-                insertJasonItem({
-                  name: "MHM",
-                  path: itemPath,
-                  array: objType === "array",
-                  value: "Hii",
-                });
+                const $optionsDialog: HTMLButtonElement =
+                  document.querySelector("#itemOptionsDialog")!;
+
+                $optionsDialog.setAttribute("data-type", objType);
+
+                $optionsDialog.setAttribute("data-path", itemPath);
+
+                $optionsDialog.click();
+                // insertJasonItem({
+                //   name: "MHM",
+                //   path: itemPath,
+                //   array: objType === "array",
+                //   value: "Hii",
+                // });
               }}
             >
               <GetIcon
@@ -235,8 +245,11 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
               />
             </span>
             <span className="mr-auto h-full flex items-center flex-wrap">
-              <span>{k}</span>
-              <span className="text-gray-300">{" :"}</span>
+              <span>
+                {k}
+                <span className="text-gray-300">{" :"}</span>
+              </span>
+
               {jasonPaths && (
                 <i className="ml-4 opacity-30 font-normal text-[.95rem]">
                   {jasonPathsOnlyParent
@@ -281,10 +294,319 @@ function Jason() {
   );
 }
 
+type EditItemType =
+  | "object"
+  | "array"
+  | "string"
+  | "number"
+  | "boolean"
+  | "null"
+  | "undefined"
+  | "value";
+
+interface JasonItem {
+  key: string;
+  value: any;
+  path: string;
+  array?: boolean;
+}
+
+function AddItemDialog({
+  dialogAddItemTypeProp,
+}: {
+  dialogAddItemTypeProp: EditItemType;
+}) {
+  const [jason0, setJason] = useContext(AppContext)?.jason!;
+
+  function addJasonItem({ key, value, path, array = false }: JasonItem) {
+    const oldJason = !Array.isArray(jason0)
+      ? { ...jason0 }
+      : [...(jason0 as Array<any>)];
+
+    if (!array) {
+      eval(
+        `oldJason${path.substring(1)}${
+          isValidPointNotation(key) ? `.${key}` : `["${key}"]`
+        } = ${evalFormat(value)}`
+      );
+    } else {
+      eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
+    }
+    setJason({ ...oldJason });
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger
+        tabIndex={-1}
+        id="addItemDialog"
+        className="hidden"
+        autoFocus={false}
+        onClick={() => {}}
+      ></DialogTrigger>
+      <DialogContent aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle className="text-2xl">
+            <span>
+              {"Add "}
+              {dialogAddItemTypeProp === "object"
+                ? "Object"
+                : dialogAddItemTypeProp === "array"
+                ? "Array"
+                : "Value"}
+            </span>
+          </DialogTitle>
+          <form
+            className="flex flex-col gap-3.5 my-1.5"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <Label htmlFor="key">Key:</Label>
+            <Input
+              type="text"
+              id="dialogInputKey"
+              placeholder="Key"
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {dialogAddItemTypeProp === "value" && (
+              <>
+                <Label htmlFor="value">Value:</Label>
+
+                <Input
+                  type="text"
+                  id="dialogInputValue"
+                  placeholder="Value"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </>
+            )}
+            <DialogClose asChild>
+              <Button
+                type="submit"
+                variant={"default"}
+                className="mt-4"
+                onClick={(e) => {
+                  const $optionsDialog: HTMLButtonElement =
+                    document.querySelector("#itemOptionsDialog")!;
+                  const $dialogInputKey: HTMLButtonElement =
+                    document.querySelector("#dialogInputKey")!;
+
+                  const path = $optionsDialog.getAttribute("data-path")!;
+                  const optionDialogType =
+                    $optionsDialog.getAttribute("data-type")!;
+                  const key = $dialogInputKey.value.trim();
+
+                  if (key.length === 0) {
+                    e.preventDefault();
+
+                    return;
+                  }
+
+                  if (dialogAddItemTypeProp === "object") {
+                    addJasonItem({
+                      key,
+                      path,
+                      value: {},
+                    });
+
+                    return;
+                  }
+                  if (dialogAddItemTypeProp === "array") {
+                    addJasonItem({
+                      key,
+                      path,
+                      value: [],
+                    });
+
+                    return;
+                  }
+                  if (dialogAddItemTypeProp === "value") {
+                    // alert("VALUE")
+                  }
+                }}
+              >
+                Ok
+              </Button>
+            </DialogClose>
+          </form>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function Main() {
+  const [dialogType, setDialogType] = useState<EditItemType>("object");
+
+  const [dialogTitle, setDialogTitle] = useState<string>("Edit Object");
+
+  const [dialogAddItemType, setDialogAddItemType] =
+    useState<EditItemType>("object");
+
+  const [jason0, setJason] = useContext(AppContext)?.jason!;
+
+  function addJasonItem({ key, value, path, array = false }: JasonItem) {
+    const oldJason = !Array.isArray(jason0)
+      ? { ...jason0 }
+      : [...(jason0 as Array<any>)];
+
+    if (!array) {
+      eval(`oldJason${path.substring(1)}.${key} = ${evalFormat(value)}`);
+    } else {
+      eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
+    }
+    setJason({ ...oldJason });
+  }
+
   return (
     <>
       <main className="min-w-[100%] flex-grow p-3">
+        <AddItemDialog dialogAddItemTypeProp={dialogAddItemType} />
+        <Dialog>
+          <DialogTrigger
+            tabIndex={-1}
+            id="itemOptionsDialog"
+            className="hidden"
+            data-path={""}
+            data-type={""}
+            autoFocus={false}
+            onClick={() => {
+              const $dialog: HTMLButtonElement =
+                document.querySelector("#itemOptionsDialog")!;
+
+              const objType = $dialog.getAttribute("data-type") as EditItemType;
+
+              setDialogType(objType);
+              setDialogTitle(
+                `Edit ${
+                  objType === "object"
+                    ? "Object"
+                    : objType === "array"
+                    ? "Array"
+                    : "Value"
+                }`
+              );
+            }}
+          ></DialogTrigger>
+          <DialogContent aria-describedby={undefined}>
+            <DialogHeader>
+              <DialogTitle className="text-2xl">{dialogTitle}</DialogTitle>
+              <section className="flex flex-col gap-3.5 my-1.5">
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    if (dialogType === "array") {
+                      const $optionsDialog: HTMLButtonElement =
+                        document.querySelector("#itemOptionsDialog")!;
+
+                      const path = $optionsDialog.getAttribute("data-path")!;
+
+                      addJasonItem({
+                        path,
+                        array: true,
+                        value: {},
+                        key: "",
+                      });
+
+                      $optionsDialog.click();
+                      return;
+                    }
+                    setDialogAddItemType("object");
+
+                    const $optionsDialog: HTMLButtonElement =
+                      document.querySelector("#itemOptionsDialog")!;
+
+                    const $addItemDialog: HTMLButtonElement =
+                      document.querySelector("#addItemDialog")!;
+
+                    $addItemDialog.click();
+                    $optionsDialog.click();
+                  }}
+                >
+                  <GetIcon name="ObjectIcon" />
+                  Add Object
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    if (dialogType === "array") {
+                      const $optionsDialog: HTMLButtonElement =
+                        document.querySelector("#itemOptionsDialog")!;
+
+                      const path = $optionsDialog.getAttribute("data-path")!;
+
+                      addJasonItem({
+                        path,
+                        array: true,
+                        value: [],
+                        key: "",
+                      });
+
+                      $optionsDialog.click();
+                      return;
+                    }
+                    setDialogAddItemType("array");
+                    const $optionsDialog: HTMLButtonElement =
+                      document.querySelector("#itemOptionsDialog")!;
+
+                    const $addItemDialog: HTMLButtonElement =
+                      document.querySelector("#addItemDialog")!;
+
+                    $addItemDialog.click();
+                    $optionsDialog.click();
+                  }}
+                >
+                  <GetIcon name="ArrayIcon" />
+                  Add Array
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    setDialogAddItemType("value");
+
+                    const $optionsDialog: HTMLButtonElement =
+                      document.querySelector("#itemOptionsDialog")!;
+
+                    const $addItemDialog: HTMLButtonElement =
+                      document.querySelector("#addItemDialog")!;
+                    $optionsDialog.click();
+                    $addItemDialog.click();
+                  }}
+                >
+                  <GetIcon name="Value" />
+                  Add Value
+                </Button>
+                <Button variant="secondary">
+                  <GetIcon name="FromText" />
+                  Add From Text
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    const $optionsDialog: HTMLButtonElement =
+                      document.querySelector("#itemOptionsDialog")!;
+                    $optionsDialog.click();
+                  }}
+                >
+                  <GetIcon name="Copy" />
+                  Copy Path
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    const $optionsDialog: HTMLButtonElement =
+                      document.querySelector("#itemOptionsDialog")!;
+                    $optionsDialog.click();
+                  }}
+                >
+                  <GetIcon name="Trash" />
+                  Remove
+                </Button>
+              </section>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
         <Jason />
       </main>
     </>

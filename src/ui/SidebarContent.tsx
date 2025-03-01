@@ -8,10 +8,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import { useContext } from "react";
 import { GetIcon } from "./Icons";
-import { toES } from "./Language";
+import { toES } from "./lang";
 
 import type { IconName } from "./Icons";
 

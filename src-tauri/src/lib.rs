@@ -1,6 +1,8 @@
 #![allow(unused)]
 #![warn(unused_variables, unreachable_code, unused_parens)]
 
+
+use std::collections::HashMap;
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -17,3 +19,4 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
