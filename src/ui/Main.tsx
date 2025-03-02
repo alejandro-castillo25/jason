@@ -30,6 +30,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import {
+  Form,
+  FormControl,
+  // FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Switch } from "@/components/ui/switch";
+
 function GetFomattedValue({
   children,
 }: {
@@ -188,7 +207,9 @@ function HandleJason({ jason, root = false, path = " " }: HandleJasonProps) {
               </i>
             )}
 
-            <span>{<GetFomattedValue>{v as any}</GetFomattedValue>}</span>
+            <span className={"whitespace-break-spaces"}>
+              {<GetFomattedValue>{v as any}</GetFomattedValue>}
+            </span>
           </div>
         </Button>
       );
@@ -301,11 +322,11 @@ type EditItemType =
   | "number"
   | "boolean"
   | "null"
-  | "undefined"
-  | "value";
+  | "value"
+  | "undefined";
 
 interface JasonItem {
-  key: string;
+  key?: string;
   value: any;
   path: string;
   array?: boolean;
@@ -313,10 +334,168 @@ interface JasonItem {
 
 function AddItemDialog({
   dialogAddItemTypeProp,
+  dialogOptionsType,
 }: {
   dialogAddItemTypeProp: EditItemType;
+  dialogOptionsType: EditItemType;
 }) {
   const [jason0, setJason] = useContext(AppContext)?.jason!;
+  // const [valueType, setValueType] = useState<EditItemType>("string");
+
+  const formSchemaString = z.object({
+    key:
+      dialogOptionsType === "array"
+        ? z.string().optional()
+        : z.string().trim().min(1, {
+            message: "You can't add an item with an empty key!",
+          }),
+    value: z.string(),
+  });
+
+  const formSchemaNumber = z.object({
+    key:
+      dialogOptionsType === "array"
+        ? z.string().optional()
+        : z.string().trim().min(1, {
+            message: "You can't add an item with an empty key!",
+          }),
+    value: z.number({
+      invalid_type_error: "That's not the right number!",
+    }),
+  });
+
+  const formSchemaBoolean = z.object({
+    key:
+      dialogOptionsType === "array"
+        ? z.string().optional()
+        : z.string().trim().min(1, {
+            message: "You can't add an item with an empty key!",
+          }),
+    value: z.boolean(),
+  });
+
+  const formSchemaNull = z.object({
+    key:
+      dialogOptionsType === "array"
+        ? z.string().optional()
+        : z.string().trim().min(1, {
+            message: "You can't add an item with an empty key!",
+          }),
+    value: z.null().or(z.boolean()),
+  });
+
+  const formString = useForm<z.infer<typeof formSchemaString>>({
+    resolver: zodResolver(formSchemaString),
+    defaultValues: {
+      key: "",
+      value: "",
+    },
+  });
+
+  const formNumber = useForm<z.infer<typeof formSchemaNumber>>({
+    resolver: zodResolver(formSchemaNumber),
+    defaultValues: {
+      key: "",
+      value: 0,
+    },
+  });
+  const formBoolean = useForm<z.infer<typeof formSchemaBoolean>>({
+    resolver: zodResolver(formSchemaBoolean),
+    defaultValues: {
+      key: "",
+      value: false,
+    },
+  });
+
+  const formNull = useForm<z.infer<typeof formSchemaNull>>({
+    resolver: zodResolver(formSchemaNull),
+    defaultValues: {
+      key: "",
+      value: null,
+    },
+  });
+
+  function closeAddItemDialog() {
+    const $addItemDialog: HTMLButtonElement =
+      document.querySelector("#addItemDialog")!;
+    $addItemDialog.click();
+  }
+
+  function getOptionsDialogData() {
+    const $itemOptionsDialog: HTMLButtonElement =
+      document.querySelector("#itemOptionsDialog")!;
+
+    const path = $itemOptionsDialog.getAttribute("data-path")!;
+    const dataType = $itemOptionsDialog.getAttribute("data-type")!;
+
+    return { path, dataType };
+  }
+
+  function onSubmitString(values: z.infer<typeof formSchemaString>) {
+    const { key, value } = values;
+    const { path, dataType } = getOptionsDialogData();
+
+    console.log(values, path, dataType);
+    addJasonItem({
+      key,
+      value,
+      path,
+      array: dataType !== "object",
+    });
+
+    closeAddItemDialog();
+  }
+
+  function onSubmitNumber(values: z.infer<typeof formSchemaNumber>) {
+    const { key, value } = values;
+    const { path, dataType } = getOptionsDialogData();
+
+    console.log(values, path, dataType);
+    addJasonItem({
+      key,
+      value,
+      path,
+      array: dataType !== "object",
+    });
+
+    closeAddItemDialog();
+  }
+
+  function onSubmitBoolean(values: z.infer<typeof formSchemaBoolean>) {
+    const { key, value } = values;
+    const { path, dataType } = getOptionsDialogData();
+
+    console.log(values, path, dataType);
+    addJasonItem({
+      key,
+      value,
+      path,
+      array: dataType !== "object",
+    });
+
+    closeAddItemDialog();
+  }
+
+  function onSubmitNull(values: z.infer<typeof formSchemaNull>) {
+    values.value = null;
+    const { key, value } = values;
+    const { path, dataType } = getOptionsDialogData();
+
+    console.log(values, path, dataType);
+    addJasonItem({
+      key,
+      value,
+      path,
+      array: dataType !== "object",
+    });
+    closeAddItemDialog();
+  }
+  function resetAllForms() {
+    formString.reset();
+    formNumber.reset();
+    formBoolean.reset();
+    formNull.reset();
+  }
 
   function addJasonItem({ key, value, path, array = false }: JasonItem) {
     const oldJason = !Array.isArray(jason0)
@@ -324,19 +503,27 @@ function AddItemDialog({
       : [...(jason0 as Array<any>)];
 
     if (!array) {
+      console.log(
+        `oldJason${path.substring(1)}${
+          isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
+        } = ${evalFormat(value)}`
+      );
+
       eval(
         `oldJason${path.substring(1)}${
-          isValidPointNotation(key) ? `.${key}` : `["${key}"]`
+          isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
         } = ${evalFormat(value)}`
       );
     } else {
+      console.log(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
+
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
     setJason({ ...oldJason });
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={() => resetAllForms()}>
       <DialogTrigger
         tabIndex={-1}
         id="addItemDialog"
@@ -344,92 +531,368 @@ function AddItemDialog({
         autoFocus={false}
         onClick={() => {}}
       ></DialogTrigger>
-      <DialogContent aria-describedby={undefined}>
-        <DialogHeader>
-          <DialogTitle className="text-2xl">
-            <span>
-              {"Add "}
-              {dialogAddItemTypeProp === "object"
-                ? "Object"
-                : dialogAddItemTypeProp === "array"
-                ? "Array"
-                : "Value"}
-            </span>
+      <DialogContent
+        aria-describedby={undefined}
+        className={`flex flex-col ${
+          dialogAddItemTypeProp === "value" ? "min-h-[52vh]" : ""
+        }`}
+      >
+        <DialogHeader className="max-w-full ">
+          <DialogTitle className="text-2xl flex items-center justify-start max-sm:justify-center mb-5">
+            {"Add "}
+            {dialogAddItemTypeProp === "object"
+              ? "Object"
+              : dialogAddItemTypeProp === "array"
+              ? "Array"
+              : "Value"}
+            {dialogAddItemTypeProp === "object" ? (
+              <GetIcon name="ObjectIcon" className="inline ml-2" />
+            ) : dialogAddItemTypeProp === "array" ? (
+              <GetIcon name="ArrayIcon" className="inline ml-2" />
+            ) : (
+              <GetIcon name="Value" className="inline ml-2" />
+            )}
           </DialogTitle>
-          <form
-            className="flex flex-col gap-3.5 my-1.5"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <Label htmlFor="key">Key:</Label>
-            <Input
-              type="text"
-              id="dialogInputKey"
-              placeholder="Key"
-              autoComplete="off"
-              spellCheck={false}
-            />
-            {dialogAddItemTypeProp === "value" && (
-              <>
-                <Label htmlFor="value">Value:</Label>
 
+          {dialogAddItemTypeProp === "value" && (
+            <Tabs defaultValue="string" className=" flex items-center">
+              <TabsList className="">
+                <TabsTrigger
+                  value="string"
+                  className="data-[state=active]:text-green-400"
+                >
+                  String
+                </TabsTrigger>
+                <TabsTrigger
+                  value="number"
+                  className="data-[state=active]:text-orange-400"
+                >
+                  Number
+                </TabsTrigger>
+                <TabsTrigger
+                  value="boolean"
+                  className="data-[state=active]:text-red-400"
+                >
+                  Boolean
+                </TabsTrigger>
+                <TabsTrigger
+                  value="null"
+                  className="data-[state=active]:text-red-500"
+                >
+                  Null
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="string" className="w-full" tabIndex={-1}>
+                <Form {...formString}>
+                  <form
+                    onSubmit={formString.handleSubmit(onSubmitString)}
+                    className="w-full gap-3 flex flex-col"
+                  >
+                    <FormField
+                      control={formString.control}
+                      name="key"
+                      render={({ field }) => (
+                        <FormItem
+                          className={
+                            dialogOptionsType === "array" ? "hidden" : ""
+                          }
+                        >
+                          <FormLabel className="text-(--primary)!">
+                            Key:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Key"
+                              autoComplete="off"
+                              spellCheck={false}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formString.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-green-400">
+                            Value:
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              required={false}
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder="String"
+                              className="max-h-[33vh] text-green-400"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit">Ok</Button>
+                  </form>
+                </Form>
+              </TabsContent>
+              <TabsContent value="number" className="w-full" tabIndex={-1}>
+                <Form {...formNumber}>
+                  <form
+                    onSubmit={formNumber.handleSubmit(onSubmitNumber)}
+                    className="w-full gap-3 flex flex-col"
+                  >
+                    <FormField
+                      control={formNumber.control}
+                      name="key"
+                      render={({ field }) => (
+                        <FormItem
+                          className={
+                            dialogOptionsType === "array" ? "hidden" : ""
+                          }
+                        >
+                          <FormLabel className="text-(--primary)!">
+                            Key:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Key"
+                              autoComplete="off"
+                              spellCheck={false}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formNumber.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-orange-400!">
+                            Value:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="any"
+                              inputMode="numeric"
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder="Number"
+                              className="text-orange-400"
+                              {...field}
+                              onChange={(e) => {
+                                if (e.target.value.length == 0) {
+                                  field.onChange(e.target.value);
+                                  return;
+                                }
+
+                                field.onChange(Number(e.target.value));
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="">
+                      Ok
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+              <TabsContent value="boolean" className="w-full" tabIndex={-1}>
+                <Form {...formBoolean}>
+                  <form
+                    onSubmit={formBoolean.handleSubmit(onSubmitBoolean)}
+                    className="w-full gap-3 flex flex-col"
+                  >
+                    <FormField
+                      control={formBoolean.control}
+                      name="key"
+                      render={({ field }) => (
+                        <FormItem
+                          className={
+                            dialogOptionsType === "array" ? "hidden" : ""
+                          }
+                        >
+                          <FormLabel className="text-(--primary)!">
+                            Key:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Key"
+                              autoComplete="off"
+                              spellCheck={false}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formBoolean.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-red-400!">
+                            Value: ({field.value.toString()})
+                          </FormLabel>
+                          <FormControl>
+                            {/* <div className="border-1 rounded-(--radius) flex items-center justify-center h-[2.25rem]"> */}
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="data-[state=checked]:bg-red-400 "
+                            />
+                            {/* </div> */}
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" variant={"default"}>
+                      Ok
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+              <TabsContent value="null" className="w-full" tabIndex={-1}>
+                <Form {...formNull}>
+                  <form
+                    onSubmit={formNull.handleSubmit(onSubmitNull)}
+                    className="w-full gap-3 flex flex-col"
+                  >
+                    <FormField
+                      control={formNull.control}
+                      name="key"
+                      render={({ field }) => (
+                        <FormItem
+                          className={
+                            dialogOptionsType === "array" ? "hidden" : ""
+                          }
+                        >
+                          <FormLabel className="text-(--primary)!">
+                            Key:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Key"
+                              autoComplete="off"
+                              spellCheck={false}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={formNull.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-red-500!">
+                            Value:
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              disabled
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder="Null"
+                              className="text-red-500"
+                              {...field}
+                              value={"null"}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-(--destructive)" />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" variant={"default"}>
+                      Ok
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+          )}
+
+          {dialogAddItemTypeProp !== "value" && (
+            <>
+              <form
+                className="flex flex-col gap-3.5 my-1.5"
+                onSubmit={(e) => e.preventDefault()}
+              >
+                {" "}
+                <Label htmlFor="key" className="text-(--primary)">
+                  Key:
+                </Label>
                 <Input
                   type="text"
-                  id="dialogInputValue"
-                  placeholder="Value"
+                  id="dialogInputKey"
+                  placeholder="Key"
                   autoComplete="off"
                   spellCheck={false}
+                  className="w-full"
                 />
-              </>
-            )}
-            <DialogClose asChild>
-              <Button
-                type="submit"
-                variant={"default"}
-                className="mt-4"
-                onClick={(e) => {
-                  const $optionsDialog: HTMLButtonElement =
-                    document.querySelector("#itemOptionsDialog")!;
-                  const $dialogInputKey: HTMLButtonElement =
-                    document.querySelector("#dialogInputKey")!;
+                <DialogClose asChild>
+                  <Button
+                    type="submit"
+                    variant={"default"}
+                    className="mt-2"
+                    onClick={(e) => {
+                      const $optionsDialog: HTMLButtonElement =
+                        document.querySelector("#itemOptionsDialog")!;
+                      const $dialogInputKey: HTMLButtonElement =
+                        document.querySelector("#dialogInputKey")!;
 
-                  const path = $optionsDialog.getAttribute("data-path")!;
-                  const optionDialogType =
-                    $optionsDialog.getAttribute("data-type")!;
-                  const key = $dialogInputKey.value.trim();
+                      const path = $optionsDialog.getAttribute("data-path")!;
 
-                  if (key.length === 0) {
-                    e.preventDefault();
+                      const key = $dialogInputKey.value.trim();
 
-                    return;
-                  }
+                      if (key.length === 0) {
+                        e.preventDefault();
+                        return;
+                      }
 
-                  if (dialogAddItemTypeProp === "object") {
-                    addJasonItem({
-                      key,
-                      path,
-                      value: {},
-                    });
+                      if (dialogAddItemTypeProp === "object") {
+                        addJasonItem({
+                          key,
+                          path,
+                          value: {},
+                        });
 
-                    return;
-                  }
-                  if (dialogAddItemTypeProp === "array") {
-                    addJasonItem({
-                      key,
-                      path,
-                      value: [],
-                    });
+                        return;
+                      }
+                      if (dialogAddItemTypeProp === "array") {
+                        addJasonItem({
+                          key,
+                          path,
+                          value: [],
+                        });
 
-                    return;
-                  }
-                  if (dialogAddItemTypeProp === "value") {
-                    // alert("VALUE")
-                  }
-                }}
-              >
-                Ok
-              </Button>
-            </DialogClose>
-          </form>
+                        return;
+                      }
+                      // if (dialogAddItemTypeProp === "") {
+                      // alert("VALUE")
+                      // }
+                    }}
+                  >
+                    Ok
+                  </Button>
+                </DialogClose>
+              </form>
+            </>
+          )}
         </DialogHeader>
       </DialogContent>
     </Dialog>
@@ -452,7 +915,11 @@ export function Main() {
       : [...(jason0 as Array<any>)];
 
     if (!array) {
-      eval(`oldJason${path.substring(1)}.${key} = ${evalFormat(value)}`);
+      eval(
+        `oldJason${path.substring(1)}.${
+          isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
+        } = ${evalFormat(value)}`
+      );
     } else {
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
@@ -462,7 +929,10 @@ export function Main() {
   return (
     <>
       <main className="min-w-[100%] flex-grow p-3">
-        <AddItemDialog dialogAddItemTypeProp={dialogAddItemType} />
+        <AddItemDialog
+          dialogAddItemTypeProp={dialogAddItemType}
+          dialogOptionsType={dialogType}
+        />
         <Dialog>
           <DialogTrigger
             tabIndex={-1}

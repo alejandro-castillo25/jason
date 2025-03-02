@@ -22,6 +22,8 @@ export function getMarginLeft(offset: number): string {
 }
 
 export function isValidPointNotation(k: string): boolean {
+  if (/^\d+/.test(k)) return false;
+
   const UNVALID_CHARS: Array<string> = [
     ".",
     "[",
@@ -103,8 +105,14 @@ export function unwrapIndex(item: Item): string {
   return unwrapped;
 }
 
-export function evalFormat(value: string | number | null | object | boolean): string {
-  if (typeof value === "string") return `"${value}"`;
+export function evalFormat(
+  value: string | number | null | object | boolean
+): string {
+  if (typeof value === "string") {
+    value = value.replace(/\n/g, "\\n");
+    value = value.replace(/\"/g, '\\"');
+    return `"${value}"`;
+  }
   if (typeof value === "number") return `${value}`;
   if (typeof value === "boolean") return `${value.toString()}`;
   if (value === null) return "null";
