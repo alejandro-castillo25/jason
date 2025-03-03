@@ -95,7 +95,7 @@ export function* pathIterator(path: string) {
   for (let i: number = 0; i < items.length; i++) yield items[i];
 }
 
-type Item = `["${string}"]` | `[${number}]`;
+export type Item = `["${string}"]` | `[${number}]`;
 
 export function unwrapIndex(item: Item): string {
   const unwrapRegExp: RegExp = /(?<=\[\").+(?=\"\])|(?<=\[)\d+(?=\])/g;
@@ -118,4 +118,49 @@ export function evalFormat(
   if (value === null) return "null";
   if (typeof value === "object") return `${JSON.stringify(value)}`;
   return "";
+}
+
+export async function copyToClipboard(text: string) {
+  try {
+    if (!navigator.clipboard) throw new Error("Clipboard API not supported");
+
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    console.error("Failed to copy:", err);
+    return false;
+  }
+}
+
+export const counterFormatter = new Intl.NumberFormat("en", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+export function editObjectValue(
+  obj: Record<string, unknown>,
+  oldKey: string,
+  newKey: string,
+  newValue?: unknown
+): Record<string, unknown> {
+  let newObj: Record<string, unknown> = {};
+
+  if (oldKey === newKey) {
+    newObj = { ...obj };
+    if (newValue !== undefined) newObj[oldKey] = newValue;
+    return newObj;
+  }
+
+  const entries: Array<[string, unknown]> = Object.entries(obj);
+
+  for (const [key, value] of entries) {
+    if (key === oldKey) {
+      if (newValue !== undefined) newObj[newKey] = newValue;
+      else newObj[newKey] = value;
+      continue;
+    }
+    newObj[key] = value;
+  }
+
+  return newObj;
 }

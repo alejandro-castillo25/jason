@@ -11,7 +11,7 @@ import {
 // import { Separator } from "@/components/ui/separator";
 import { useContext } from "react";
 import { GetIcon } from "./Icons";
-import { toES } from "./lang";
+import { toES, translateTo } from "./lang";
 
 import type { IconName } from "./Icons";
 
@@ -56,23 +56,6 @@ export function SidebarContent() {
     return dict[name] ?? null;
   }
 
-  /*
-
-  <Sheet>
-  <SheetTrigger>Open</SheetTrigger>
-  <SheetContent>
-    <SheetHeader>
-      <SheetTitle>Are you absolutely sure?</SheetTitle>
-      <SheetDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </SheetDescription>
-    </SheetHeader>
-  </SheetContent>
-</Sheet>
-
-   
-   */
   return (
     <Sheet>
       <SheetTrigger
@@ -103,7 +86,7 @@ export function SidebarContent() {
                 >
                   <GetIcon name={getIconName(text)} />
                   <span className="mr-auto">
-                    {lang === "es" ? toES(text) : text}
+                    {translateTo(lang, text)}
                   </span>
                 </Button>
               );

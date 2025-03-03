@@ -23,10 +23,19 @@ main {
   word-wrap: break-word;
 }
 
-.jason-item > * {
+.jason-item > span > * {
   transition: scale 0.2s ease-out;
 }
 
-.jason-item:hover > * {
-  scale: 0.97;
+.jason-item:hover > span > *:not(svg, span:nth-child(2)){
+  scale: 0.965;
+}
+
+.jason-item > div {
+  transition: scale 0.2s ease-out;
+}
+
+
+.jason-item:hover > div {
+  scale: 0.965;
 }

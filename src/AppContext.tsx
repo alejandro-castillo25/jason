@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import example from "./hud_screen.json";
 
-type Lang = "en" | "es";
+import type { Lang } from "./ui/lang";
 
 type AppContextProp<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
@@ -13,6 +13,7 @@ type AppContextProps = {
   jasonPaths: AppContextProp<boolean>;
   jasonPathsNearPathOnly: AppContextProp<boolean>; //TODO Replace name with "jasonPathsNearPathOnly"
   jasonRoot: AppContextProp<boolean>;
+  jasonObjectSize: AppContextProp<boolean>;
   jasonWordWrap: AppContextProp<boolean>;
 };
 
@@ -25,11 +26,12 @@ export function AppContextProvider({
 }) {
   const [lang, setLang] = useState<Lang>("en");
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
-  const [jasonPaths, setJasonPaths] = useState<boolean>(true);
+  const [jasonPaths, setJasonPaths] = useState<boolean>(false);
   const [jasonPathsNearPathOnly, setjasonPathsNearPathOnly] = useState<boolean>(false);
   const [jasonRoot, setJasonRoot] = useState<boolean>(true);
   const [jasonWordWrap, setJasonWordWrap] = useState<boolean>(true);
-  const [jasonItemsOffset, setJasonItemsOffset] = useState<number>(4);
+  const [jasonObjectSize, setJasonObjectSize] = useState<boolean>(true);
+  const [jasonItemsOffset, setJasonItemsOffset] = useState<number>(5);
 
 
   const [jason, setJason] = useState(example);
@@ -71,8 +73,12 @@ export function AppContextProvider({
         jasonItemsOffset: [jasonItemsOffset, setJasonItemsOffset],
         jasonBracketGuides: [jasonBracketGuides, setJasonBracketGuides],
         jasonPaths: [jasonPaths, setJasonPaths],
-        jasonPathsNearPathOnly: [jasonPathsNearPathOnly, setjasonPathsNearPathOnly],
+        jasonPathsNearPathOnly: [
+          jasonPathsNearPathOnly,
+          setjasonPathsNearPathOnly,
+        ],
         jasonRoot: [jasonRoot, setJasonRoot],
+        jasonObjectSize: [jasonObjectSize, setJasonObjectSize],
         jasonWordWrap: [jasonWordWrap, setJasonWordWrap],
       }}
     >
