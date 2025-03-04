@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { AppContext } from "@/AppContext";
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 
 import { Accordion } from "@/components/ui/accordion";
 import { GetIcon } from "./Icons";
@@ -49,7 +49,7 @@ import { Switch } from "@/components/ui/switch";
 import { HandleJason } from "./HandleJason";
 import { translateTo } from "./lang";
 
-function Jason() {
+const Jason = memo(() => {
   const [jason, _setJason] = useContext(AppContext)?.jason!;
   const [jasonRoot, _setJasonRoot] = useContext(AppContext)?.jasonRoot!;
 
@@ -63,7 +63,7 @@ function Jason() {
       </Accordion>
     </>
   );
-}
+});
 
 type EditItemType = "object" | "array" | "value";
 
@@ -101,7 +101,6 @@ interface AddItemDialogProps {
   dialogAddItemParentType: "object" | "array";
 }
 
-
 //TODO Fix the incosistency of the oldkey & oldValue apprearing
 function AddItemDialog({
   dialogAddItemTypeProp,
@@ -117,6 +116,9 @@ function AddItemDialog({
   const [sharedKey, setSharedKey] = useState("");
   const [dialogAddItemOldKey0, setDialogAddItemOldKey0] =
     useState<string>(dialogAddItemOldKey);
+
+  const itemOptionsDialogRef = useRef<HTMLElement | null>(null);
+  const addItemDialogRef = useRef<HTMLElement | null>(null);
 
   const formSchemaObject = z.object({
     key:
@@ -244,18 +246,19 @@ function AddItemDialog({
   });
 
   function closeAddItemDialog() {
-    const $addItemDialog: HTMLButtonElement =
-      document.querySelector("#addItemDialog")!;
-    $addItemDialog.click();
+    addItemDialogRef.current!.click();
   }
 
-  function getOptionsDialogData() {
-    const $itemOptionsDialog: HTMLButtonElement =
-      document.querySelector("#itemOptionsDialog")!;
+  useEffect(() => {
+    itemOptionsDialogRef.current = document.getElementById("itemOptionsDialog");
+    addItemDialogRef.current = document.getElementById("addItemDialog");
+  }, []);
 
-    const path = $itemOptionsDialog.getAttribute("data-path")!;
-    const dataType = $itemOptionsDialog.getAttribute("data-type")!;
-    const dataParentType = $itemOptionsDialog.getAttribute("data-parent-type")!;
+  function getOptionsDialogData() {
+    const path = itemOptionsDialogRef.current!.getAttribute("data-path")!;
+    const dataType = itemOptionsDialogRef.current!.getAttribute("data-type")!;
+    const dataParentType =
+      itemOptionsDialogRef.current!.getAttribute("data-parent-type")!;
 
     return { path, dataType, dataParentType };
   }
@@ -461,16 +464,17 @@ function AddItemDialog({
       : [...(jason0 as Array<any>)];
 
     if (!arrayParent) {
-
       console.log(path);
-      
+
       console.log(
         `oldJason${path.substring(
           1,
-          path.length - getPathChild(path).length + (getPathChild(path).startsWith("[") ? 0 : -1)
+          path.length -
+            getPathChild(path).length +
+            (getPathChild(path).startsWith("[") ? 0 : -1)
         )}`
       );
-      
+
       const _newJasonProp = editObjectValue({
         obj: eval(
           `oldJason${path.substring(
@@ -489,11 +493,11 @@ function AddItemDialog({
 
       eval(
         `oldJason${path.substring(
-            1,
-            path.length -
-              getPathChild(path).length +
-              (getPathChild(path).startsWith("[") ? 0 : -1)
-          )} = _newJasonProp;`
+          1,
+          path.length -
+            getPathChild(path).length +
+            (getPathChild(path).startsWith("[") ? 0 : -1)
+        )} = _newJasonProp;`
       );
     } else {
       const _newJasonProp = editObjectValue({
@@ -994,6 +998,9 @@ export function Main() {
   const [jason0, setJason] = useContext(AppContext)?.jason!;
   const [lang, _setLang] = useContext(AppContext)?.lang!;
 
+  const optionsDialogRef = useRef<HTMLElement | null>(null);
+  const addItemDialogRef = useRef<HTMLElement | null>(null);
+
   function addJasonItem({ key, value, path, array = false }: JasonItem) {
     const oldJason = !Array.isArray(jason0)
       ? { ...jason0 }
@@ -1044,6 +1051,11 @@ export function Main() {
     );
   }
 
+  useEffect(() => {
+    optionsDialogRef.current = document.getElementById("itemOptionsDialog");
+    addItemDialogRef.current = document.getElementById("addItemDialog");
+  }, []);
+
   return (
     <>
       <main className="min-w-[100%] flex-grow p-3">
@@ -1051,32 +1063,29 @@ export function Main() {
           className="hidden"
           id="optionDialogEditBtn"
           onClick={() => {
-            const $optionsDialog: HTMLButtonElement =
-              document.querySelector("#itemOptionsDialog")!;
 
-            const dataType = $optionsDialog.getAttribute(
+            const dataType = optionsDialogRef.current!.getAttribute(
               "data-type"
             )! as EditItemType;
             setDialogAddItemType(dataType);
 
-            const dataExactType = $optionsDialog.getAttribute(
+            const dataExactType = optionsDialogRef.current!.getAttribute(
               "data-exact-type"
             )! as ItemValueType;
             setDialogAddItemValueType(dataExactType);
 
-            const dataValue = $optionsDialog.getAttribute("data-value")!;
+            const dataValue =
+              optionsDialogRef.current!.getAttribute("data-value")!;
 
             setDialogAddItemValue(dataValue);
 
             setDialogAddItemEdit(true);
 
-            const $addItemDialog: HTMLButtonElement =
-              document.querySelector("#addItemDialog")!;
 
-            const path = $optionsDialog.getAttribute("data-path")!;
+            const path = optionsDialogRef.current!.getAttribute("data-path")!;
             setDialogAddItemOldKey(getPathChild(path));
 
-            $addItemDialog.click();
+            addItemDialogRef.current!.click();
           }}
         ></Button>
         <AddItemDialog
@@ -1103,12 +1112,10 @@ export function Main() {
             data-exact-type={""}
             autoFocus={false}
             onClick={() => {
-              const $dialog: HTMLButtonElement =
-                document.querySelector("#itemOptionsDialog")!;
 
-              const objType = $dialog.getAttribute("data-type") as EditItemType;
-              const isRootData = $dialog.getAttribute("data-root")!;
-              const parentType = $dialog.getAttribute("data-parent-type") as
+              const objType = optionsDialogRef.current!.getAttribute("data-type") as EditItemType;
+              const isRootData = optionsDialogRef.current!.getAttribute("data-root")!;
+              const parentType = optionsDialogRef.current!.getAttribute("data-parent-type") as
                 | "object"
                 | "array";
 
@@ -1142,34 +1149,31 @@ export function Main() {
                   ) && (
                     <Button
                       onClick={() => {
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
 
-                        const dataType = $optionsDialog.getAttribute(
+
+                        const dataType = optionsDialogRef.current!.getAttribute(
                           "data-type"
                         )! as EditItemType;
                         setDialogAddItemType(dataType);
 
-                        const dataExactType = $optionsDialog.getAttribute(
+                        const dataExactType = optionsDialogRef.current!.getAttribute(
                           "data-exact-type"
                         )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
                         const dataValue =
-                          $optionsDialog.getAttribute("data-value")!;
+                          optionsDialogRef.current!.getAttribute("data-value")!;
 
                         setDialogAddItemValue(dataValue);
 
                         setDialogAddItemEdit(true);
 
-                        const $addItemDialog: HTMLButtonElement =
-                          document.querySelector("#addItemDialog")!;
 
-                        const path = $optionsDialog.getAttribute("data-path")!;
+                        const path = optionsDialogRef.current!.getAttribute("data-path")!;
                         setDialogAddItemOldKey(getPathChild(path));
 
-                        $optionsDialog.click();
-                        $addItemDialog.click();
+                        optionsDialogRef.current!.click();
+                        addItemDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="Edit" />
@@ -1185,11 +1189,9 @@ export function Main() {
                         setDialogAddItemEdit(false);
 
                         if (dialogType === "array") {
-                          const $optionsDialog: HTMLButtonElement =
-                            document.querySelector("#itemOptionsDialog")!;
 
                           const path =
-                            $optionsDialog.getAttribute("data-path")!;
+                            optionsDialogRef.current!.getAttribute("data-path")!;
 
                           addJasonItem({
                             path,
@@ -1198,19 +1200,14 @@ export function Main() {
                             key: "",
                           });
 
-                          $optionsDialog.click();
+                          optionsDialogRef.current!.click();
                           return;
                         }
                         setDialogAddItemType("object");
 
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
 
-                        const $addItemDialog: HTMLButtonElement =
-                          document.querySelector("#addItemDialog")!;
-
-                        $addItemDialog.click();
-                        $optionsDialog.click();
+                        addItemDialogRef.current!.click();
+                        optionsDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="ObjectIcon" />
@@ -1222,11 +1219,9 @@ export function Main() {
                         setDialogAddItemEdit(false);
 
                         if (dialogType === "array") {
-                          const $optionsDialog: HTMLButtonElement =
-                            document.querySelector("#itemOptionsDialog")!;
-
+                          
                           const path =
-                            $optionsDialog.getAttribute("data-path")!;
+                            optionsDialogRef.current!.getAttribute("data-path")!;
 
                           addJasonItem({
                             path,
@@ -1235,18 +1230,15 @@ export function Main() {
                             key: "",
                           });
 
-                          $optionsDialog.click();
+                          optionsDialogRef.current!.click();
                           return;
                         }
                         setDialogAddItemType("array");
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
+                        
 
-                        const $addItemDialog: HTMLButtonElement =
-                          document.querySelector("#addItemDialog")!;
 
-                        $addItemDialog.click();
-                        $optionsDialog.click();
+                        addItemDialogRef.current!.click();
+                        optionsDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="ArrayIcon" />
@@ -1259,19 +1251,13 @@ export function Main() {
 
                         setDialogAddItemType("value");
 
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
-
-                        const $addItemDialog: HTMLButtonElement =
-                          document.querySelector("#addItemDialog")!;
-
-                        const dataExactType = $optionsDialog.getAttribute(
+                        const dataExactType = optionsDialogRef.current!.getAttribute(
                           "data-exact-type"
                         )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
-                        $optionsDialog.click();
-                        $addItemDialog.click();
+                        optionsDialogRef.current!.click();
+                        addItemDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="Value" />
@@ -1294,12 +1280,12 @@ export function Main() {
                     <Button
                       variant="secondary"
                       onClick={async () => {
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
+                       
 
-                        const path = $optionsDialog.getAttribute("data-path")!;
+                        const path =
+                          optionsDialogRef.current!.getAttribute("data-path")!;
 
-                        $optionsDialog.click();
+                        optionsDialogRef.current!.click();
 
                         await invoke("copy_to_clipboard", {
                           text: path.substring(1),
@@ -1312,30 +1298,30 @@ export function Main() {
                     <Button
                       variant="destructive"
                       onClick={async () => {
-                        const $optionsDialog: HTMLButtonElement =
-                          document.querySelector("#itemOptionsDialog")!;
-                        $optionsDialog.click();
+                      
+                        optionsDialogRef.current!.click();
 
-                        const path = $optionsDialog.getAttribute("data-path")!;
+                        const path =
+                          optionsDialogRef.current!.getAttribute("data-path")!;
                         const arrayElement = /^\[\d+\]$/g.test(
                           getPathChild(path)
                         );
 
-                        // if (dialogAddItemParentType !== "array") {
-                        //   //! this animation only affects non-array items
-                        //   const $item = document.getElementById(path)!;
+                        if (dialogAddItemParentType !== "array") {
+                          //! this animation only affects non-array items
+                          const $item = document.getElementById(path)!;
 
-                        //   $item.classList.add("removing-item");
+                          $item.classList.add("removing-item");
 
-                        //   $item.addEventListener("animationend", () => {
-                        //     removeJasonItem({
-                        //       path,
-                        //       arrayElement,
-                        //     });
-                        //   });
+                          $item.addEventListener("animationend", () => {
+                            removeJasonItem({
+                              path,
+                              arrayElement,
+                            });
+                          });
 
-                        //   return;
-                        // }
+                          return;
+                        }
 
                         removeJasonItem({
                           path,
