@@ -1,5 +1,5 @@
 import { AppContext } from "@/AppContext";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { GetIcon } from "./Icons";
 import {
   getPathCurrentParentOnly,
@@ -74,6 +74,12 @@ export function HandleJason({
   const [jasonObjectSize, _setJasonObjectSize] =
     useContext(AppContext)?.jasonObjectSize!;
 
+  const optionsDialogRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    optionsDialogRef.current = document.querySelector("#itemOptionsDialog");
+  }, []);
+
   type ObjectType = "array" | "object";
 
   if (root) {
@@ -90,37 +96,39 @@ export function HandleJason({
             className="jason-item min-w-[45vw] bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80"
             onContextMenu={(e) => {
               e.preventDefault();
-              const $optionsDialog: HTMLButtonElement =
-                document.querySelector("#itemOptionsDialog")!;
 
-              $optionsDialog.setAttribute("data-type", objType);
-              $optionsDialog.setAttribute("data-exact-type", objType);
+              optionsDialogRef.current!.setAttribute("data-type", objType);
+              optionsDialogRef.current!.setAttribute(
+                "data-exact-type",
+                objType
+              );
 
-              $optionsDialog.setAttribute("data-root", "true");
+              optionsDialogRef.current!.setAttribute("data-root", "true");
 
-              $optionsDialog.setAttribute("data-path", path);
+              optionsDialogRef.current!.setAttribute("data-path", path);
 
-              $optionsDialog.click();
+              optionsDialogRef.current!.click();
             }}
           >
             <span
               className="relative m-0 mr-3.5 h-[3.3rem] w-[3.3rem]  aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
               onClick={(e) => {
                 e.preventDefault();
-                const $optionsDialog: HTMLButtonElement =
-                  document.querySelector("#itemOptionsDialog")!;
 
-                $optionsDialog.setAttribute("data-root", "true");
-                $optionsDialog.setAttribute("data-type", objType);
-                $optionsDialog.setAttribute("data-exact-type", objType);
-                $optionsDialog.setAttribute(
+                optionsDialogRef.current!.setAttribute("data-root", "true");
+                optionsDialogRef.current!.setAttribute("data-type", objType);
+                optionsDialogRef.current!.setAttribute(
+                  "data-exact-type",
+                  objType
+                );
+                optionsDialogRef.current!.setAttribute(
                   "data-parent-type",
                   Array.isArray(jason) ? "array" : "object"
                 );
 
-                $optionsDialog.setAttribute("data-path", path);
+                optionsDialogRef.current!.setAttribute("data-path", path);
 
-                $optionsDialog.click();
+                optionsDialogRef.current!.click();
               }}
             >
               <GetIcon
@@ -173,60 +181,58 @@ export function HandleJason({
           } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
           variant="secondary"
           key={itemPath}
-          // id={itemPath}
+          id={itemPath}
           onClick={() => {
             //TODO clear attributes when the modal is closed!
-            const $optionsDialog =
-              document.getElementById("itemOptionsDialog")!;
-            const $optionDialogEditBtn =
-              document.getElementById("optionDialogEditBtn")!;
 
-            $optionsDialog.setAttribute("data-type", "value");
-            $optionsDialog.setAttribute(
+            const $optionDialogEditBtn = document.getElementById(
+              "optionDialogEditBtn"
+            )!;
+
+            optionsDialogRef.current!.setAttribute("data-type", "value");
+            optionsDialogRef.current!.setAttribute(
               "data-parent-type",
               Array.isArray(jason) ? "array" : "object"
             );
 
-            $optionsDialog.setAttribute(
+            optionsDialogRef.current!.setAttribute(
               "data-exact-type",
               v === null ? "null" : typeof v
             );
 
-            $optionsDialog.setAttribute(
+            optionsDialogRef.current!.setAttribute(
               "data-value",
               v === null ? "null" : String(v)
             );
 
-            $optionsDialog.setAttribute("data-root", "false");
-            $optionsDialog.setAttribute("data-path", itemPath);
+            optionsDialogRef.current!.setAttribute("data-root", "false");
+            optionsDialogRef.current!.setAttribute("data-path", itemPath);
 
             $optionDialogEditBtn.click();
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            const $optionsDialog =
-              document.getElementById("itemOptionsDialog")!;
 
-            $optionsDialog.setAttribute("data-type", "value");
-            $optionsDialog.setAttribute(
+            optionsDialogRef.current!.setAttribute("data-type", "value");
+            optionsDialogRef.current!.setAttribute(
               "data-parent-type",
               Array.isArray(jason) ? "array" : "object"
             );
 
-            $optionsDialog.setAttribute(
+            optionsDialogRef.current!.setAttribute(
               "data-exact-type",
               v === null ? "null" : typeof v
             );
 
-            $optionsDialog.setAttribute(
+            optionsDialogRef.current!.setAttribute(
               "data-value",
               v === null ? "null" : String(v)
             );
 
-            $optionsDialog.setAttribute("data-root", "false");
-            $optionsDialog.setAttribute("data-path", itemPath);
+            optionsDialogRef.current!.setAttribute("data-root", "false");
+            optionsDialogRef.current!.setAttribute("data-path", itemPath);
 
-            $optionsDialog.click();
+            optionsDialogRef.current!.click();
           }}
         >
           <div className="w-full h-full text-left text-wrap">
@@ -256,7 +262,7 @@ export function HandleJason({
           value={itemPath}
           className={`border-b-0 mt-0.5`}
           key={itemPath}
-          // id={itemPath}
+          id={itemPath}
         >
           <AccordionTrigger
             className={`jason-item break-all ${
@@ -266,41 +272,43 @@ export function HandleJason({
             } w-max`}
             onContextMenu={(e) => {
               e.preventDefault();
-              const $optionsDialog =
-                document.getElementById("itemOptionsDialog")!;
 
-              $optionsDialog.setAttribute("data-type", objType);
-              $optionsDialog.setAttribute(
+              optionsDialogRef.current!.setAttribute("data-type", objType);
+              optionsDialogRef.current!.setAttribute(
                 "data-parent-type",
                 Array.isArray(jason) ? "array" : "object"
               );
 
-              $optionsDialog.setAttribute("data-exact-type", objType);
+              optionsDialogRef.current!.setAttribute(
+                "data-exact-type",
+                objType
+              );
 
-              $optionsDialog.setAttribute("data-root", "false");
-              $optionsDialog.setAttribute("data-path", itemPath);
+              optionsDialogRef.current!.setAttribute("data-root", "false");
+              optionsDialogRef.current!.setAttribute("data-path", itemPath);
 
-              $optionsDialog.click();
+              optionsDialogRef.current!.click();
             }}
           >
             <span
               className="relative m-0 mr-3.5 h-[2.75rem] w-[2.75rem] aspect-square bg-black/15 hover:bg-black/25  flex items-center justify-center rounded-(--radius)"
               onClick={(e) => {
                 e.preventDefault();
-                const $optionsDialog: HTMLButtonElement =
-                  document.querySelector("#itemOptionsDialog")!;
 
-                $optionsDialog.setAttribute("data-type", objType);
-                $optionsDialog.setAttribute("data-exact-type", objType);
-                $optionsDialog.setAttribute(
+                optionsDialogRef.current!.setAttribute("data-type", objType);
+                optionsDialogRef.current!.setAttribute(
+                  "data-exact-type",
+                  objType
+                );
+                optionsDialogRef.current!.setAttribute(
                   "data-parent-type",
                   Array.isArray(jason) ? "array" : "object"
                 );
 
-                $optionsDialog.setAttribute("data-root", "false");
-                $optionsDialog.setAttribute("data-path", itemPath);
+                optionsDialogRef.current!.setAttribute("data-root", "false");
+                optionsDialogRef.current!.setAttribute("data-path", itemPath);
 
-                $optionsDialog.click();
+                optionsDialogRef.current!.click();
               }}
             >
               <GetIcon

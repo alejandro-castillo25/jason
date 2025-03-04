@@ -61,7 +61,7 @@ export function isValidPointNotation(k: string): boolean {
 }
 
 export const pathRegExp: RegExp =
-  /(?<=^)(?!\.).+?(?=\.|\[|$)|(?<=\.).+?(?=\.|\[|$)|\[\d+\]|\[\".+\"\]/g;
+  /\[\".+?\"\]|(?<=^)(?!\.).+?(?=\.|\[|$)|(?<=\.).+?(?=\.|\[|$)|\[\d+\]/g;
 
 export function getPathChild(path: string): string {
   const matches: null | Array<string> = path.match(pathRegExp);
@@ -177,6 +177,5 @@ export function editObjectValue({
 
   if (!keyExists) return obj;
 
-  
   return Object.fromEntries(updatedEntries);
 }

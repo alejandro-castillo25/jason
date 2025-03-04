@@ -12,6 +12,8 @@ import {
   getPathChild,
   unwrapIndex,
   editObjectValue,
+  pathIterator,
+  pathRegExp,
 } from "./util";
 
 //.hud_player_renderer.controls[0].hud_player.bindings[0].binding_name
@@ -431,20 +433,12 @@ function AddItemDialog({
       : [...(jason0 as Array<any>)];
 
     if (!array) {
-      console.log(
-        `oldJason${path.substring(1)}${
-          isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
-        } = ${evalFormat(value)}`
-      );
-
       eval(
         `oldJason${path.substring(1)}${
           isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
         } = ${evalFormat(value)}`
       );
     } else {
-      console.log(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
-
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
     setJason(
@@ -464,17 +458,6 @@ function AddItemDialog({
       : [...(jason0 as Array<any>)];
 
     if (!arrayParent) {
-      console.log(path);
-
-      console.log(
-        `oldJason${path.substring(
-          1,
-          path.length -
-            getPathChild(path).length +
-            (getPathChild(path).startsWith("[") ? 0 : -1)
-        )}`
-      );
-
       const _newJasonProp = editObjectValue({
         obj: eval(
           `oldJason${path.substring(
@@ -1063,7 +1046,6 @@ export function Main() {
           className="hidden"
           id="optionDialogEditBtn"
           onClick={() => {
-
             const dataType = optionsDialogRef.current!.getAttribute(
               "data-type"
             )! as EditItemType;
@@ -1080,7 +1062,6 @@ export function Main() {
             setDialogAddItemValue(dataValue);
 
             setDialogAddItemEdit(true);
-
 
             const path = optionsDialogRef.current!.getAttribute("data-path")!;
             setDialogAddItemOldKey(getPathChild(path));
@@ -1112,12 +1093,14 @@ export function Main() {
             data-exact-type={""}
             autoFocus={false}
             onClick={() => {
-
-              const objType = optionsDialogRef.current!.getAttribute("data-type") as EditItemType;
-              const isRootData = optionsDialogRef.current!.getAttribute("data-root")!;
-              const parentType = optionsDialogRef.current!.getAttribute("data-parent-type") as
-                | "object"
-                | "array";
+              const objType = optionsDialogRef.current!.getAttribute(
+                "data-type"
+              ) as EditItemType;
+              const isRootData =
+                optionsDialogRef.current!.getAttribute("data-root")!;
+              const parentType = optionsDialogRef.current!.getAttribute(
+                "data-parent-type"
+              ) as "object" | "array";
 
               setIsRoot(isRootData === "true");
 
@@ -1149,16 +1132,15 @@ export function Main() {
                   ) && (
                     <Button
                       onClick={() => {
-
-
                         const dataType = optionsDialogRef.current!.getAttribute(
                           "data-type"
                         )! as EditItemType;
                         setDialogAddItemType(dataType);
 
-                        const dataExactType = optionsDialogRef.current!.getAttribute(
-                          "data-exact-type"
-                        )! as ItemValueType;
+                        const dataExactType =
+                          optionsDialogRef.current!.getAttribute(
+                            "data-exact-type"
+                          )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
                         const dataValue =
@@ -1168,8 +1150,8 @@ export function Main() {
 
                         setDialogAddItemEdit(true);
 
-
-                        const path = optionsDialogRef.current!.getAttribute("data-path")!;
+                        const path =
+                          optionsDialogRef.current!.getAttribute("data-path")!;
                         setDialogAddItemOldKey(getPathChild(path));
 
                         optionsDialogRef.current!.click();
@@ -1189,9 +1171,10 @@ export function Main() {
                         setDialogAddItemEdit(false);
 
                         if (dialogType === "array") {
-
                           const path =
-                            optionsDialogRef.current!.getAttribute("data-path")!;
+                            optionsDialogRef.current!.getAttribute(
+                              "data-path"
+                            )!;
 
                           addJasonItem({
                             path,
@@ -1204,7 +1187,6 @@ export function Main() {
                           return;
                         }
                         setDialogAddItemType("object");
-
 
                         addItemDialogRef.current!.click();
                         optionsDialogRef.current!.click();
@@ -1219,9 +1201,10 @@ export function Main() {
                         setDialogAddItemEdit(false);
 
                         if (dialogType === "array") {
-                          
                           const path =
-                            optionsDialogRef.current!.getAttribute("data-path")!;
+                            optionsDialogRef.current!.getAttribute(
+                              "data-path"
+                            )!;
 
                           addJasonItem({
                             path,
@@ -1234,8 +1217,6 @@ export function Main() {
                           return;
                         }
                         setDialogAddItemType("array");
-                        
-
 
                         addItemDialogRef.current!.click();
                         optionsDialogRef.current!.click();
@@ -1251,9 +1232,10 @@ export function Main() {
 
                         setDialogAddItemType("value");
 
-                        const dataExactType = optionsDialogRef.current!.getAttribute(
-                          "data-exact-type"
-                        )! as ItemValueType;
+                        const dataExactType =
+                          optionsDialogRef.current!.getAttribute(
+                            "data-exact-type"
+                          )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
                         optionsDialogRef.current!.click();
@@ -1280,8 +1262,6 @@ export function Main() {
                     <Button
                       variant="secondary"
                       onClick={async () => {
-                       
-
                         const path =
                           optionsDialogRef.current!.getAttribute("data-path")!;
 
@@ -1298,7 +1278,6 @@ export function Main() {
                     <Button
                       variant="destructive"
                       onClick={async () => {
-                      
                         optionsDialogRef.current!.click();
 
                         const path =
