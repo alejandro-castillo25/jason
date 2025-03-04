@@ -1277,7 +1277,7 @@ export function Main() {
                     </Button>
                     <Button
                       variant="destructive"
-                      onClick={async () => {
+                      onClick={() => {
                         optionsDialogRef.current!.click();
 
                         const path =
@@ -1286,21 +1286,7 @@ export function Main() {
                           getPathChild(path)
                         );
 
-                        if (dialogAddItemParentType !== "array") {
-                          //! this animation only affects non-array items
-                          const $item = document.getElementById(path)!;
-
-                          $item.classList.add("removing-item");
-
-                          $item.addEventListener("animationend", () => {
-                            removeJasonItem({
-                              path,
-                              arrayElement,
-                            });
-                          });
-
-                          return;
-                        }
+                     
 
                         removeJasonItem({
                           path,

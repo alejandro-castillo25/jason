@@ -181,7 +181,6 @@ export function HandleJason({
           } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
           variant="secondary"
           key={itemPath}
-          id={itemPath}
           onClick={() => {
             //TODO clear attributes when the modal is closed!
 
@@ -262,7 +261,6 @@ export function HandleJason({
           value={itemPath}
           className={`border-b-0 mt-0.5`}
           key={itemPath}
-          id={itemPath}
         >
           <AccordionTrigger
             className={`jason-item break-all ${
