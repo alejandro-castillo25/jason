@@ -169,14 +169,43 @@ export function HandleJason({
       res.push(
         <Button
           className={`jason-item ${
-            jasonWordWrap ? "max-w-[92vw]" : ""
-          } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] mt-0.5 h-auto text-w`}
+            jasonWordWrap ? "max-w-[90vw]" : ""
+          } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
           variant="secondary"
           key={itemPath}
+          // id={itemPath}
+          onClick={() => {
+            //TODO clear attributes when the modal is closed!
+            const $optionsDialog =
+              document.getElementById("itemOptionsDialog")!;
+            const $optionDialogEditBtn =
+              document.getElementById("optionDialogEditBtn")!;
+
+            $optionsDialog.setAttribute("data-type", "value");
+            $optionsDialog.setAttribute(
+              "data-parent-type",
+              Array.isArray(jason) ? "array" : "object"
+            );
+
+            $optionsDialog.setAttribute(
+              "data-exact-type",
+              v === null ? "null" : typeof v
+            );
+
+            $optionsDialog.setAttribute(
+              "data-value",
+              v === null ? "null" : String(v)
+            );
+
+            $optionsDialog.setAttribute("data-root", "false");
+            $optionsDialog.setAttribute("data-path", itemPath);
+
+            $optionDialogEditBtn.click();
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
-            const $optionsDialog: HTMLButtonElement =
-              document.querySelector("#itemOptionsDialog")!;
+            const $optionsDialog =
+              document.getElementById("itemOptionsDialog")!;
 
             $optionsDialog.setAttribute("data-type", "value");
             $optionsDialog.setAttribute(
@@ -227,17 +256,18 @@ export function HandleJason({
           value={itemPath}
           className={`border-b-0 mt-0.5`}
           key={itemPath}
+          // id={itemPath}
         >
           <AccordionTrigger
             className={`jason-item break-all ${
-              jasonWordWrap ? "max-w-[92vw]" : ""
+              jasonWordWrap ? "max-w-[90vw]" : ""
             } flex gap-0 bg-(--secondary) p-0.5 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
               isEmpty ? "text-foreground/50" : ""
             } w-max`}
             onContextMenu={(e) => {
               e.preventDefault();
-              const $optionsDialog: HTMLButtonElement =
-                document.querySelector("#itemOptionsDialog")!;
+              const $optionsDialog =
+                document.getElementById("itemOptionsDialog")!;
 
               $optionsDialog.setAttribute("data-type", objType);
               $optionsDialog.setAttribute(

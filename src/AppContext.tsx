@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+
 import example from "./hud_screen.json";
 
 import type { Lang } from "./ui/lang";
@@ -11,7 +12,7 @@ type AppContextProps = {
   jasonBracketGuides: AppContextProp<boolean>;
   jasonItemsOffset: AppContextProp<number>;
   jasonPaths: AppContextProp<boolean>;
-  jasonPathsNearPathOnly: AppContextProp<boolean>; //TODO Replace name with "jasonPathsNearPathOnly"
+  jasonPathsNearPathOnly: AppContextProp<boolean>;
   jasonRoot: AppContextProp<boolean>;
   jasonObjectSize: AppContextProp<boolean>;
   jasonWordWrap: AppContextProp<boolean>;

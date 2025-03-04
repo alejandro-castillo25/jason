@@ -120,47 +120,63 @@ export function evalFormat(
   return "";
 }
 
-export async function copyToClipboard(text: string) {
-  try {
-    if (!navigator.clipboard) throw new Error("Clipboard API not supported");
-
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    console.error("Failed to copy:", err);
-    return false;
-  }
-}
-
 export const counterFormatter = new Intl.NumberFormat("en", {
   notation: "compact",
   maximumFractionDigits: 1,
 });
 
-export function editObjectValue(
-  obj: Record<string, unknown>,
-  oldKey: string,
-  newKey: string,
-  newValue?: unknown
-): Record<string, unknown> {
-  let newObj: Record<string, unknown> = {};
+interface EditObjectValueParams {
+  obj: Record<string, unknown> | Array<unknown>;
+  oldKey: string;
+  newKey: string;
+  newValue?: unknown;
+}
+
+export function editObjectValue({
+  obj,
+  oldKey,
+  newKey,
+  newValue,
+}: EditObjectValueParams): Record<string, unknown> | Array<unknown> {
+  const isArray = Array.isArray(obj);
+
+  if (isArray) {
+    const index = Number.parseInt(oldKey);
+    if (isNaN(index) || index < 0 || index >= obj.length)
+      throw new Error(
+        "Cannot change array indices, oldKey is not a valid Array index!"
+      );
+
+    if (oldKey !== newKey)
+      throw new Error(
+        "Cannot change array indices, oldKey and newKey must be the same!"
+      );
+
+    const newArray = [...obj];
+    if (newValue !== undefined) newArray[index] = newValue;
+
+    return newArray;
+  }
 
   if (oldKey === newKey) {
-    newObj = { ...obj };
-    if (newValue !== undefined) newObj[oldKey] = newValue;
+    const newObj = { ...obj };
+    if (newValue !== undefined) newObj[newKey] = newValue;
+
     return newObj;
   }
 
-  const entries: Array<[string, unknown]> = Object.entries(obj);
-
-  for (const [key, value] of entries) {
+  const entries = Object.entries(obj);
+  let keyExists = false;
+  const updatedEntries = entries.map(([key, value]) => {
     if (key === oldKey) {
-      if (newValue !== undefined) newObj[newKey] = newValue;
-      else newObj[newKey] = value;
-      continue;
+      keyExists = true;
+      return [newKey, newValue !== undefined ? newValue : value];
     }
-    newObj[key] = value;
-  }
+    return [key, value];
+  });
 
-  return newObj;
+  if (!keyExists) return obj;
+
+  
+  return Object.fromEntries(updatedEntries);
 }

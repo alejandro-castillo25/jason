@@ -2,22 +2,19 @@ button {
   cursor: pointer;
 }
 
-
 #open-sidebar-btn {
   display: grid;
   place-content: center;
 }
 
-#open-sidebar-btn > svg{
+#open-sidebar-btn > svg {
   scale: 1.55;
 }
-
 
 main {
   scrollbar-width: none;
   overflow: auto;
 }
-
 
 .jason-item {
   word-wrap: break-word;
@@ -27,7 +24,7 @@ main {
   transition: scale 0.2s ease-out;
 }
 
-.jason-item:hover > span > *:not(svg, span:nth-child(2)){
+.jason-item:hover > span > *:not(svg, span:nth-child(2)) {
   scale: 0.965;
 }
 
@@ -35,7 +32,31 @@ main {
   transition: scale 0.2s ease-out;
 }
 
-
 .jason-item:hover > div {
   scale: 0.965;
+}
+
+/* 
+[data-item-path=" .hud_player_renderer.size[0]"][data-a="e"] {
+  background: red;
+} */
+.removing-item {
+  overflow-y: hidden;
+  padding-top: 0;
+  height: 0;
+  padding-bottom: 0;
+  animation: removing 0.2s linear;
+}
+
+@keyframes removing {
+  from {
+    padding-top: calc(var(--spacing) * 2);
+    height: auto;
+    padding-bottom: calc(var(--spacing) * 2);
+  }
+  to {
+    padding-top: 0;
+    height: 0;
+    padding-bottom: 0;
+  }
 }

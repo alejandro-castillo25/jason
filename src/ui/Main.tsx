@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { AppContext } from "@/AppContext";
 import { useContext, useEffect, useState } from "react";
 
@@ -9,9 +10,11 @@ import {
   isValidPointNotation,
   evalFormat,
   getPathChild,
-  copyToClipboard,
   unwrapIndex,
+  editObjectValue,
 } from "./util";
+
+//.hud_player_renderer.controls[0].hud_player.bindings[0].binding_name
 
 import type { Item } from "./util";
 
@@ -79,9 +82,18 @@ interface JasonItem {
   array?: boolean;
 }
 
-interface AddItemDialogprops {
+interface JasonEditItem {
+  oldKey: string;
+  newKey: string;
+  newValue?: any;
+  path: string;
+  arrayParent?: boolean;
+}
+
+interface AddItemDialogProps {
   dialogAddItemTypeProp: EditItemType;
   dialogOptionsType: EditItemType;
+
   dialogAddItemEdit: boolean;
   dialogAddItemOldKey: string;
   dialogAddItemValueType: ItemValueType;
@@ -89,6 +101,8 @@ interface AddItemDialogprops {
   dialogAddItemParentType: "object" | "array";
 }
 
+
+//TODO Fix the incosistency of the oldkey & oldValue apprearing
 function AddItemDialog({
   dialogAddItemTypeProp,
   dialogOptionsType,
@@ -97,7 +111,7 @@ function AddItemDialog({
   dialogAddItemValueType,
   dialogAddItemValue,
   dialogAddItemParentType,
-}: AddItemDialogprops) {
+}: AddItemDialogProps) {
   const [jason0, setJason] = useContext(AppContext)?.jason!;
   const [lang, _setLang] = useContext(AppContext)?.lang!;
   const [sharedKey, setSharedKey] = useState("");
@@ -134,7 +148,6 @@ function AddItemDialog({
             }),
     value: z.string(),
   });
-  //TODO Check if there's a number limit in JSON
   const formSchemaNumber = z.object({
     key:
       dialogOptionsType === "array"
@@ -252,7 +265,13 @@ function AddItemDialog({
     const { path, dataType } = getOptionsDialogData();
 
     if (dialogAddItemEdit) {
-      editJasonItem({ key, value: 0, path, array: false });
+      editJasonItem({
+        oldKey: dialogAddItemOldKey,
+        newKey: key as string,
+        path,
+        arrayParent: dialogAddItemParentType === "array",
+      });
+      closeAddItemDialog();
       return;
     }
 
@@ -271,7 +290,15 @@ function AddItemDialog({
     const { path, dataType } = getOptionsDialogData();
 
     if (dialogAddItemEdit) {
-      editJasonItem({ key, value, path, array: false });
+      editJasonItem({
+        oldKey: dialogAddItemOldKey,
+        newKey: key as string,
+        newValue: value,
+        path,
+        arrayParent: dialogAddItemParentType === "array",
+      });
+
+      closeAddItemDialog();
       return;
     }
 
@@ -290,7 +317,14 @@ function AddItemDialog({
     const { path, dataType } = getOptionsDialogData();
 
     if (dialogAddItemEdit) {
-      editJasonItem({ key, value, path, array: false });
+      editJasonItem({
+        oldKey: dialogAddItemOldKey,
+        newKey: key as string,
+        newValue: value,
+        path,
+        arrayParent: dialogAddItemParentType === "array",
+      });
+      closeAddItemDialog();
       return;
     }
 
@@ -309,7 +343,14 @@ function AddItemDialog({
     const { path, dataType } = getOptionsDialogData();
 
     if (dialogAddItemEdit) {
-      editJasonItem({ key, value, path, array: false });
+      editJasonItem({
+        oldKey: dialogAddItemOldKey,
+        newKey: key as string,
+        newValue: value,
+        path,
+        arrayParent: dialogAddItemParentType === "array",
+      });
+      closeAddItemDialog();
       return;
     }
 
@@ -329,7 +370,14 @@ function AddItemDialog({
     const { path, dataType } = getOptionsDialogData();
 
     if (dialogAddItemEdit) {
-      editJasonItem({ key, value, path, array: false });
+      editJasonItem({
+        oldKey: dialogAddItemOldKey,
+        newKey: key as string,
+        newValue: null,
+        path,
+        arrayParent: dialogAddItemParentType === "array",
+      });
+      closeAddItemDialog();
       return;
     }
 
@@ -369,6 +417,8 @@ function AddItemDialog({
       key: dialogAddItemEdit ? dialogAddItemOldKey : "",
       value: null,
     });
+    setDialogAddItemOldKey0(dialogAddItemOldKey);
+
     setSharedKey("");
   }
 
@@ -394,12 +444,83 @@ function AddItemDialog({
 
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
-    setJason({ ...oldJason });
+    setJason(
+      !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
+    );
   }
 
-  function editJasonItem({ key, value, path, array = false }: JasonItem) {
-    //TODO yuh pretty much self explanatory what to do here now...
-    console.log("Editing....", [key, value, path].join(" - "));
+  function editJasonItem({
+    oldKey,
+    newKey,
+    newValue,
+    path,
+    arrayParent = false,
+  }: JasonEditItem) {
+    let oldJason = !Array.isArray(jason0)
+      ? { ...jason0 }
+      : [...(jason0 as Array<any>)];
+
+    if (!arrayParent) {
+
+      console.log(path);
+      
+      console.log(
+        `oldJason${path.substring(
+          1,
+          path.length - getPathChild(path).length + (getPathChild(path).startsWith("[") ? 0 : -1)
+        )}`
+      );
+      
+      const _newJasonProp = editObjectValue({
+        obj: eval(
+          `oldJason${path.substring(
+            1,
+            path.length -
+              getPathChild(path).length +
+              (getPathChild(path).startsWith("[") ? 0 : -1)
+          )}`
+        ),
+        oldKey,
+        newKey,
+        newValue,
+      });
+
+      _newJasonProp;
+
+      eval(
+        `oldJason${path.substring(
+            1,
+            path.length -
+              getPathChild(path).length +
+              (getPathChild(path).startsWith("[") ? 0 : -1)
+          )} = _newJasonProp;`
+      );
+    } else {
+      const _newJasonProp = editObjectValue({
+        obj: eval(
+          `oldJason${path.substring(
+            1,
+            path.length - getPathChild(path).length
+          )}`
+        ),
+        oldKey,
+        newKey: oldKey,
+        newValue,
+      });
+
+      _newJasonProp;
+
+      eval(
+        `oldJason${path.substring(
+          1,
+          path.length - getPathChild(path).length
+        )} = _newJasonProp;`
+      );
+    }
+
+    setJason(
+      !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
+    );
   }
 
   useEffect(() => {
@@ -429,7 +550,11 @@ function AddItemDialog({
   }, [dialogAddItemOldKey0]);
 
   return (
-    <Dialog onOpenChange={() => resetAllForms()}>
+    <Dialog
+      onOpenChange={() => {
+        resetAllForms();
+      }}
+    >
       <DialogTrigger
         tabIndex={-1}
         id="addItemDialog"
@@ -519,7 +644,8 @@ function AddItemDialog({
                         <FormItem
                           className={
                             dialogOptionsType === "array" ||
-                            dialogAddItemParentType === "array"
+                            (dialogAddItemParentType === "array" &&
+                              dialogAddItemEdit)
                               ? "hidden"
                               : ""
                           }
@@ -588,7 +714,8 @@ function AddItemDialog({
                         <FormItem
                           className={
                             dialogOptionsType === "array" ||
-                            dialogAddItemParentType === "array"
+                            (dialogAddItemParentType === "array" &&
+                              dialogAddItemEdit)
                               ? "hidden"
                               : ""
                           }
@@ -669,7 +796,8 @@ function AddItemDialog({
                         <FormItem
                           className={
                             dialogOptionsType === "array" ||
-                            dialogAddItemParentType === "array"
+                            (dialogAddItemParentType === "array" &&
+                              dialogAddItemEdit)
                               ? "hidden"
                               : ""
                           }
@@ -740,7 +868,8 @@ function AddItemDialog({
                         <FormItem
                           className={
                             dialogOptionsType === "array" ||
-                            dialogAddItemParentType === "array"
+                            (dialogAddItemParentType === "array" &&
+                              dialogAddItemEdit)
                               ? "hidden"
                               : ""
                           }
@@ -879,7 +1008,9 @@ export function Main() {
     } else {
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
-    setJason({ ...oldJason });
+    setJason(
+      !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
+    );
   }
 
   interface JasonItemRemove {
@@ -907,12 +1038,47 @@ export function Main() {
         )}.filter(el => el !== undefined);`
       );
     }
-    setJason({ ...oldJason });
+
+    setJason(
+      !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
+    );
   }
 
   return (
     <>
       <main className="min-w-[100%] flex-grow p-3">
+        <Button
+          className="hidden"
+          id="optionDialogEditBtn"
+          onClick={() => {
+            const $optionsDialog: HTMLButtonElement =
+              document.querySelector("#itemOptionsDialog")!;
+
+            const dataType = $optionsDialog.getAttribute(
+              "data-type"
+            )! as EditItemType;
+            setDialogAddItemType(dataType);
+
+            const dataExactType = $optionsDialog.getAttribute(
+              "data-exact-type"
+            )! as ItemValueType;
+            setDialogAddItemValueType(dataExactType);
+
+            const dataValue = $optionsDialog.getAttribute("data-value")!;
+
+            setDialogAddItemValue(dataValue);
+
+            setDialogAddItemEdit(true);
+
+            const $addItemDialog: HTMLButtonElement =
+              document.querySelector("#addItemDialog")!;
+
+            const path = $optionsDialog.getAttribute("data-path")!;
+            setDialogAddItemOldKey(getPathChild(path));
+
+            $addItemDialog.click();
+          }}
+        ></Button>
         <AddItemDialog
           dialogAddItemTypeProp={dialogAddItemType}
           dialogOptionsType={dialogType}
@@ -969,41 +1135,47 @@ export function Main() {
                 {translateTo(lang, dialogTitle)}
               </DialogTitle>
               <section className="flex flex-col gap-3.5 my-1.5">
-                <Button
-                  onClick={() => {
-                    const $optionsDialog: HTMLButtonElement =
-                      document.querySelector("#itemOptionsDialog")!;
+                {!isRoot &&
+                  !(
+                    dialogAddItemParentType === "array" &&
+                    (dialogType === "object" || dialogType === "array")
+                  ) && (
+                    <Button
+                      onClick={() => {
+                        const $optionsDialog: HTMLButtonElement =
+                          document.querySelector("#itemOptionsDialog")!;
 
-                    const dataType = $optionsDialog.getAttribute(
-                      "data-type"
-                    )! as EditItemType;
-                    setDialogAddItemType(dataType);
+                        const dataType = $optionsDialog.getAttribute(
+                          "data-type"
+                        )! as EditItemType;
+                        setDialogAddItemType(dataType);
 
-                    const dataExactType = $optionsDialog.getAttribute(
-                      "data-exact-type"
-                    )! as ItemValueType;
-                    setDialogAddItemValueType(dataExactType);
+                        const dataExactType = $optionsDialog.getAttribute(
+                          "data-exact-type"
+                        )! as ItemValueType;
+                        setDialogAddItemValueType(dataExactType);
 
-                    const dataValue =
-                      $optionsDialog.getAttribute("data-value")!;
+                        const dataValue =
+                          $optionsDialog.getAttribute("data-value")!;
 
-                    setDialogAddItemValue(dataValue);
+                        setDialogAddItemValue(dataValue);
 
-                    setDialogAddItemEdit(true);
+                        setDialogAddItemEdit(true);
 
-                    const $addItemDialog: HTMLButtonElement =
-                      document.querySelector("#addItemDialog")!;
+                        const $addItemDialog: HTMLButtonElement =
+                          document.querySelector("#addItemDialog")!;
 
-                    const path = $optionsDialog.getAttribute("data-path")!;
-                    setDialogAddItemOldKey(getPathChild(path));
+                        const path = $optionsDialog.getAttribute("data-path")!;
+                        setDialogAddItemOldKey(getPathChild(path));
 
-                    $optionsDialog.click();
-                    $addItemDialog.click();
-                  }}
-                >
-                  <GetIcon name="Edit" />
-                  {translateTo(lang, "Edit")}
-                </Button>
+                        $optionsDialog.click();
+                        $addItemDialog.click();
+                      }}
+                    >
+                      <GetIcon name="Edit" />
+                      {translateTo(lang, "Edit")}
+                    </Button>
+                  )}
 
                 {dialogType !== "value" && (
                   <>
@@ -1126,9 +1298,12 @@ export function Main() {
                           document.querySelector("#itemOptionsDialog")!;
 
                         const path = $optionsDialog.getAttribute("data-path")!;
-                        //
+
                         $optionsDialog.click();
-                        await copyToClipboard(path.substring(1));
+
+                        await invoke("copy_to_clipboard", {
+                          text: path.substring(1),
+                        });
                       }}
                     >
                       <GetIcon name="Copy" />
@@ -1136,7 +1311,7 @@ export function Main() {
                     </Button>
                     <Button
                       variant="destructive"
-                      onClick={() => {
+                      onClick={async () => {
                         const $optionsDialog: HTMLButtonElement =
                           document.querySelector("#itemOptionsDialog")!;
                         $optionsDialog.click();
@@ -1145,6 +1320,22 @@ export function Main() {
                         const arrayElement = /^\[\d+\]$/g.test(
                           getPathChild(path)
                         );
+
+                        // if (dialogAddItemParentType !== "array") {
+                        //   //! this animation only affects non-array items
+                        //   const $item = document.getElementById(path)!;
+
+                        //   $item.classList.add("removing-item");
+
+                        //   $item.addEventListener("animationend", () => {
+                        //     removeJasonItem({
+                        //       path,
+                        //       arrayElement,
+                        //     });
+                        //   });
+
+                        //   return;
+                        // }
 
                         removeJasonItem({
                           path,
