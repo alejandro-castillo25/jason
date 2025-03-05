@@ -1286,8 +1286,6 @@ export function Main() {
                           getPathChild(path)
                         );
 
-                     
-
                         removeJasonItem({
                           path,
                           arrayElement,

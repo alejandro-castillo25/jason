@@ -77,7 +77,7 @@ export function HandleJason({
   const optionsDialogRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    optionsDialogRef.current = document.querySelector("#itemOptionsDialog");
+    optionsDialogRef.current = document.getElementById("itemOptionsDialog");
   }, []);
 
   type ObjectType = "array" | "object";
