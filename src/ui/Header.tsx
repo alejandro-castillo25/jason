@@ -1,7 +1,7 @@
-import { GetIcon } from "./Icons";
-import { SidebarContent } from "./SidebarContent";
+import { GetIcon } from './Icons';
+import { SidebarContent } from './SidebarContent';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
 
 const FPSCounter = () => {
   const [fps, setFps] = useState(0);

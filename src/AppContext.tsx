@@ -1,8 +1,8 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from 'react';
 
-import example from "./hud_screen.json";
+import example from './hud_screen.json';
 
-import type { Lang } from "./ui/lang";
+import type { Lang } from './ui/lang';
 
 type AppContextProp<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
@@ -25,15 +25,15 @@ export function AppContextProvider({
 }: {
   children: JSX.Element | Array<JSX.Element>;
 }) {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>('en');
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
   const [jasonPaths, setJasonPaths] = useState<boolean>(false);
-  const [jasonPathsNearPathOnly, setjasonPathsNearPathOnly] = useState<boolean>(false);
+  const [jasonPathsNearPathOnly, setjasonPathsNearPathOnly] =
+    useState<boolean>(false);
   const [jasonRoot, setJasonRoot] = useState<boolean>(true);
   const [jasonWordWrap, setJasonWordWrap] = useState<boolean>(true);
   const [jasonObjectSize, setJasonObjectSize] = useState<boolean>(true);
   const [jasonItemsOffset, setJasonItemsOffset] = useState<number>(5);
-
 
   const [jason, setJason] = useState(example);
 
@@ -41,28 +41,26 @@ export function AppContextProvider({
     function handleKeys(e: KeyboardEvent) {
       const { key } = e;
 
-      if (e.ctrlKey && key === "p") {
+      if (e.ctrlKey && key === 'p') {
         e.preventDefault();
         setJasonPaths((paths) => !paths);
-      } else if (e.ctrlKey && key === "g") {
+      } else if (e.ctrlKey && key === 'g') {
         e.preventDefault();
         setJasonBracketGuides((guides) => !guides);
-      } else if (e.ctrlKey && key === "t") {
+      } else if (e.ctrlKey && key === 't') {
         e.preventDefault();
-        document.documentElement.classList.toggle("dark");
-        document.documentElement.classList.toggle("light");
-      } else if (e.ctrlKey && key === "w") {
+        document.documentElement.classList.toggle('dark');
+        document.documentElement.classList.toggle('light');
+      } else if (e.ctrlKey && key === 'w') {
         e.preventDefault();
         setJasonWordWrap((wrap) => !wrap);
       }
     }
 
-
-
-    window.addEventListener("keydown", handleKeys);
+    window.addEventListener('keydown', handleKeys);
 
     return () => {
-      window.removeEventListener("keydown", handleKeys);
+      window.removeEventListener('keydown', handleKeys);
     };
   }, []);
 
