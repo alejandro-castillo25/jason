@@ -25,7 +25,11 @@ main {
 }
 
 .jason-item:hover > span > *:not(svg, span:nth-child(2)) {
-  scale: 0.965;
+  scale: 0.98;
+}
+
+.jason-item:focus-visible > span > *:not(svg, span:nth-child(2)) {
+  scale: 0.98;
 }
 
 .jason-item > div {
@@ -33,5 +37,19 @@ main {
 }
 
 .jason-item:hover > div {
-  scale: 0.965;
+  scale: 0.98;
+}
+
+.jason-item:focus-visible > div {
+  scale: 0.98;
+}
+
+.jason-item > span > *:is(svg) {
+  transition: scale 0s linear;
+}
+
+
+.jason2container {
+  background: rgb(2, 25, 49);
+  scrollbar-width: none;
 }

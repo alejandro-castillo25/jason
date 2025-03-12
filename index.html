@@ -1,16 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="theme-color" content="#ffffff">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="theme-color"
+      content="#000000"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jason</title>
   </head>
 
-  <body>
+  <body style="background: #000000;">
+    <!--
+    // TODO FIX THIS
+    -->
+    <div
+      
+      class="pt-2.5 pl-2.5 w-full h-auto bg-transparent absolute top-0 left-0"
+      style="box-sizing: border-box; margin: 0; pointer-events: none; opacity: 0;"
+    >
+      <button
+        style="pointer-events: none"
+        id="jasonValueTemplate"
+        data-slot="button"
+        class="absolute top-0 left-0 z-50 opacity-0 inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shadow-xs hover:bg-secondary/80 has-[>svg]:px-3 jason-item bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto text-w"
+      >
+        <div class="w-full h-full text-left text-wrap">
+          <span class="font-semibold" id="jasonValueTemplate_name">name</span
+          ><span class="text-gray-300"> : </span
+          ><i
+            class="ml-4 opacity-30 font-normal text-[.95rem]"
+            id="jasonValueTemplate_path"
+          >
+            path<br /></i
+          ><span class="whitespace-break-spaces" id="jasonValueTemplate_value"
+            >"value"</span
+          >
+        </div>
+      </button>
+    </div>
+
+    <div
+      class="pt-2.5 pl-2.5 w-full h-auto bg-transparent absolute top-0 left-0"
+      style="box-sizing: border-box; margin: 0; pointer-events: none; opacity: 0"
+    >
+      <button
+        id="jasonObjectTemplate"
+        data-slot="button"
+        class="absolute opacity-0 top-0 left-0 items-center z-50 justify-center whitespace-nowrap rounded-md font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-secondary-foreground shadow-xs has-[>svg]:px-3 jason-item break-all h-auto flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 w-max"
+      >
+        <span
+          id="jasonObjectTemplate_size"
+          class="relative self-start m-0 mr-3.5 h-[2.9rem] w-[2.9rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
+          ><span class="absolute opacity-60 text-[0.85rem]">0</span></span
+        ><span
+          class="mr-auto h-full flex items-center flex-wrap text-wrap text-left"
+          ><span id="jasonObjectTemplate_key"
+            >key<span class="text-gray-300"> :</span></span
+          ><i
+            class="ml-4 opacity-30 font-normal text-[.95rem]"
+            id="jasonObjectTemplate_path"
+          >
+            path</i
+          ></span
+        >
+      </button>
+    </div>
+
     <div id="root"></div>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

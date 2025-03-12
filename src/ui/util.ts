@@ -1,58 +1,58 @@
 export function getMarginLeft(offset: number): string {
   const dict: Record<number, string> = {
-    0: 'ml-0',
-    1: 'ml-1',
-    2: 'ml-2',
-    3: 'ml-3',
-    4: 'ml-4',
-    5: 'ml-5',
-    6: 'ml-6',
-    7: 'ml-7',
-    8: 'ml-8',
-    9: 'ml-9',
-    10: 'ml-10',
-    11: 'ml-11',
-    12: 'ml-12',
-    13: 'ml-13',
-    14: 'ml-14',
-    15: 'ml-15',
+    0: "ml-0",
+    1: "ml-1",
+    2: "ml-2",
+    3: "ml-3",
+    4: "ml-4",
+    5: "ml-5",
+    6: "ml-6",
+    7: "ml-7",
+    8: "ml-8",
+    9: "ml-9",
+    10: "ml-10",
+    11: "ml-11",
+    12: "ml-12",
+    13: "ml-13",
+    14: "ml-14",
+    15: "ml-15",
   };
 
-  return dict[offset] ?? '';
+  return dict[offset] ?? "";
 }
 
 export function isValidPointNotation(k: string): boolean {
   if (/^\d+/.test(k)) return false;
 
   const UNVALID_CHARS: Array<string> = [
-    '.',
-    '[',
-    ']',
-    ' ',
-    '|',
-    '<',
-    '>',
-    '!',
+    ".",
+    "[",
+    "]",
+    " ",
+    "|",
+    "<",
+    ">",
+    "!",
     '"',
     "'",
-    '`',
-    '{',
-    '}',
-    '@',
-    '#',
-    '^',
-    '*',
-    '+',
-    '-',
-    '~',
-    '&',
-    '?',
-    '\\',
-    '/',
-    '(',
-    ')',
-    '=',
-    '%',
+    "`",
+    "{",
+    "}",
+    "@",
+    "#",
+    "^",
+    "*",
+    "+",
+    "-",
+    "~",
+    "&",
+    "?",
+    "\\",
+    "/",
+    "(",
+    ")",
+    "=",
+    "%",
   ];
 
   for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
@@ -65,23 +65,23 @@ export const pathRegExp: RegExp =
 
 export function getPathChild(path: string): string {
   const matches: null | Array<string> = path.match(pathRegExp);
-  if (matches === null) return '';
+  if (matches === null) return "";
 
   return matches[matches.length - 1];
 }
 
 export function getPathParent(path: string): string {
   const matches: null | Array<string> = path.match(pathRegExp);
-  if (matches === null) return '';
+  if (matches === null) return "";
 
   return matches[0];
 }
 
 export function getPathCurrentParentOnly(path: string): string {
   const matches: null | Array<string> = path.match(pathRegExp);
-  if (matches === null) return '';
+  if (matches === null) return "";
 
-  return matches[matches.length - 2] ?? '';
+  return matches[matches.length - 2] ?? "";
 }
 
 export function getObjectLength(obj: object): number {
@@ -108,20 +108,20 @@ export function unwrapIndex(item: Item): string {
 export function evalFormat(
   value: string | number | null | object | boolean
 ): string {
-  if (typeof value === 'string') {
-    value = value.replace(/\n/g, '\\n');
+  if (typeof value === "string") {
+    value = value.replace(/\n/g, "\\n");
     value = value.replace(/\"/g, '\\"');
     return `"${value}"`;
   }
-  if (typeof value === 'number') return `${value}`;
-  if (typeof value === 'boolean') return `${value.toString()}`;
-  if (value === null) return 'null';
-  if (typeof value === 'object') return `${JSON.stringify(value)}`;
-  return '';
+  if (typeof value === "number") return `${value}`;
+  if (typeof value === "boolean") return `${value.toString()}`;
+  if (value === null) return "null";
+  if (typeof value === "object") return `${JSON.stringify(value)}`;
+  return "";
 }
 
-export const counterFormatter = new Intl.NumberFormat('en', {
-  notation: 'compact',
+export const counterFormatter = new Intl.NumberFormat("en", {
+  notation: "compact",
   maximumFractionDigits: 1,
 });
 
@@ -144,12 +144,12 @@ export function editObjectValue({
     const index = Number.parseInt(oldKey);
     if (isNaN(index) || index < 0 || index >= obj.length)
       throw new Error(
-        'Cannot change array indices, oldKey is not a valid Array index!'
+        "Cannot change array indices, oldKey is not a valid Array index!"
       );
 
     if (oldKey !== newKey)
       throw new Error(
-        'Cannot change array indices, oldKey and newKey must be the same!'
+        "Cannot change array indices, oldKey and newKey must be the same!"
       );
 
     const newArray = [...obj];

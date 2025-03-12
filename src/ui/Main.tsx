@@ -1,15 +1,22 @@
-import { invoke } from '@tauri-apps/api/core';
-import { AppContext } from '@/AppContext';
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { invoke } from "@tauri-apps/api/core";
+import { AppContext } from "@/AppContext";
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from '@/components/ui/accordion';
-import { GetIcon } from './Icons';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/accordion";
+import { GetIcon } from "./Icons";
+import { Button } from "@/components/ui/button";
 
 import {
   isValidPointNotation,
@@ -17,11 +24,10 @@ import {
   getPathChild,
   unwrapIndex,
   editObjectValue,
-} from './util';
+  getPathCurrentParentOnly,
+} from "./util";
 
-//.hud_player_renderer.controls[0].hud_player.bindings[0].binding_name
-
-import type { Item } from './util';
+import type { Item } from "./util";
 
 import {
   Dialog,
@@ -29,15 +35,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
-import { Input } from '@/components/ui/input';
+import { Input } from "@/components/ui/input";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import {
   Form,
@@ -47,140 +53,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 
-import { Switch } from '@/components/ui/switch';
-import { HandleJason } from './HandleJason';
-import { translateTo } from './lang';
+import { Switch } from "@/components/ui/switch";
+import { HandleJason, HandleJason2 } from "./HandleJason";
+import { translateTo } from "./lang";
 
-import { FixedSizeTree as Tree } from 'react-vtree';
-
-const tree = {
-  name: 'Root #1',
-  id: 'root-1',
-  children: [
-    {
-      children: [
-        { id: 'child-2', name: 'Child #2' },
-        { id: 'child-3', name: 'Child #3' },
-      ],
-      id: 'child-1',
-      name: 'Child #1',
-    },
-    {
-      children: [{ id: 'child-5', name: 'Child #5' }],
-      id: 'child-4',
-      name: 'Child #4',
-    },
-  ],
-};
-
-function* treeWalker(refresh: any): any {
-  const stack = [];
-
-  // Remember all the necessary data of the first node in the stack.
-  stack.push({
-    nestingLevel: 0,
-    node: tree,
-  });
-
-  // Walk through the tree until we have no nodes available.
-  while (stack.length !== 0) {
-    const {
-      node: { children = [], id, name },
-      nestingLevel,
-    } = stack.pop() as any;
-
-    // Here we are sending the information about the node to the Tree component
-    // and receive an information about the openness state from it. The
-    // `refresh` parameter tells us if the full update of the tree is requested;
-    // basing on it we decide to return the full node data or only the node
-    // id to update the nodes order.
-    const isOpened = yield refresh
-      ? {
-          id,
-          isLeaf: children.length === 0,
-          isOpenByDefault: true,
-          name,
-          nestingLevel,
-        }
-      : id;
-
-    // Basing on the node openness state we are deciding if we need to render
-    // the child nodes (if they exist).
-    if (children.length !== 0 && isOpened) {
-      // Since it is a stack structure, we need to put nodes we want to render
-      // first to the end of the stack.
-      for (let i = children.length - 1; i >= 0; i--) {
-        stack.push({
-          nestingLevel: nestingLevel + 1,
-          node: children[i],
-        });
-      }
-    }
-  }
-}
-
-// Node component receives all the data we created in the `treeWalker` +
-// internal openness state (`isOpen`), function to change internal openness
-// state (`toggle`) and `style` parameter that should be added to the root div.
-const Node = ({
-  data: { isLeaf, name },
-  isOpen,
-  style,
-  toggle,
-  nestingLevel,
-}: any) => (
-  <>
-    {!isLeaf ? (
-      <>
-        <Button onClick={toggle} className={'m-1'}>
-          {isOpen ? '-' : '+'} {name}
-        </Button>
-        <br />
-      </>
-    ) : (
-      <>
-        <Button variant="secondary">{name}</Button>
-      </>
-    )}
-  </>
-);
-
-const Jason = memo(() => {
-  const [jason, _setJason] = useContext(AppContext)?.jason!;
-  const [jasonRoot, _setJasonRoot] = useContext(AppContext)?.jasonRoot!;
-
+const Jason = memo(({ jason }: { jason: any }) => {
   return (
     <>
-      <Accordion type="multiple" className="w-max">
-        {/* <Tree
-          treeWalker={treeWalker}
-          itemSize={50} // each item height in pixels
-          height={300} // viewport height
-          width={350} // viewport width
-        >
-          {Node}
-        </Tree> */}
-        <HandleJason
+      <HandleJason2 data={jason} />
+      {/* <Accordion type="multiple" className="w-max">
+      <HandleJason
           jason={jason as Record<string, unknown>}
-          root={jasonRoot}
+          root={true}
         />
-      </Accordion>
+      </Accordion> */}
     </>
   );
 });
 
-type EditItemType = 'object' | 'array' | 'value';
+type EditItemType = "object" | "array" | "value";
 
 type ItemValueType =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'null'
-  | 'object'
-  | 'array';
+  | "string"
+  | "number"
+  | "boolean"
+  | "null"
+  | "object"
+  | "array";
 
 interface JasonItem {
   key?: string;
@@ -198,6 +100,8 @@ interface JasonEditItem {
 }
 
 interface AddItemDialogProps {
+  jason0: any;
+  setJason0: React.Dispatch<React.SetStateAction<any>>;
   dialogAddItemTypeProp: EditItemType;
   dialogOptionsType: EditItemType;
 
@@ -205,11 +109,13 @@ interface AddItemDialogProps {
   dialogAddItemOldKey: string;
   dialogAddItemValueType: ItemValueType;
   dialogAddItemValue: string;
-  dialogAddItemParentType: 'object' | 'array';
+  dialogAddItemParentType: "object" | "array";
 }
 
 //TODO Fix the incosistency of the oldkey & oldValue apprearing
 function AddItemDialog({
+  jason0,
+  setJason0,
   dialogAddItemTypeProp,
   dialogOptionsType,
   dialogAddItemEdit,
@@ -218,18 +124,30 @@ function AddItemDialog({
   dialogAddItemValue,
   dialogAddItemParentType,
 }: AddItemDialogProps) {
-  const [jason0, setJason] = useContext(AppContext)?.jason!;
   const [lang, _setLang] = useContext(AppContext)?.lang!;
-  const [sharedKey, setSharedKey] = useState('');
+  const [sharedKey, setSharedKey] = useState("");
   const [dialogAddItemOldKey0, setDialogAddItemOldKey0] =
     useState<string>(dialogAddItemOldKey);
 
   const itemOptionsDialogRef = useRef<HTMLElement | null>(null);
   const addItemDialogRef = useRef<HTMLElement | null>(null);
 
+  const refreshTree = () => {
+    const refreshTreeEvent = new CustomEvent("refreshTree", {
+      detail: {
+        message: "Refreshing Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(refreshTreeEvent);
+  };
+
   const formSchemaObject = z.object({
     key:
-      dialogOptionsType === 'array' && !dialogAddItemEdit
+      dialogOptionsType === "array" && !dialogAddItemEdit
         ? z.string().optional()
         : z
             .string()
@@ -244,7 +162,7 @@ function AddItemDialog({
 
   const formSchemaString = z.object({
     key:
-      dialogOptionsType === 'array'
+      dialogOptionsType === "array"
         ? z.string().optional()
         : z
             .string()
@@ -259,7 +177,7 @@ function AddItemDialog({
   });
   const formSchemaNumber = z.object({
     key:
-      dialogOptionsType === 'array'
+      dialogOptionsType === "array"
         ? z.string().optional()
         : z
             .string()
@@ -275,16 +193,16 @@ function AddItemDialog({
         invalid_type_error: translateTo(lang, "That's not a right number!"),
       })
       .min(Number.MIN_SAFE_INTEGER, {
-        message: translateTo(lang, 'This number is too small!'),
+        message: translateTo(lang, "This number is too small!"),
       })
       .max(Number.MAX_SAFE_INTEGER, {
-        message: translateTo(lang, 'This number is too big!'),
+        message: translateTo(lang, "This number is too big!"),
       }),
   });
 
   const formSchemaBoolean = z.object({
     key:
-      dialogOptionsType === 'array'
+      dialogOptionsType === "array"
         ? z.string().optional()
         : z
             .string()
@@ -300,7 +218,7 @@ function AddItemDialog({
 
   const formSchemaNull = z.object({
     key:
-      dialogOptionsType === 'array'
+      dialogOptionsType === "array"
         ? z.string().optional()
         : z
             .string()
@@ -317,29 +235,29 @@ function AddItemDialog({
   const formObject = useForm<z.infer<typeof formSchemaObject>>({
     resolver: zodResolver(formSchemaObject),
     defaultValues: {
-      key: '',
+      key: "",
     },
   });
 
   const formString = useForm<z.infer<typeof formSchemaString>>({
     resolver: zodResolver(formSchemaString),
     defaultValues: {
-      key: '',
-      value: '',
+      key: "",
+      value: "",
     },
   });
 
   const formNumber = useForm<z.infer<typeof formSchemaNumber>>({
     resolver: zodResolver(formSchemaNumber),
     defaultValues: {
-      key: '',
+      key: "",
       value: 0,
     },
   });
   const formBoolean = useForm<z.infer<typeof formSchemaBoolean>>({
     resolver: zodResolver(formSchemaBoolean),
     defaultValues: {
-      key: '',
+      key: "",
       value: false,
     },
   });
@@ -347,25 +265,26 @@ function AddItemDialog({
   const formNull = useForm<z.infer<typeof formSchemaNull>>({
     resolver: zodResolver(formSchemaNull),
     defaultValues: {
-      key: '',
+      key: "",
       value: null,
     },
   });
 
   function closeAddItemDialog() {
     addItemDialogRef.current!.click();
+    setTimeout(refreshTree, 20);
   }
 
   useEffect(() => {
-    itemOptionsDialogRef.current = document.getElementById('itemOptionsDialog');
-    addItemDialogRef.current = document.getElementById('addItemDialog');
+    itemOptionsDialogRef.current = document.getElementById("itemOptionsDialog");
+    addItemDialogRef.current = document.getElementById("addItemDialog");
   }, []);
 
   function getOptionsDialogData() {
-    const path = itemOptionsDialogRef.current!.getAttribute('data-path')!;
-    const dataType = itemOptionsDialogRef.current!.getAttribute('data-type')!;
+    const path = itemOptionsDialogRef.current!.getAttribute("data-path")!;
+    const dataType = itemOptionsDialogRef.current!.getAttribute("data-type")!;
     const dataParentType =
-      itemOptionsDialogRef.current!.getAttribute('data-parent-type')!;
+      itemOptionsDialogRef.current!.getAttribute("data-parent-type")!;
 
     return { path, dataType, dataParentType };
   }
@@ -379,7 +298,7 @@ function AddItemDialog({
         oldKey: dialogAddItemOldKey,
         newKey: key as string,
         path,
-        arrayParent: dialogAddItemParentType === 'array',
+        arrayParent: dialogAddItemParentType === "array",
       });
       closeAddItemDialog();
       return;
@@ -387,9 +306,9 @@ function AddItemDialog({
 
     addJasonItem({
       key,
-      value: dialogAddItemTypeProp === 'array' ? [] : {},
+      value: dialogAddItemTypeProp === "array" ? [] : {},
       path,
-      array: dataType !== 'object',
+      array: dataType !== "object",
     });
 
     closeAddItemDialog();
@@ -405,7 +324,7 @@ function AddItemDialog({
         newKey: key as string,
         newValue: value,
         path,
-        arrayParent: dialogAddItemParentType === 'array',
+        arrayParent: dialogAddItemParentType === "array",
       });
 
       closeAddItemDialog();
@@ -416,7 +335,7 @@ function AddItemDialog({
       key,
       value,
       path,
-      array: dataType !== 'object',
+      array: dataType !== "object",
     });
 
     closeAddItemDialog();
@@ -432,7 +351,7 @@ function AddItemDialog({
         newKey: key as string,
         newValue: value,
         path,
-        arrayParent: dialogAddItemParentType === 'array',
+        arrayParent: dialogAddItemParentType === "array",
       });
       closeAddItemDialog();
       return;
@@ -442,7 +361,7 @@ function AddItemDialog({
       key,
       value,
       path,
-      array: dataType !== 'object',
+      array: dataType !== "object",
     });
 
     closeAddItemDialog();
@@ -458,7 +377,7 @@ function AddItemDialog({
         newKey: key as string,
         newValue: value,
         path,
-        arrayParent: dialogAddItemParentType === 'array',
+        arrayParent: dialogAddItemParentType === "array",
       });
       closeAddItemDialog();
       return;
@@ -468,7 +387,7 @@ function AddItemDialog({
       key,
       value,
       path,
-      array: dataType !== 'object',
+      array: dataType !== "object",
     });
 
     closeAddItemDialog();
@@ -485,7 +404,7 @@ function AddItemDialog({
         newKey: key as string,
         newValue: null,
         path,
-        arrayParent: dialogAddItemParentType === 'array',
+        arrayParent: dialogAddItemParentType === "array",
       });
       closeAddItemDialog();
       return;
@@ -495,24 +414,24 @@ function AddItemDialog({
       key,
       value,
       path,
-      array: dataType !== 'object',
+      array: dataType !== "object",
     });
     closeAddItemDialog();
   }
   function resetAllForms() {
     formObject.reset({
-      key: dialogAddItemEdit ? dialogAddItemOldKey : '',
+      key: dialogAddItemEdit ? dialogAddItemOldKey : "",
     });
 
     formString.reset({
-      key: dialogAddItemEdit ? dialogAddItemOldKey : '',
-      value: dialogAddItemEdit ? dialogAddItemValue : '',
+      key: dialogAddItemEdit ? dialogAddItemOldKey : "",
+      value: dialogAddItemEdit ? dialogAddItemValue : "",
     });
     formNumber.reset({
-      key: dialogAddItemEdit ? dialogAddItemOldKey : '',
+      key: dialogAddItemEdit ? dialogAddItemOldKey : "",
       value: dialogAddItemEdit
         ? Number.isNaN(Number(dialogAddItemValue))
-          ? dialogAddItemValue === 'true'
+          ? dialogAddItemValue === "true"
             ? 1
             : 0
           : Number(dialogAddItemValue)
@@ -520,16 +439,16 @@ function AddItemDialog({
     });
 
     formBoolean.reset({
-      key: dialogAddItemEdit ? dialogAddItemOldKey : '',
-      value: dialogAddItemEdit ? dialogAddItemValue === 'true' : false,
+      key: dialogAddItemEdit ? dialogAddItemOldKey : "",
+      value: dialogAddItemEdit ? dialogAddItemValue === "true" : false,
     });
     formNull.reset({
-      key: dialogAddItemEdit ? dialogAddItemOldKey : '',
+      key: dialogAddItemEdit ? dialogAddItemOldKey : "",
       value: null,
     });
     setDialogAddItemOldKey0(dialogAddItemOldKey);
 
-    setSharedKey('');
+    setSharedKey("");
   }
 
   function addJasonItem({ key, value, path, array = false }: JasonItem) {
@@ -546,7 +465,7 @@ function AddItemDialog({
     } else {
       eval(`oldJason${path.substring(1)}.push(${evalFormat(value)})`);
     }
-    setJason(
+    setJason0(
       !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
     );
   }
@@ -569,7 +488,7 @@ function AddItemDialog({
             1,
             path.length -
               getPathChild(path).length +
-              (getPathChild(path).startsWith('[') ? 0 : -1)
+              (getPathChild(path).startsWith("[") ? 0 : -1)
           )}`
         ),
         oldKey,
@@ -584,7 +503,7 @@ function AddItemDialog({
           1,
           path.length -
             getPathChild(path).length +
-            (getPathChild(path).startsWith('[') ? 0 : -1)
+            (getPathChild(path).startsWith("[") ? 0 : -1)
         )} = _newJasonProp;`
       );
     } else {
@@ -610,16 +529,16 @@ function AddItemDialog({
       );
     }
 
-    setJason(
+    setJason0(
       !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
     );
   }
 
   useEffect(() => {
-    formString.setValue('key', sharedKey);
-    formNumber.setValue('key', sharedKey);
-    formBoolean.setValue('key', sharedKey);
-    formNull.setValue('key', sharedKey);
+    formString.setValue("key", sharedKey);
+    formNumber.setValue("key", sharedKey);
+    formBoolean.setValue("key", sharedKey);
+    formNull.setValue("key", sharedKey);
     formString.trigger();
     formNumber.trigger();
     formBoolean.trigger();
@@ -631,10 +550,10 @@ function AddItemDialog({
   }, [dialogAddItemOldKey]);
 
   useEffect(() => {
-    formString.setValue('key', dialogAddItemOldKey0);
-    formNumber.setValue('key', dialogAddItemOldKey0);
-    formBoolean.setValue('key', dialogAddItemOldKey0);
-    formNull.setValue('key', dialogAddItemOldKey0);
+    formString.setValue("key", dialogAddItemOldKey0);
+    formNumber.setValue("key", dialogAddItemOldKey0);
+    formBoolean.setValue("key", dialogAddItemOldKey0);
+    formNull.setValue("key", dialogAddItemOldKey0);
     formString.trigger();
     formNumber.trigger();
     formBoolean.trigger();
@@ -657,32 +576,32 @@ function AddItemDialog({
       <DialogContent
         aria-describedby={undefined}
         className={` flex flex-col ${
-          dialogAddItemTypeProp === 'value'
-            ? dialogOptionsType === 'array' ||
-              (dialogAddItemParentType === 'array' && dialogAddItemEdit)
-              ? 'min-h-[18rem]'
-              : 'min-h-[25rem]'
-            : ''
+          dialogAddItemTypeProp === "value"
+            ? dialogOptionsType === "array" ||
+              (dialogAddItemParentType === "array" && dialogAddItemEdit)
+              ? "min-h-[18rem]"
+              : "min-h-[25rem]"
+            : ""
         }`}
       >
         <DialogHeader className="max-w-full ">
           <DialogTitle className="text-2xl flex items-center justify-start max-sm:justify-center mb-5">
             {translateTo(
               lang,
-              `${!dialogAddItemEdit ? 'Add' : 'Edit'} ${
-                dialogAddItemTypeProp === 'object'
-                  ? 'Object'
-                  : dialogAddItemTypeProp === 'array'
-                  ? 'Array'
-                  : 'Value'
+              `${!dialogAddItemEdit ? "Add" : "Edit"} ${
+                dialogAddItemTypeProp === "object"
+                  ? "Object"
+                  : dialogAddItemTypeProp === "array"
+                  ? "Array"
+                  : "Value"
               }`
             )}
-            {dialogAddItemTypeProp === 'object' ? (
+            {dialogAddItemTypeProp === "object" ? (
               <GetIcon
                 name="ObjectIcon"
                 className="inline ml-2 w-[2rem] h-[2rem]"
               />
-            ) : dialogAddItemTypeProp === 'array' ? (
+            ) : dialogAddItemTypeProp === "array" ? (
               <GetIcon
                 name="ArrayIcon"
                 className="inline ml-2 w-[2rem] h-[2rem]"
@@ -692,7 +611,7 @@ function AddItemDialog({
             )}
           </DialogTitle>
 
-          {dialogAddItemTypeProp === 'value' && (
+          {dialogAddItemTypeProp === "value" && (
             <Tabs
               defaultValue={dialogAddItemValueType}
               className=" flex items-center"
@@ -702,25 +621,25 @@ function AddItemDialog({
                   value="string"
                   className="data-[state=active]:text-green-400"
                 >
-                  {translateTo(lang, 'String')}
+                  {translateTo(lang, "String")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="number"
                   className="data-[state=active]:text-orange-400"
                 >
-                  {translateTo(lang, 'Number')}
+                  {translateTo(lang, "Number")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="boolean"
                   className="data-[state=active]:text-red-400"
                 >
-                  {translateTo(lang, 'Boolean')}
+                  {translateTo(lang, "Boolean")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="null"
                   className="data-[state=active]:text-red-500"
                 >
-                  {translateTo(lang, 'Null')}
+                  {translateTo(lang, "Null")}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="string" className="w-full" tabIndex={-1}>
@@ -735,19 +654,19 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem
                           className={
-                            dialogOptionsType === 'array' ||
-                            (dialogAddItemParentType === 'array' &&
+                            dialogOptionsType === "array" ||
+                            (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
-                              ? 'hidden'
-                              : ''
+                              ? "hidden"
+                              : ""
                           }
                         >
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Key')}:
+                            {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={translateTo(lang, 'Key')}
+                              placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
                               {...field}
@@ -773,14 +692,14 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Value')}:
+                            {translateTo(lang, "Value")}:
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               required={false}
                               autoComplete="off"
                               spellCheck={false}
-                              placeholder={translateTo(lang, 'String')}
+                              placeholder={translateTo(lang, "String")}
                               className="max-h-[33vh] text-green-400"
                               {...field}
                             />
@@ -805,19 +724,19 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem
                           className={
-                            dialogOptionsType === 'array' ||
-                            (dialogAddItemParentType === 'array' &&
+                            dialogOptionsType === "array" ||
+                            (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
-                              ? 'hidden'
-                              : ''
+                              ? "hidden"
+                              : ""
                           }
                         >
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Key')}:
+                            {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={translateTo(lang, 'Key')}
+                              placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
                               {...field}
@@ -843,7 +762,7 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Value')}:
+                            {translateTo(lang, "Value")}:
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -852,7 +771,7 @@ function AddItemDialog({
                               inputMode="numeric"
                               autoComplete="off"
                               spellCheck={false}
-                              placeholder={translateTo(lang, 'Number')}
+                              placeholder={translateTo(lang, "Number")}
                               className="text-orange-400"
                               {...field}
                               onChange={(e) => {
@@ -887,19 +806,19 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem
                           className={
-                            dialogOptionsType === 'array' ||
-                            (dialogAddItemParentType === 'array' &&
+                            dialogOptionsType === "array" ||
+                            (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
-                              ? 'hidden'
-                              : ''
+                              ? "hidden"
+                              : ""
                           }
                         >
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Key')}:
+                            {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={translateTo(lang, 'Key')}
+                              placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
                               {...field}
@@ -926,7 +845,7 @@ function AddItemDialog({
                         <FormItem>
                           <FormLabel className="text-red-400!">
                             <span className="text-(--primary)!">
-                              {translateTo(lang, 'Value')}:{' '}
+                              {translateTo(lang, "Value")}:{" "}
                             </span>
                             {field.value.toString()}
                           </FormLabel>
@@ -941,7 +860,7 @@ function AddItemDialog({
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" variant={'default'}>
+                    <Button type="submit" variant={"default"}>
                       Ok
                     </Button>
                   </form>
@@ -959,19 +878,19 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem
                           className={
-                            dialogOptionsType === 'array' ||
-                            (dialogAddItemParentType === 'array' &&
+                            dialogOptionsType === "array" ||
+                            (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
-                              ? 'hidden'
-                              : ''
+                              ? "hidden"
+                              : ""
                           }
                         >
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Key')}:
+                            {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder={translateTo(lang, 'Key')}
+                              placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
                               {...field}
@@ -997,7 +916,7 @@ function AddItemDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-(--primary)!">
-                            {translateTo(lang, 'Value')}:
+                            {translateTo(lang, "Value")}:
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1008,14 +927,14 @@ function AddItemDialog({
                               placeholder="Null"
                               className="text-red-500"
                               {...field}
-                              value={'null'}
+                              value={"null"}
                             />
                           </FormControl>
                           <FormMessage className="text-(--destructive)" />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" variant={'default'}>
+                    <Button type="submit" variant={"default"}>
                       Ok
                     </Button>
                   </form>
@@ -1024,7 +943,7 @@ function AddItemDialog({
             </Tabs>
           )}
 
-          {dialogAddItemTypeProp !== 'value' && (
+          {dialogAddItemTypeProp !== "value" && (
             <Form {...formObject}>
               <form
                 onSubmit={formObject.handleSubmit(onSubmitObject)}
@@ -1034,9 +953,9 @@ function AddItemDialog({
                   control={formObject.control}
                   name="key"
                   render={({ field }) => (
-                    <FormItem className={''}>
+                    <FormItem className={""}>
                       <FormLabel className="text-(--primary)!">
-                        {translateTo(lang, 'Key')}:
+                        {translateTo(lang, "Key")}:
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -1051,7 +970,7 @@ function AddItemDialog({
                   )}
                 />
 
-                <Button type="submit" variant={'default'}>
+                <Button type="submit" variant={"default"}>
                   Ok
                 </Button>
               </form>
@@ -1064,30 +983,43 @@ function AddItemDialog({
 }
 
 export function Main() {
-  const [dialogType, setDialogType] = useState<EditItemType>('object');
+  const [dialogType, setDialogType] = useState<EditItemType>("object");
   const [isRoot, setIsRoot] = useState<boolean>(false);
 
-  const [dialogTitle, setDialogTitle] = useState<string>('Edit Object');
+  const [dialogTitle, setDialogTitle] = useState<string>("Edit Object");
 
   const [dialogAddItemType, setDialogAddItemType] =
-    useState<EditItemType>('object');
+    useState<EditItemType>("object");
 
   const [dialogAddItemEdit, setDialogAddItemEdit] = useState<boolean>(false);
-  const [dialogAddItemOldKey, setDialogAddItemOldKey] = useState<string>('');
+  const [dialogAddItemOldKey, setDialogAddItemOldKey] = useState<string>("");
   const [dialogAddItemValueType, setDialogAddItemValueType] =
-    useState<ItemValueType>('string');
+    useState<ItemValueType>("string");
 
   const [dialogAddItemParentType, setDialogAddItemParentType] = useState<
-    'object' | 'array'
-  >('object');
+    "object" | "array"
+  >("object");
 
-  const [dialogAddItemValue, setDialogAddItemValue] = useState<string>('');
+  const [dialogAddItemValue, setDialogAddItemValue] = useState<string>("");
 
   const [jason0, setJason] = useContext(AppContext)?.jason!;
   const [lang, _setLang] = useContext(AppContext)?.lang!;
 
   const optionsDialogRef = useRef<HTMLElement | null>(null);
   const addItemDialogRef = useRef<HTMLElement | null>(null);
+
+  const refreshTree = () => {
+    const refreshTreeEvent = new CustomEvent("refreshTree", {
+      detail: {
+        message: "Refreshing Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(refreshTreeEvent);
+  };
 
   function addJasonItem({ key, value, path, array = false }: JasonItem) {
     const oldJason = !Array.isArray(jason0)
@@ -1140,41 +1072,49 @@ export function Main() {
   }
 
   useEffect(() => {
-    optionsDialogRef.current = document.getElementById('itemOptionsDialog');
-    addItemDialogRef.current = document.getElementById('addItemDialog');
+    optionsDialogRef.current = document.getElementById("itemOptionsDialog");
+    addItemDialogRef.current = document.getElementById("addItemDialog");
   }, []);
 
   return (
     <>
-      <main className="min-w-[100%] flex-grow p-3">
+      <main className="min-w-[100%] flex-grow pt-2.5 pl-2.5">
         <Button
           className="hidden"
           id="optionDialogEditBtn"
           onClick={() => {
+            const parentType = optionsDialogRef.current!.getAttribute(
+              "data-parent-type"
+            ) as "object" | "array";
+
+            setDialogAddItemParentType(parentType);
+
             const dataType = optionsDialogRef.current!.getAttribute(
-              'data-type'
+              "data-type"
             )! as EditItemType;
             setDialogAddItemType(dataType);
 
             const dataExactType = optionsDialogRef.current!.getAttribute(
-              'data-exact-type'
+              "data-exact-type"
             )! as ItemValueType;
             setDialogAddItemValueType(dataExactType);
 
             const dataValue =
-              optionsDialogRef.current!.getAttribute('data-value')!;
+              optionsDialogRef.current!.getAttribute("data-value")!;
 
             setDialogAddItemValue(dataValue);
 
             setDialogAddItemEdit(true);
 
-            const path = optionsDialogRef.current!.getAttribute('data-path')!;
+            const path = optionsDialogRef.current!.getAttribute("data-path")!;
             setDialogAddItemOldKey(getPathChild(path));
 
             addItemDialogRef.current!.click();
           }}
         ></Button>
         <AddItemDialog
+          jason0={jason0}
+          setJason0={setJason}
           dialogAddItemTypeProp={dialogAddItemType}
           dialogOptionsType={dialogType}
           dialogAddItemEdit={dialogAddItemEdit}
@@ -1192,34 +1132,34 @@ export function Main() {
             tabIndex={-1}
             id="itemOptionsDialog"
             className="hidden"
-            data-path={''}
-            data-type={''}
-            data-value={''}
-            data-exact-type={''}
+            data-path={""}
+            data-type={""}
+            data-value={""}
+            data-exact-type={""}
             autoFocus={false}
             onClick={() => {
               const objType = optionsDialogRef.current!.getAttribute(
-                'data-type'
+                "data-type"
               ) as EditItemType;
               const isRootData =
-                optionsDialogRef.current!.getAttribute('data-root')!;
+                optionsDialogRef.current!.getAttribute("data-root")!;
               const parentType = optionsDialogRef.current!.getAttribute(
-                'data-parent-type'
-              ) as 'object' | 'array';
+                "data-parent-type"
+              ) as "object" | "array";
 
-              setIsRoot(isRootData === 'true');
+              setIsRoot(isRootData === "true");
 
               setDialogAddItemParentType(parentType);
               setDialogType(objType);
               setDialogTitle(
                 `Edit ${
-                  isRootData === 'true'
-                    ? 'Root'
-                    : objType === 'object'
-                    ? 'Object'
-                    : objType === 'array'
-                    ? 'Array'
-                    : 'Value'
+                  isRootData === "true"
+                    ? "Root"
+                    : objType === "object"
+                    ? "Object"
+                    : objType === "array"
+                    ? "Array"
+                    : "Value"
                 }`
               );
             }}
@@ -1232,31 +1172,31 @@ export function Main() {
               <section className="flex flex-col gap-3.5 my-1.5">
                 {!isRoot &&
                   !(
-                    dialogAddItemParentType === 'array' &&
-                    (dialogType === 'object' || dialogType === 'array')
+                    dialogAddItemParentType === "array" &&
+                    (dialogType === "object" || dialogType === "array")
                   ) && (
                     <Button
                       onClick={() => {
                         const dataType = optionsDialogRef.current!.getAttribute(
-                          'data-type'
+                          "data-type"
                         )! as EditItemType;
                         setDialogAddItemType(dataType);
 
                         const dataExactType =
                           optionsDialogRef.current!.getAttribute(
-                            'data-exact-type'
+                            "data-exact-type"
                           )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
                         const dataValue =
-                          optionsDialogRef.current!.getAttribute('data-value')!;
+                          optionsDialogRef.current!.getAttribute("data-value")!;
 
                         setDialogAddItemValue(dataValue);
 
                         setDialogAddItemEdit(true);
 
                         const path =
-                          optionsDialogRef.current!.getAttribute('data-path')!;
+                          optionsDialogRef.current!.getAttribute("data-path")!;
                         setDialogAddItemOldKey(getPathChild(path));
 
                         optionsDialogRef.current!.click();
@@ -1264,82 +1204,82 @@ export function Main() {
                       }}
                     >
                       <GetIcon name="Edit" />
-                      {translateTo(lang, 'Edit')}
+                      {translateTo(lang, "Edit")}
                     </Button>
                   )}
 
-                {dialogType !== 'value' && (
+                {dialogType !== "value" && (
                   <>
                     <Button
                       variant="default"
                       onClick={() => {
                         setDialogAddItemEdit(false);
 
-                        if (dialogType === 'array') {
+                        if (dialogType === "array") {
                           const path =
                             optionsDialogRef.current!.getAttribute(
-                              'data-path'
+                              "data-path"
                             )!;
 
                           addJasonItem({
                             path,
                             array: true,
                             value: {},
-                            key: '',
+                            key: "",
                           });
 
                           optionsDialogRef.current!.click();
                           return;
                         }
-                        setDialogAddItemType('object');
+                        setDialogAddItemType("object");
 
                         addItemDialogRef.current!.click();
                         optionsDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="ObjectIcon" />
-                      {translateTo(lang, 'Add Object')}
+                      {translateTo(lang, "Add Object")}
                     </Button>
                     <Button
                       variant="default"
                       onClick={() => {
                         setDialogAddItemEdit(false);
 
-                        if (dialogType === 'array') {
+                        if (dialogType === "array") {
                           const path =
                             optionsDialogRef.current!.getAttribute(
-                              'data-path'
+                              "data-path"
                             )!;
 
                           addJasonItem({
                             path,
                             array: true,
                             value: [],
-                            key: '',
+                            key: "",
                           });
 
                           optionsDialogRef.current!.click();
                           return;
                         }
-                        setDialogAddItemType('array');
+                        setDialogAddItemType("array");
 
                         addItemDialogRef.current!.click();
                         optionsDialogRef.current!.click();
                       }}
                     >
                       <GetIcon name="ArrayIcon" />
-                      {translateTo(lang, 'Add Array')}
+                      {translateTo(lang, "Add Array")}
                     </Button>
                     <Button
                       variant="default"
                       onClick={() => {
                         setDialogAddItemEdit(false);
 
-                        setDialogAddItemType('value');
+                        setDialogAddItemType("value");
 
                         const dataExactType =
                           optionsDialogRef.current!.getAttribute(
-                            'data-exact-type'
+                            "data-exact-type"
                           )! as ItemValueType;
                         setDialogAddItemValueType(dataExactType);
 
@@ -1348,7 +1288,7 @@ export function Main() {
                       }}
                     >
                       <GetIcon name="Value" />
-                      {translateTo(lang, 'Add Value')}
+                      {translateTo(lang, "Add Value")}
                     </Button>
                     <Button
                       variant="secondary"
@@ -1357,7 +1297,7 @@ export function Main() {
                       }}
                     >
                       <GetIcon name="FromText" />
-                      {translateTo(lang, 'Add From Text')}
+                      {translateTo(lang, "Add From Text")}
                     </Button>
                   </>
                 )}
@@ -1368,17 +1308,17 @@ export function Main() {
                       variant="secondary"
                       onClick={async () => {
                         const path =
-                          optionsDialogRef.current!.getAttribute('data-path')!;
+                          optionsDialogRef.current!.getAttribute("data-path")!;
 
                         optionsDialogRef.current!.click();
 
-                        await invoke('copy_to_clipboard', {
+                        await invoke("copy_to_clipboard", {
                           text: path.substring(1),
                         });
                       }}
                     >
                       <GetIcon name="Copy" />
-                      {translateTo(lang, 'Copy Path')}
+                      {translateTo(lang, "Copy Path")}
                     </Button>
                     <Button
                       variant="destructive"
@@ -1386,7 +1326,7 @@ export function Main() {
                         optionsDialogRef.current!.click();
 
                         const path =
-                          optionsDialogRef.current!.getAttribute('data-path')!;
+                          optionsDialogRef.current!.getAttribute("data-path")!;
                         const arrayElement = /^\[\d+\]$/g.test(
                           getPathChild(path)
                         );
@@ -1395,10 +1335,14 @@ export function Main() {
                           path,
                           arrayElement,
                         });
+
+                        //TODO Refactorize treeRefresh Event!
+
+                        setTimeout(refreshTree, 20);
                       }}
                     >
                       <GetIcon name="Trash" />
-                      {translateTo(lang, 'Remove')}
+                      {translateTo(lang, "Remove")}
                     </Button>
                   </>
                 )}
@@ -1406,7 +1350,7 @@ export function Main() {
             </DialogHeader>
           </DialogContent>
         </Dialog>
-        <Jason />
+        <Jason jason={jason0} />
       </main>
     </>
   );

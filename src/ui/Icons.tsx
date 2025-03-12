@@ -1,4 +1,4 @@
-const BurgerIcon = ({ className = '' }: { className: string }) => (
+const BurgerIcon = ({ className = "" }: { className: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -17,7 +17,7 @@ const BurgerIcon = ({ className = '' }: { className: string }) => (
     <path d="M4 18l16 0" />
   </svg>
 );
-const PlusIcon = ({ className = '' }) => (
+const PlusIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -36,7 +36,7 @@ const PlusIcon = ({ className = '' }) => (
   </svg>
 );
 
-const LoadFileIcon = ({ className = '' }) => (
+const LoadFileIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -57,7 +57,7 @@ const LoadFileIcon = ({ className = '' }) => (
   </svg>
 );
 
-const PasteIcon = ({ className = '' }) => (
+const PasteIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -76,7 +76,7 @@ const PasteIcon = ({ className = '' }) => (
   </svg>
 );
 
-const DownloadIcon = ({ className = '' }) => (
+const DownloadIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -96,7 +96,7 @@ const DownloadIcon = ({ className = '' }) => (
   </svg>
 );
 
-const SettingsIcon = ({ className = '' }) => (
+const SettingsIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -115,7 +115,7 @@ const SettingsIcon = ({ className = '' }) => (
   </svg>
 );
 
-const TrashIcon = ({ className = '' }) => (
+const TrashIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -137,7 +137,7 @@ const TrashIcon = ({ className = '' }) => (
   </svg>
 );
 
-const ObjectIcon = ({ className = '' }) => (
+const ObjectIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -156,7 +156,7 @@ const ObjectIcon = ({ className = '' }) => (
   </svg>
 );
 
-const ArrayIcon = ({ className = '' }) => (
+const ArrayIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -175,7 +175,7 @@ const ArrayIcon = ({ className = '' }) => (
   </svg>
 );
 
-const LogoIcon = ({ className = '' }) => (
+const LogoIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -196,7 +196,7 @@ const LogoIcon = ({ className = '' }) => (
   </svg>
 );
 
-const ValueIcon = ({ className = '' }) => (
+const ValueIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -216,7 +216,7 @@ const ValueIcon = ({ className = '' }) => (
   </svg>
 );
 
-const CopyIcon = ({ className = '' }) => (
+const CopyIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -235,7 +235,7 @@ const CopyIcon = ({ className = '' }) => (
   </svg>
 );
 
-const FromTextIcon = ({ className = '' }) => (
+const FromTextIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -259,7 +259,7 @@ const FromTextIcon = ({ className = '' }) => (
   </svg>
 );
 
-const EditIcon = ({ className = '' }) => (
+const EditIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -302,6 +302,6 @@ interface GetIconProps {
   className?: string;
 }
 
-export function GetIcon({ name, className = '' }: GetIconProps) {
+export function GetIcon({ name, className = "" }: GetIconProps) {
   return Icons[name]({ className }) ?? <></>;
 }

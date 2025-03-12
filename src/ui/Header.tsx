@@ -1,7 +1,7 @@
-import { GetIcon } from './Icons';
-import { SidebarContent } from './SidebarContent';
+import { GetIcon } from "./Icons";
+import { SidebarContent } from "./SidebarContent";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
 const FPSCounter = () => {
   const [fps, setFps] = useState(0);
@@ -31,6 +31,9 @@ const FPSCounter = () => {
 
   return (
     <div
+      style={{
+        pointerEvents: "none"
+      }}
       className="fixed top-5 right-5 bg-black/70 text-white p-2 px-4 rounded 
                     font-mono text-sm z-[9999] backdrop-blur-sm shadow-lg 
                     border border-white/10"
@@ -50,8 +53,11 @@ export function Header() {
     <>
       <FPSCounter />
       <header className=" overflow-hidden sticky top-0 z-10 w-full items-center flex flex-row h-[4rem] min-h-[4rem] pl-6 bg-(--primary) border-b-4 borderb-(--border)">
-        <h1 className=" font-semibold text-4xl">Jason</h1>
-        <GetIcon name="Logo" className="aspect-square w-auto h-full scale-75" />
+        <h1 className=" font-semibold text-4xl text-white">Jason</h1>
+        <GetIcon
+          name="Logo"
+          className="aspect-square w-auto h-full scale-75 text-white"
+        />
 
         <SidebarContent />
       </header>

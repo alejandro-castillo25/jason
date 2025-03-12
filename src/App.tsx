@@ -7,6 +7,7 @@ window.addEventListener('contextmenu', (e) => e.preventDefault());
 function App() {
   return (
     <>
+
       <AppContextProvider>
         <Header />
         <Main />
