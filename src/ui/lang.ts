@@ -36,6 +36,8 @@ export function toES(value: string): string {
     Null: "Nulo",
 
     Remove: "Eliminar",
+
+    "Open URL": "Abrir URL"
   };
 
   return dict[value] ?? value;
@@ -77,6 +79,7 @@ export function toPT(value: string): string {
     Null: "Nulo",
 
     Remove: "Remover",
+    "Open URL": "Abrir URL",
   };
 
   return dict[value] ?? value;
@@ -118,6 +121,7 @@ export function toFR(value: string): string {
     Null: "Null",
 
     Remove: "Supprimer",
+    "Open URL": "Ouvrir l'URL",
   };
 
   return dict[value] ?? value;

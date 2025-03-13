@@ -8,6 +8,7 @@ import {
   getMarginLeft,
   counterFormatter,
   getPathChild,
+  isValidURL,
 } from "./util";
 
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,15 @@ export function GetFomattedValue({
   children: string | number | boolean | null | undefined;
 }) {
   function Format(value: typeof children) {
-    if (typeof value === "string")
+    if (typeof value === "string") {
+      if (isValidURL(value))
+        return (
+          <span className="text-blue-400">
+            {`"`}
+            {value}
+            {`"`}
+          </span>
+        );
       return (
         <span className="text-green-400">
           {`"`}
@@ -44,6 +53,7 @@ export function GetFomattedValue({
           {`"`}
         </span>
       );
+    }
 
     if (typeof value === "boolean")
       return <span className="text-red-400">{value.toString()}</span>;
@@ -99,14 +109,13 @@ const Node = ({
     id,
   },
   isOpen,
-  height, //TODO Get rid of this!
   style,
   toggle,
 }: any) => {
   const [jasonWordWrap] = useContext(AppContext)?.jasonWordWrap!;
   const [jasonPaths] = useContext(AppContext)?.jasonPaths!;
-  const [jasonPathsNearPathOnly] =
-    useContext(AppContext)?.jasonPathsNearPathOnly!;
+  const [jasonPathsNearParentOnly] =
+    useContext(AppContext)?.jasonPathsNearParentOnly!;
   const [jasonObjectSize] = useContext(AppContext)?.jasonObjectSize!;
 
   const [jasonItemsOffset] = useContext(AppContext)?.jasonItemsOffset!;
@@ -121,8 +130,10 @@ const Node = ({
     <div
       style={{
         ...style,
+        width: "95vw",
         //If i add height: "auto" everything breaks, how do i fix it
       }}
+      className="mt-2.5 ml-2.5"
     >
       {!isLeaf ? (
         <Button
@@ -131,13 +142,14 @@ const Node = ({
           }}
           variant={"secondary"}
           style={{
+            wordWrap: "break-word",
             marginLeft: `${nestingLevel * jasonItemsOffset}px`,
           }}
           className={`jason-item break-all h-auto ${
             jasonWordWrap ? "max-w-[90vw]" : ""
           } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
             objectSize === 0 ? "text-foreground/50" : ""
-          } w-max`}
+          } ${id === " " ? "w-[30vw]" : "w-max"}`}
           onContextMenu={(e) => {
             e.preventDefault();
             optionsDialogRef.current!.setAttribute("data-type", dataType);
@@ -186,16 +198,22 @@ const Node = ({
                 jasonObjectSize
                   ? objectSize >= 10
                     ? objectSize >= 100
-                      ? "scale-105"
+                      ? objectSize >= 10_000
+                        ? "scale-115"
+                        : "scale-105"
                       : "scale-95"
                     : "scale-80"
-                  : "scale-100"
-              } w-[2.8rem]! h-[2.8rem]! transition 0 scale`}
+                  : "scale-75"
+              } w-[2.8rem]! h-[2.8rem]!`}
             />
             {jasonObjectSize && (
               <span
                 className={`absolute opacity-60 ${
-                  objectSize >= 100 ? "text-[0.70rem]" : "text-[0.85rem]"
+                  objectSize >= 100
+                    ? objectSize >= 10000
+                      ? "text-[0.65rem]"
+                      : "text-[0.70rem]"
+                    : "text-[0.85rem]"
                 }`}
               >
                 {counterFormatter.format(objectSize)}
@@ -213,7 +231,7 @@ const Node = ({
             </span>
             {jasonPaths && (
               <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                {jasonPathsNearPathOnly ? getPathCurrentParentOnly(id) : id}
+                {jasonPathsNearParentOnly ? getPathCurrentParentOnly(id) : id}
               </i>
             )}
           </span>
@@ -227,6 +245,7 @@ const Node = ({
            text-w`}
           variant="secondary"
           style={{
+            wordWrap: "break-word",
             marginLeft: `${nestingLevel * jasonItemsOffset}px`,
           }}
           key={id}
@@ -282,7 +301,7 @@ const Node = ({
             <span className="text-gray-300">{" :  "}</span>
             {jasonPaths && (
               <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                {jasonPathsNearPathOnly ? getPathCurrentParentOnly(id) : id}
+                {jasonPathsNearParentOnly ? getPathCurrentParentOnly(id) : id}
                 <br />
               </i>
             )}
@@ -296,20 +315,26 @@ const Node = ({
   );
 };
 
-
-
 export function HandleJason2({ data }: any) {
   const [treeWidth, setTreeWidth] = useState<number>(window.innerWidth);
-  const [jasonPathsNearPathOnly] =
-    useAppContext()?.jasonPathsNearPathOnly!;
+  const [treeHeight, setTreeHeight] = useState<number>(
+    window.innerHeight
+    // -Number.parseFloat(getComputedStyle(document.documentElement).fontSize) *
+    //     4.5
+  );
+
+  const [jasonPathsNearParentOnly] = useAppContext()?.jasonPathsNearParentOnly!;
   const [jasonPaths] = useAppContext()?.jasonPaths!;
   const [jasonItemsOffset] = useAppContext()?.jasonItemsOffset!;
   const [jasonWordWrap] = useAppContext()?.jasonWordWrap!;
-  const [jasonObjectSize] = useAppContext()?.jasonObjectSize!;
+  // const [jasonObjectSize] = useAppContext()?.jasonObjectSize!;
 
+  const [jasonMemoObjects, setJasonMemoObjects] =
+    useAppContext()?.jasonMemoObjects!;
+  const [jasonMemoValues, setJasonMemoValues] =
+    useAppContext()?.jasonMemoValues!;
 
-  const [jasonMemoObjects, setMemoObjects] = useAppContext()?.jasonMemoObjects!;
-  const [jasonMemoValues, setMemoValues] = useAppContext()?.jasonMemoValues!;
+  const scrollDeltaRef = useRef<number>(0);
 
   const treeRef = useRef<any>();
   function* treeWalker(refresh: boolean): any {
@@ -369,7 +394,7 @@ export function HandleJason2({ data }: any) {
           $jasonValueTemplatePath.style.display = "inline";
 
           $jasonValueTemplatePath.innerText = (
-            jasonPathsNearPathOnly ? getPathCurrentParentOnly(path) : path
+            jasonPathsNearParentOnly ? getPathCurrentParentOnly(path) : path
           ).concat("\n");
         }
 
@@ -394,10 +419,7 @@ export function HandleJason2({ data }: any) {
 
         const height = $jasonValueTemplate.getBoundingClientRect().height;
 
-        setMemoValues((memo) => {
-          memo.set(path, [value, height]);
-          return memo;
-        })
+        setJasonMemoValues((memo) => memo.set(path, [value, height]));
 
         return height;
       }
@@ -420,17 +442,10 @@ export function HandleJason2({ data }: any) {
         else {
           $jasonObjectTemplatePath.style.display = "inline";
 
-          $jasonObjectTemplatePath.innerText = jasonPathsNearPathOnly
+          $jasonObjectTemplatePath.innerText = jasonPathsNearParentOnly
             ? getPathCurrentParentOnly(path)
             : path;
         }
-
-        const $jasonObjectTemplateSize: HTMLElement = document.getElementById(
-          "jasonObjectTemplate_size"
-        )!;
-
-        if (jasonObjectSize) $jasonObjectTemplateSize.style.display = "flex";
-        else $jasonObjectTemplateSize.style.display = "none";
 
         const $jasonObjectTemplate: HTMLElement = document.getElementById(
           "jasonObjectTemplate"
@@ -445,17 +460,14 @@ export function HandleJason2({ data }: any) {
 
         const height = $jasonObjectTemplate.getBoundingClientRect().height;
 
-        setMemoObjects(memo => {
-          memo.set(path, height);
-          return memo;
-        });
+        setJasonMemoObjects((memo) => memo.set(path, height));
         return height;
       }
 
       const nodeData: TreeNodeData = {
         objectSize: isLeaf ? 0 : getObjectLength(value as object),
         defaultHeight:
-          (isLeaf ? getValueTemplateHeight() : getObjectTemplateHeight()) + 2.5,
+          (isLeaf ? getValueTemplateHeight() : getObjectTemplateHeight()) + 2,
         parentType: /\[\d+\]/.test(getPathChild(path)) ? "array" : "object",
         dataType: isObject ? "object" : isArray ? "array" : "value",
         dataExactType: (isObject
@@ -485,14 +497,12 @@ export function HandleJason2({ data }: any) {
             path: `${path}${
               isValidPointNotation(key) ? `.${key}` : `["${key}"]`
             }`,
-            // path: `${path}${path === "." ? "" : "."}${key}`,
           }));
         } else if (isArray) {
           children = value.map((val, index) => ({
             name: index.toString(),
             value: val,
             path: `${path}[${index}]`,
-            // path: `${path}${path === "/" ? "" : "/"}${index}`,
           }));
         }
 
@@ -517,27 +527,80 @@ export function HandleJason2({ data }: any) {
     }
   }
 
-  function updateWidth() {
+  function updateTreeSize() {
     setTreeWidth(window.innerWidth);
+    setTreeHeight(
+      window.innerHeight
+      // -Number.parseFloat(getComputedStyle(document.documentElement).fontSize) *
+      //     4.5
+    );
+
+    setJasonMemoValues((memo) => {
+      memo.clear();
+      return memo;
+    });
+
+    setJasonMemoObjects((memo) => {
+      memo.clear();
+      return memo;
+    });
+
     setTimeout(recomputeTree, 25);
   }
 
   useEffect(() => {
-    window.addEventListener("resize", updateWidth);
+    window.addEventListener("resize", updateTreeSize);
     document.addEventListener("refreshTree", recomputeTree);
 
     return () => {
-      window.removeEventListener("resize", updateWidth);
+      window.removeEventListener("resize", updateTreeSize);
       document.removeEventListener("refreshTree", recomputeTree);
     };
   }, []);
 
   return (
     <Tree
+      onScroll={(e) => {
+        const { scrollOffset } = e;
+
+        const $jasonHeader = document.getElementById("jasonHeader")!;
+
+        if (
+          scrollOffset > scrollDeltaRef.current + 50 &&
+          $jasonHeader.style.height !== "0px"
+        ) {
+          $jasonHeader.style.height = "0px";
+          $jasonHeader.style.borderBottomWidth = "0px";
+          // setTreeHeight(
+          //   window.innerHeight +
+          //     Number.parseFloat(
+          //       getComputedStyle(document.documentElement).fontSize
+          //     ) *
+          //       4.5
+          // );
+        } else if (
+          scrollOffset === 0 ||
+          (scrollOffset + 65 < scrollDeltaRef.current &&
+            $jasonHeader.style.height === "0px")
+        ) {
+          $jasonHeader.style.height = "4.5rem";
+          $jasonHeader.style.borderBottomWidth = "4px";
+
+          // setTreeHeight(
+          //   window.innerHeight -
+          //     Number.parseFloat(
+          //       getComputedStyle(document.documentElement).fontSize
+          //     ) *
+          //       4.5
+          // );
+        }
+
+        scrollDeltaRef.current = scrollOffset;
+      }}
       ref={treeRef}
-      className="jason2container"
+      className="jason2container bg-(--background)"
       treeWalker={treeWalker}
-      height={600}
+      height={treeHeight}
       width={treeWidth}
     >
       {Node}
@@ -560,7 +623,7 @@ export function HandleJason({
   const [jasonWordWrap, _setJasonWordWrap] =
     useContext(AppContext)?.jasonWordWrap!;
   const [jasonPathsOnlyParent, _setJasonPathsOnlyParent] =
-    useContext(AppContext)?.jasonPathsNearPathOnly!;
+    useContext(AppContext)?.jasonPathsNearParentOnly!;
   const [jasonObjectSize, _setJasonObjectSize] =
     useContext(AppContext)?.jasonObjectSize!;
 
@@ -1056,7 +1119,7 @@ export const HandleJasonLegacy = ({
     useContext(AppContext)?.jasonWordWrap!;
 
   const [jasonPathsOnlyParent, _setJasonPathsOnlyParent] =
-    useContext(AppContext)?.jasonPathsNearPathOnly!;
+    useContext(AppContext)?.jasonPathsNearParentOnly!;
 
   const [jasonObjectSize, _setJasonObjectSize] =
     useContext(AppContext)?.jasonObjectSize!;

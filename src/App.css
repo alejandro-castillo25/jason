@@ -17,7 +17,20 @@ main {
 }
 
 .jason-item {
-  word-wrap: break-word;
+  
+  transform-origin: left;
+  animation-name: none; /** Enable the spawn animation -> 'spawn' */
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+
+}
+
+@keyframes spawn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
 }
 
 .jason-item > span > * {
@@ -50,6 +63,5 @@ main {
 
 
 .jason2container {
-  background: rgb(2, 25, 49);
   scrollbar-width: none;
 }

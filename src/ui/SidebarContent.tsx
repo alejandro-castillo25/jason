@@ -16,8 +16,7 @@ import { toES, translateTo } from "./lang";
 import type { IconName } from "./Icons";
 
 import { AppContext } from "../AppContext";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 
 export function SidebarContent() {
   const [lang, _setLang] = useContext(AppContext)?.lang!;
@@ -84,7 +83,7 @@ export function SidebarContent() {
                         : "outline"
                       : "destructive"
                   }
-                  className="h-[3rem] w-[100%] flex mt-4 mb-4"
+                  className="h-[3rem] w-[100%] flex mt-3.5 mb-3.5"
                   onClick={() => executeAction(text)}
                 >
                   <GetIcon name={getIconName(text)} />

@@ -179,3 +179,30 @@ export function editObjectValue({
 
   return Object.fromEntries(updatedEntries);
 }
+
+export function isValidURL(value: string): boolean {
+
+
+  if (/\s/.test(value)) return false;
+
+    const VALID_PROTOCOLS: Array<string> = [
+      "http://",
+      "https://",
+      "ftp://",
+      "ftps://",
+      "ws://",
+      "wss://",
+      "mailto:",
+      "geo:", //? Mostly for mobile environments
+      "tel:",
+      "sip:",
+      "sips:",
+      "sms:",
+    ];
+  
+  for (let validProtocol of VALID_PROTOCOLS)
+    if (value.startsWith(validProtocol)) return value.length > validProtocol.length;
+
+
+  return false;
+}

@@ -32,7 +32,7 @@ const FPSCounter = () => {
   return (
     <div
       style={{
-        pointerEvents: "none"
+        pointerEvents: "none",
       }}
       className="fixed top-5 right-5 bg-black/70 text-white p-2 px-4 rounded 
                     font-mono text-sm z-[9999] backdrop-blur-sm shadow-lg 
@@ -52,7 +52,11 @@ export function Header() {
   return (
     <>
       <FPSCounter />
-      <header className=" overflow-hidden sticky top-0 z-10 w-full items-center flex flex-row h-[4rem] min-h-[4rem] pl-6 bg-(--primary) border-b-4 borderb-(--border)">
+      <header
+        id="jasonHeader"
+        className="overflow-hidden box-border h-[4.5rem] w-full items-center flex flex-row pl-6 bg-(--primary) border-b-4 border-b-(--border)"
+        style={{ transition: "height 200ms linear, border 200ms linear" }}
+      >
         <h1 className=" font-semibold text-4xl text-white">Jason</h1>
         <GetIcon
           name="Logo"

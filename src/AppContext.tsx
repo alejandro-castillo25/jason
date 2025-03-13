@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import example from "./hud_screen.json";
+import example from "./large-file.json";
 
 import type { Lang } from "./ui/lang";
 
@@ -12,11 +12,11 @@ type AppContextProps = {
   jasonBracketGuides: AppContextProp<boolean>;
   jasonItemsOffset: AppContextProp<number>;
   jasonPaths: AppContextProp<boolean>;
-  jasonPathsNearPathOnly: AppContextProp<boolean>; //TODO Fix the typo! (Path -> Parent)
+  jasonPathsNearParentOnly: AppContextProp<boolean>; //TODO Fix the typo! (Path -> Parent)
   jasonObjectSize: AppContextProp<boolean>;
   jasonWordWrap: AppContextProp<boolean>;
   jasonMemoObjects: AppContextProp<Map<string, number>>;
-  jasonMemoValues: AppContextProp<Map<string, [any, number]>>;
+  jasonMemoValues: AppContextProp<Map<string, [any, number]>>; //? [value, height, wrapHeight]
 };
 
 export const AppContext = createContext<AppContextProps | null>(null);
@@ -30,8 +30,8 @@ export function AppContextProvider({
 }) {
   const [lang, setLang] = useState<Lang>("en");
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
-  const [jasonPaths, setJasonPaths] = useState<boolean>(false);
-  const [jasonPathsNearPathOnly, setjasonPathsNearPathOnly] =
+  const [jasonPaths, setJasonPaths] = useState<boolean>(true);
+  const [jasonPathsNearParentOnly, setjasonPathsNearParentOnly] =
     useState<boolean>(false);
   const [jasonWordWrap, setJasonWordWrap] = useState<boolean>(true);
   const [jasonObjectSize, setJasonObjectSize] = useState<boolean>(true);
@@ -118,9 +118,9 @@ export function AppContextProvider({
         jasonItemsOffset: [jasonItemsOffset, setJasonItemsOffset],
         jasonBracketGuides: [jasonBracketGuides, setJasonBracketGuides],
         jasonPaths: [jasonPaths, setJasonPaths],
-        jasonPathsNearPathOnly: [
-          jasonPathsNearPathOnly,
-          setjasonPathsNearPathOnly,
+        jasonPathsNearParentOnly: [
+          jasonPathsNearParentOnly,
+          setjasonPathsNearParentOnly,
         ],
         jasonObjectSize: [jasonObjectSize, setJasonObjectSize],
         jasonWordWrap: [jasonWordWrap, setJasonWordWrap],
