@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import example from "./large-file.json";
+import example from "./hud_screen.json";
 
 import type { Lang } from "./ui/lang";
 
@@ -30,7 +30,7 @@ export function AppContextProvider({
 }) {
   const [lang, setLang] = useState<Lang>("en");
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
-  const [jasonPaths, setJasonPaths] = useState<boolean>(true);
+  const [jasonPaths, setJasonPaths] = useState<boolean>(false);
   const [jasonPathsNearParentOnly, setjasonPathsNearParentOnly] =
     useState<boolean>(false);
   const [jasonWordWrap, setJasonWordWrap] = useState<boolean>(true);
@@ -60,6 +60,13 @@ export function AppContextProvider({
   };
 
   useEffect(() => {
+    return () => {
+      setJasonMemoObjects(new Map());
+      setJasonMemoValues(new Map());
+    };
+  }, []);
+
+  useEffect(() => {
     function handleKeys(e: KeyboardEvent) {
       const { key } = e;
 
@@ -67,15 +74,9 @@ export function AppContextProvider({
         e.preventDefault();
         setJasonPaths((paths) => !paths);
 
-        setJasonMemoObjects((memo) => {
-          memo.clear();
-          return memo;
-        });
+        setJasonMemoObjects(new Map());
 
-        setJasonMemoValues((memo) => {
-          memo.clear();
-          return memo;
-        });
+        setJasonMemoValues(new Map());
 
         setTimeout(refreshTree, 20);
       } else if (e.ctrlKey && key === "g") {
@@ -89,15 +90,9 @@ export function AppContextProvider({
         e.preventDefault();
         setJasonWordWrap((wrap) => !wrap);
 
-        setJasonMemoObjects((memo) => {
-          memo.clear();
-          return memo;
-        });
+        setJasonMemoObjects(new Map());
 
-        setJasonMemoValues((memo) => {
-          memo.clear();
-          return memo;
-        });
+        setJasonMemoValues(new Map());
 
         setTimeout(refreshTree, 20);
       }

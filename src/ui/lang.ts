@@ -13,6 +13,7 @@ export function toES(value: string): string {
     Edit: "Editar",
     "Edit Array": "Editar Array",
     "Edit Object": "Editar Objeto",
+    
     "Edit Value": "Editar Valor",
     "Add Object": "Agregar Objeto",
     "Add Array": "Agregar Array",
@@ -20,7 +21,7 @@ export function toES(value: string): string {
 
     "Add From Text": "Agregar Desde Texto",
     "Copy Path": "Copiar ruta",
-
+    
     "You can't add an item with an empty key!":
       "No puedes añadir un item con una clave vacía",
     "This number is too small!": "1Este número es demasiado pequeño!",
@@ -36,8 +37,9 @@ export function toES(value: string): string {
     Null: "Nulo",
 
     Remove: "Eliminar",
-
-    "Open URL": "Abrir URL"
+    
+    "Open URL": "Abrir URL",
+    "Root": "Raíz",
   };
 
   return dict[value] ?? value;
@@ -60,25 +62,26 @@ export function toPT(value: string): string {
     "Add Object": "Adicionar Objeto",
     "Add Array": "Adicionar Array",
     "Add Value": "Adicionar Valor",
-
+    
     "Add From Text": "Adicionar de Texto",
     "Copy Path": "Copiar Caminho",
-
+    
     "You can't add an item with an empty key!":
-      "Você não pode adicionar um item com chave vazia!",
+    "Você não pode adicionar um item com chave vazia!",
     "This number is too small!": "Este número é muito pequeno!",
     "This number is too big!": "Este número é muito grande!",
     "That's not a right number!": "Não é um número válido!",
-
+    
     Key: "Chave",
     Value: "Valor",
-
+    
     String: "String",
     Number: "Número",
     Boolean: "Booleano",
     Null: "Nulo",
-
+    
     Remove: "Remover",
+    "Root": "Raíz",
     "Open URL": "Abrir URL",
   };
 
@@ -102,26 +105,27 @@ export function toFR(value: string): string {
     "Add Object": "Ajouter Object",
     "Add Array": "Ajouter Array",
     "Add Value": "Ajouter Valeur",
-
+    
     "Add From Text": "Ajouter Depuis Texte",
     "Copy Path": "Copier Chemin",
-
+    
     "You can't add an item with an empty key!":
-      "Vous ne pouvez pas ajouter un élément avec une clé vide !",
+    "Vous ne pouvez pas ajouter un élément avec une clé vide !",
     "This number is too small!": "Ce nombre est trop petit !",
     "This number is too big!": "Ce nombre est trop grand !",
     "That's not a right number!": "Ce n'est pas un nombre valide !",
-
+    
     Key: "Clé",
     Value: "Valeur",
-
+    
     String: "String",
     Number: "Nombre",
     Boolean: "Booléen",
     Null: "Null",
-
+    
     Remove: "Supprimer",
     "Open URL": "Ouvrir l'URL",
+    "Root": "Racine",
   };
 
   return dict[value] ?? value;
@@ -129,6 +133,7 @@ export function toFR(value: string): string {
 export function translateTo(lang: Lang, value: string) {
   if (lang === "es") return toES(value);
   if (lang === "pt") return toPT(value);
+  if (lang === "fr") return toFR(value);
 
   return value;
 }

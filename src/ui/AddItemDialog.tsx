@@ -6,12 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
+import { useEffect, useRef, useState } from "react";
 
 import {
   Form,
@@ -25,12 +20,26 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { Switch } from "@/components/ui/switch";
 
-import { editObjectValue, evalFormat, getPathChild, isValidPointNotation, isValidURL } from "./util";
+import {
+  editObjectValue,
+  evalFormat,
+  getPathChild,
+  isValidColor,
+  isValidHex,
+  isValidPointNotation,
+  isValidURL,
+} from "./util";
 
 import type { JasonItem, EditItemType, ItemValueType } from "./Main";
 import { useAppContext } from "@/AppContext";
 import { translateTo } from "./lang";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { GetIcon } from "./Icons";
 import { Button } from "@/components/ui/button";
 
@@ -643,7 +652,20 @@ export function AddItemDialog({
                               autoComplete="off"
                               spellCheck={false}
                               placeholder={translateTo(lang, "String")}
-                              className={`max-h-[33vh] ${isValidURL(field.value) ? "text-blue-400" : "text-green-400"}`}
+                              className={`max-h-[35vh] ${
+                                isValidURL(field.value)
+                                  ? "text-blue-400"
+                                  : "text-green-400"
+                              }`}
+                              style={
+                                isValidColor(field.value)
+                                  ? {
+                                      color: field.value,
+                                      textShadow: "1.5px 1px 0px #444444",
+
+                                    }
+                                  : {}
+                              }
                               {...field}
                             />
                           </FormControl>

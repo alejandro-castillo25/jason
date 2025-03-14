@@ -23,8 +23,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { Badge } from "@/components/ui/badge";
+
 import { HandleJason2 } from "./HandleJason";
 import { translateTo } from "./lang";
+
 import { AddItemDialog } from "./AddItemDialog";
 
 const Jason = memo(({ jason }: { jason: any }) => {
@@ -77,17 +80,16 @@ export function Main() {
   >("object");
 
   const [dialogAddItemValue, setDialogAddItemValue] = useState<string>("");
+  const [dialogObjectSize, setDialogObjectSize] = useState<number>(0);
 
   const [jason0, setJason] = useContext(AppContext)?.jason!;
-  const [lang, _setLang] = useContext(AppContext)?.lang!;
+  const [lang] = useContext(AppContext)?.lang!;
 
   const optionsDialogRef = useRef<HTMLElement | null>(null);
   const addItemDialogRef = useRef<HTMLElement | null>(null);
 
-  const [jasonMemoObjects, setJasonMemoObjects] =
-    useAppContext()?.jasonMemoObjects!;
-  const [jasonMemoValues, setJasonMemoValues] =
-    useAppContext()?.jasonMemoValues!;
+  const [, setJasonMemoObjects] = useAppContext()?.jasonMemoObjects!;
+  const [, setJasonMemoValues] = useAppContext()?.jasonMemoValues!;
 
   const refreshTree = () => {
     const refreshTreeEvent = new CustomEvent("refreshTree", {
@@ -232,6 +234,7 @@ export function Main() {
             data-type={""}
             data-value={""}
             data-exact-type={""}
+            data-object-size={0}
             autoFocus={false}
             onClick={() => {
               const objType = optionsDialogRef.current!.getAttribute(
@@ -243,7 +246,18 @@ export function Main() {
                 "data-parent-type"
               ) as "object" | "array";
 
+              const objectSize = optionsDialogRef.current!.getAttribute(
+                "data-object-size"
+              ) as EditItemType;
+              setDialogObjectSize(Number.parseInt(objectSize));
+
               setIsRoot(isRootData === "true");
+
+              const dataExactType = optionsDialogRef.current!.getAttribute(
+                "data-exact-type"
+              )! as ItemValueType;
+
+              setDialogAddItemValueType(dataExactType);
 
               setDialogAddItemParentType(parentType);
               setDialogType(objType);
@@ -254,22 +268,36 @@ export function Main() {
               setDialogAddItemValue(dataValue);
 
               setDialogTitle(
-                `Edit ${
-                  isRootData === "true"
-                    ? "Root"
-                    : objType === "object"
-                    ? "Object"
-                    : objType === "array"
-                    ? "Array"
-                    : "Value"
-                }`
+                isRootData === "true"
+                  ? "Root"
+                  : objType === "object"
+                  ? "Object"
+                  : objType === "array"
+                  ? "Array"
+                  : "Value"
               );
             }}
           ></DialogTrigger>
           <DialogContent aria-describedby={undefined}>
-            <DialogHeader>
-              {/*//TODO Change the 'Edit X' to just X, probably..*/}
-              <DialogTitle className="text-2xl flex items-center justify-start max-sm:justify-center mb-5">
+            <DialogHeader className="relative">
+              {(dialogType === "object" ||
+                dialogType === "array" ||
+                dialogAddItemValueType === "string") && (
+                <Badge
+                  variant="outline"
+                  className={`absolute top-[-0.65rem] left-[-0.65rem]
+                  ${dialogAddItemValueType === "string" ? "text-green-400" : ""} `}
+                >
+                  <GetIcon
+                    name="Length"
+                    className="w-[1.15rem]! h-[1.15rem]!"
+                  />
+
+                  {dialogObjectSize}
+                </Badge>
+              )}
+
+              <DialogTitle className="text-2xl flex items-center justify-center mb-5">
                 {translateTo(lang, dialogTitle)}
                 {dialogType === "object" ? (
                   <GetIcon

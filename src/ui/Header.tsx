@@ -34,7 +34,7 @@ const FPSCounter = () => {
       style={{
         pointerEvents: "none",
       }}
-      className="fixed top-5 right-5 bg-black/70 text-white p-2 px-4 rounded 
+      className="fixed top-1 right-12 bg-black/70 text-white p-2 px-4 rounded 
                     font-mono text-sm z-[9999] backdrop-blur-sm shadow-lg 
                     border border-white/10"
     >

@@ -9,6 +9,7 @@ import {
   counterFormatter,
   getPathChild,
   isValidURL,
+  isValidColor,
 } from "./util";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,20 @@ export function GetFomattedValue({
 }) {
   function Format(value: typeof children) {
     if (typeof value === "string") {
+      if (isValidColor(value)) {
+        return (
+          <span
+            style={{
+              color: value,
+              textShadow: "1.5px 1px 0px #444444",
+            }}
+          >
+            {`"`}
+            {value}
+            {`"`}
+          </span>
+        );
+      }
       if (isValidURL(value))
         return (
           <span className="text-blue-400">
@@ -147,7 +162,7 @@ const Node = ({
           }}
           className={`jason-item break-all h-auto ${
             jasonWordWrap ? "max-w-[90vw]" : ""
-          } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
+          } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:bg-secondary/80 focus-visible:bg-secondary/80 ${
             objectSize === 0 ? "text-foreground/50" : ""
           } ${id === " " ? "w-[30vw]" : "w-max"}`}
           onContextMenu={(e) => {
@@ -157,6 +172,12 @@ const Node = ({
               "data-parent-type",
               parentType
             );
+
+            optionsDialogRef.current!.setAttribute(
+              "data-object-size",
+              objectSize
+            );
+
             optionsDialogRef.current!.setAttribute(
               "data-exact-type",
               dataExactType
@@ -179,6 +200,11 @@ const Node = ({
               optionsDialogRef.current!.setAttribute(
                 "data-exact-type",
                 dataExactType
+              );
+
+              optionsDialogRef.current!.setAttribute(
+                "data-object-size",
+                objectSize
               );
               optionsDialogRef.current!.setAttribute(
                 "data-parent-type",
@@ -240,7 +266,7 @@ const Node = ({
         <Button
           className={`jason-item ${
             jasonWordWrap ? "max-w-[90vw]" : ""
-          } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem]
+          } bg-(--secondary) p-2 rounded-(--radius) w-max text-[1rem] focus-visible:bg-secondary/80 hover:bg-secondary/80
            h-auto
            text-w`}
           variant="secondary"
@@ -258,10 +284,12 @@ const Node = ({
               "data-parent-type",
               parentType
             );
+
             optionsDialogRef.current!.setAttribute(
               "data-exact-type",
               dataExactType
             );
+
             optionsDialogRef.current!.setAttribute(
               "data-value",
               value === null ? "null" : String(value)
@@ -288,6 +316,13 @@ const Node = ({
               "data-value",
               value === null ? "null" : String(value)
             );
+
+            if (typeof value === "string")
+              optionsDialogRef.current!.setAttribute(
+                "data-object-size",
+                String(value.length)
+              );
+
             optionsDialogRef.current!.setAttribute(
               "data-root",
               id === " " ? "true" : "false"
@@ -535,15 +570,9 @@ export function HandleJason2({ data }: any) {
       //     4.5
     );
 
-    setJasonMemoValues((memo) => {
-      memo.clear();
-      return memo;
-    });
+    setJasonMemoObjects(new Map());
 
-    setJasonMemoObjects((memo) => {
-      memo.clear();
-      return memo;
-    });
+    setJasonMemoValues(new Map());
 
     setTimeout(recomputeTree, 25);
   }

@@ -10,6 +10,10 @@
     "opener:default",
     "clipboard-manager:allow-write-text",
     "opener:allow-default-urls",
-    "opener:allow-open-url"
+    "opener:allow-open-url",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "fs:default"
   ]
 }

@@ -181,28 +181,192 @@ export function editObjectValue({
 }
 
 export function isValidURL(value: string): boolean {
-
-
   if (/\s/.test(value)) return false;
 
-    const VALID_PROTOCOLS: Array<string> = [
-      "http://",
-      "https://",
-      "ftp://",
-      "ftps://",
-      "ws://",
-      "wss://",
-      "mailto:",
-      "geo:", //? Mostly for mobile environments
-      "tel:",
-      "sip:",
-      "sips:",
-      "sms:",
-    ];
-  
-  for (let validProtocol of VALID_PROTOCOLS)
-    if (value.startsWith(validProtocol)) return value.length > validProtocol.length;
+  const VALID_PROTOCOLS = [
+    "http://",
+    "https://",
+    "ftp://",
+    "ftps://",
+    "ws://",
+    "wss://",
+    "mailto:",
+    "geo:", //? Mostly for mobile environments
+    "tel:",
+    "sip:",
+    "sips:",
+    "sms:",
+  ] as const;
 
+  for (let validProtocol of VALID_PROTOCOLS)
+    if (value.startsWith(validProtocol))
+      return value.length > validProtocol.length;
+
+  return false;
+}
+
+
+export function isValidColor(value: string) : boolean {
+  return isValidHex(value) || isValidKeywordColor(value);
+}
+
+export function isValidHex(value: string): boolean {
+  const hex: RegExp = /^#(?:(?:[a-f0-9]{6})|(?:[a-f0-9]{3}))$/i;
+  return hex.test(value);
+}
+
+export function isValidKeywordColor(value: string): boolean {
+  const VALID_COLORS = [
+    "aliceblue",
+    "antiquewhite",
+    "aqua",
+    "aquamarine",
+    "azure",
+    "beige",
+    "bisque",
+    "black",
+    "blanchedalmond",
+    "blue",
+    "blueviolet",
+    "brown",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cornsilk",
+    "crimson",
+    "cyan",
+    "darkblue",
+    "darkcyan",
+    "darkgoldenrod",
+    "darkgray",
+    "darkgreen",
+    "darkgrey",
+    "darkkhaki",
+    "darkmagenta",
+    "darkolivegreen",
+    "darkorange",
+    "darkorchid",
+    "darkred",
+    "darksalmon",
+    "darkseagreen",
+    "darkslateblue",
+    "darkslategray",
+    "darkslategrey",
+    "darkturquoise",
+    "darkviolet",
+    "deeppink",
+    "deepskyblue",
+    "dimgray",
+    "dimgrey",
+    "dodgerblue",
+    "firebrick",
+    "floralwhite",
+    "forestgreen",
+    "fuchsia",
+    "gainsboro",
+    "ghostwhite",
+    "gold",
+    "goldenrod",
+    "gray",
+    "green",
+    "greenyellow",
+    "grey",
+    "honeydew",
+    "hotpink",
+    "indianred",
+    "indigo",
+    "ivory",
+    "khaki",
+    "lavender",
+    "lavenderblush",
+    "lawngreen",
+    "lemonchiffon",
+    "lightblue",
+    "lightcoral",
+    "lightcyan",
+    "lightgoldenrodyellow",
+    "lightgray",
+    "lightgreen",
+    "lightgrey",
+    "lightpink",
+    "lightsalmon",
+    "lightseagreen",
+    "lightskyblue",
+    "lightslategray",
+    "lightslategrey",
+    "lightsteelblue",
+    "lightyellow",
+    "lime",
+    "limegreen",
+    "linen",
+    "magenta",
+    "maroon",
+    "mediumaquamarine",
+    "mediumblue",
+    "mediumorchid",
+    "mediumpurple",
+    "mediumseagreen",
+    "mediumslateblue",
+    "mediumspringgreen",
+    "mediumturquoise",
+    "mediumvioletred",
+    "midnightblue",
+    "mintcream",
+    "mistyrose",
+    "moccasin",
+    "navajowhite",
+    "navy",
+    "oldlace",
+    "olive",
+    "olivedrab",
+    "orange",
+    "orangered",
+    "orchid",
+    "palegoldenrod",
+    "palegreen",
+    "paleturquoise",
+    "palevioletred",
+    "papayawhip",
+    "peachpuff",
+    "peru",
+    "pink",
+    "plum",
+    "powderblue",
+    "purple",
+    "red",
+    "rosybrown",
+    "royalblue",
+    "saddlebrown",
+    "salmon",
+    "sandybrown",
+    "seagreen",
+    "seashell",
+    "sienna",
+    "silver",
+    "skyblue",
+    "slateblue",
+    "slategray",
+    "slategrey",
+    "snow",
+    "springgreen",
+    "steelblue",
+    "tan",
+    "teal",
+    "thistle",
+    "tomato",
+    "turquoise",
+    "violet",
+    "wheat",
+    "white",
+    "whitesmoke",
+    "yellow",
+    "yellowgreen",
+  ] as const;
+
+  for (const color of VALID_COLORS) if (color === value) return true;
 
   return false;
 }

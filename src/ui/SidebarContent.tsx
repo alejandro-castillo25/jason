@@ -15,11 +15,28 @@ import { toES, translateTo } from "./lang";
 
 import type { IconName } from "./Icons";
 
-import { AppContext } from "../AppContext";
-
+import { AppContext, useAppContext } from "../AppContext";
+import { invoke } from "@tauri-apps/api/core";
 
 export function SidebarContent() {
-  const [lang, _setLang] = useContext(AppContext)?.lang!;
+  const [lang] = useAppContext()?.lang!;
+  const [, setJason] = useAppContext()?.jason!;
+  const [, setJasonMemoObjects] = useAppContext()?.jasonMemoObjects!;
+  const [, setJasonMemoValues] = useAppContext()?.jasonMemoValues!;
+
+
+  const refreshTree = () => {
+    const refreshTreeEvent = new CustomEvent("refreshTree", {
+      detail: {
+        message: "Refreshing Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(refreshTreeEvent);
+  };
 
   const buttonsTexts = [
     "Create New",
@@ -34,7 +51,26 @@ export function SidebarContent() {
     const actions: Record<typeof action, () => void> = {
       //TODO Implement actions
       "Create New": () => {},
-      "Load File": () => {},
+      "Load File": async () => {
+        try {
+          const path = await invoke("pick_file", {});
+          console.log(path);
+
+          alert(path);
+          const fileContent: string = await invoke("read_file_content", {
+            path,
+          });
+          alert("On it!");
+          console.log(fileContent);
+          setJason(JSON.parse(fileContent));
+          setJasonMemoObjects(new Map());
+          setJasonMemoValues(new Map());
+          setTimeout(refreshTree, 20);
+        } catch (e) {
+          console.error(e);
+          alert(e);
+        }
+      },
       "Paste Text": () => {},
       Clear: () => {},
       Download: () => {},
@@ -71,7 +107,6 @@ export function SidebarContent() {
             {lang === "en" ? "Options" : toES("Options")}
           </SheetTitle>
           <SheetDescription key={"sheetDesc"}>
-
             {buttonsTexts.map((text, i) => {
               return (
                 <Button
