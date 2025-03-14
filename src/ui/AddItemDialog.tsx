@@ -25,7 +25,6 @@ import {
   evalFormat,
   getPathChild,
   isValidColor,
-  isValidHex,
   isValidPointNotation,
   isValidURL,
 } from "./util";

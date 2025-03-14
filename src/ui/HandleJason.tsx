@@ -123,7 +123,7 @@ const Node = ({
     dataExactType,
     id,
   },
-  isOpen,
+  // isOpen,
   style,
   toggle,
 }: any) => {

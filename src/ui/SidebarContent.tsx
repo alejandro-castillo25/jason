@@ -8,14 +8,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-// import { Separator } from "@/components/ui/separator";
-import { useContext } from "react";
+
 import { GetIcon } from "./Icons";
-import { toES, translateTo } from "./lang";
+import { translateTo } from "./lang";
 
 import type { IconName } from "./Icons";
 
-import { AppContext, useAppContext } from "../AppContext";
+import {  useAppContext } from "../AppContext";
 import { invoke } from "@tauri-apps/api/core";
 
 export function SidebarContent() {
@@ -104,7 +103,7 @@ export function SidebarContent() {
       <SheetContent key={"sheet-content"}>
         <SheetHeader key={"sheet-header"}>
           <SheetTitle className="text-2xl" key={"sheet-title"}>
-            {lang === "en" ? "Options" : toES("Options")}
+            {translateTo(lang, "Options")}
           </SheetTitle>
           <SheetDescription key={"sheetDesc"}>
             {buttonsTexts.map((text, i) => {
