@@ -23,10 +23,14 @@ import { Switch } from "@/components/ui/switch";
 import {
   editObjectValue,
   evalFormat,
+  evalMath,
   getPathChild,
+  hasOnlyNums,
+  hasValidMathChars,
   isValidColor,
   isValidPointNotation,
   isValidURL,
+  parseSpecialChars,
 } from "./util";
 
 import type { JasonItem, EditItemType, ItemValueType } from "./Main";
@@ -41,6 +45,9 @@ import {
 } from "@/components/ui/dialog";
 import { GetIcon } from "./Icons";
 import { Button } from "@/components/ui/button";
+
+import { Badge } from "@/components/ui/badge";
+import { CountryFlagFallback } from "./HandleJason";
 
 interface JasonEditItem {
   oldKey: string;
@@ -82,6 +89,43 @@ export function AddItemDialog({
 
   const itemOptionsDialogRef = useRef<HTMLElement | null>(null);
   const addItemDialogRef = useRef<HTMLElement | null>(null);
+
+  const [math, setMath] = useState<boolean>(false);
+  const [numTabMath, setNumTabMath] = useState<boolean>(false);
+  const [mathValue, setMathValue] = useState<number>(0);
+
+  const handleMath = (value: string) => {
+    const expr = value.trim();
+    if (hasValidMathChars(expr)) {
+      setNumTabMath(true);
+      if (hasOnlyNums(expr)) setNumTabMath(false);
+      setMath(true);
+    } else {
+      setNumTabMath(false);
+      setMath(false);
+      return;
+    }
+
+    try {
+      const result = evalMath(expr);
+
+      if (
+        Number.isNaN(result) ||
+        result > Number.MAX_SAFE_INTEGER ||
+        result < Number.MIN_SAFE_INTEGER
+      ) {
+        setNumTabMath(false);
+        setMath(false);
+        return;
+      }
+
+      setMath(true);
+      setMathValue(result);
+    } catch {
+      setNumTabMath(false);
+      setMath(false);
+    }
+  };
 
   const refreshTree = () => {
     const refreshTreeEvent = new CustomEvent("refreshTree", {
@@ -241,6 +285,8 @@ export function AddItemDialog({
   }
 
   function onSubmitObject(values: z.infer<typeof formSchemaObject>) {
+    enableRefreshTree();
+
     const { key } = values;
     const { path, dataType } = getOptionsDialogData();
 
@@ -266,6 +312,8 @@ export function AddItemDialog({
   }
 
   function onSubmitString(values: z.infer<typeof formSchemaString>) {
+    enableRefreshTree();
+
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
 
@@ -293,6 +341,8 @@ export function AddItemDialog({
   }
 
   function onSubmitNumber(values: z.infer<typeof formSchemaNumber>) {
+    enableRefreshTree();
+
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
 
@@ -319,6 +369,8 @@ export function AddItemDialog({
   }
 
   function onSubmitBoolean(values: z.infer<typeof formSchemaBoolean>) {
+    enableRefreshTree();
+
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
 
@@ -345,6 +397,8 @@ export function AddItemDialog({
   }
 
   function onSubmitNull(values: z.infer<typeof formSchemaNull>) {
+    enableRefreshTree();
+
     values.value = null;
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
@@ -391,7 +445,9 @@ export function AddItemDialog({
 
     formBoolean.reset({
       key: dialogAddItemEdit ? dialogAddItemOldKey : "",
-      value: dialogAddItemEdit ? dialogAddItemValue === "true" : false,
+      value: dialogAddItemEdit
+        ? dialogAddItemValue === "1" || dialogAddItemValue === "true"
+        : false,
     });
     formNull.reset({
       key: dialogAddItemEdit ? dialogAddItemOldKey : "",
@@ -410,7 +466,9 @@ export function AddItemDialog({
     if (!array) {
       eval(
         `oldJason${path.substring(1)}${
-          isValidPointNotation(key!) ? `.${key}` : `["${key}"]`
+          isValidPointNotation(key!)
+            ? `.${key}`
+            : `["${parseSpecialChars(key as string)}"]`
         } = ${evalFormat(value)}`
       );
     } else {
@@ -428,62 +486,92 @@ export function AddItemDialog({
     path,
     arrayParent = false,
   }: JasonEditItem) {
-    let oldJason = !Array.isArray(jason0)
-      ? { ...jason0 }
-      : [...(jason0 as Array<any>)];
+    try {
+      let oldJason = !Array.isArray(jason0)
+        ? { ...jason0 }
+        : [...(jason0 as Array<any>)];
 
-    if (!arrayParent) {
-      const _newJasonProp = editObjectValue({
-        obj: eval(
+      if (!arrayParent) {
+        const _newJasonProp = editObjectValue({
+          obj: eval(
+            `oldJason${path.substring(
+              1,
+              path.length -
+                getPathChild(path).length +
+                (getPathChild(path).startsWith("[") ? 0 : -1)
+            )}`
+          ),
+          oldKey,
+          newKey,
+          newValue,
+        });
+
+        _newJasonProp;
+
+        eval(
           `oldJason${path.substring(
             1,
             path.length -
               getPathChild(path).length +
               (getPathChild(path).startsWith("[") ? 0 : -1)
-          )}`
-        ),
-        oldKey,
-        newKey,
-        newValue,
-      });
+          )} = _newJasonProp;`
+        );
+      } else {
+        const _newJasonProp = editObjectValue({
+          obj: eval(
+            `oldJason${path.substring(
+              1,
+              path.length - getPathChild(path).length
+            )}`
+          ),
+          oldKey,
+          newKey: oldKey,
+          newValue,
+        });
 
-      _newJasonProp;
+        _newJasonProp;
 
-      eval(
-        `oldJason${path.substring(
-          1,
-          path.length -
-            getPathChild(path).length +
-            (getPathChild(path).startsWith("[") ? 0 : -1)
-        )} = _newJasonProp;`
-      );
-    } else {
-      const _newJasonProp = editObjectValue({
-        obj: eval(
+        eval(
           `oldJason${path.substring(
             1,
             path.length - getPathChild(path).length
-          )}`
-        ),
-        oldKey,
-        newKey: oldKey,
-        newValue,
-      });
+          )} = _newJasonProp;`
+        );
+      }
 
-      _newJasonProp;
-
-      eval(
-        `oldJason${path.substring(
-          1,
-          path.length - getPathChild(path).length
-        )} = _newJasonProp;`
+      setJason0(
+        !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
       );
+    } catch (e) {
+      alert(e);
     }
-
-    setJason0(
-      !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
-    );
   }
+
+  const disableRefreshTree = () => {
+    const disableRefreshTreeEvent = new CustomEvent("disableRefreshTree", {
+      detail: {
+        message: "Disable Refresh Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(disableRefreshTreeEvent);
+  };
+
+  const enableRefreshTree = () => {
+    const enableRefreshTreeEvent = new CustomEvent("enableRefreshTree", {
+      detail: {
+        message: "Enable Refresh Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(enableRefreshTreeEvent);
+  };
 
   useEffect(() => {
     formString.setValue("key", sharedKey);
@@ -513,13 +601,24 @@ export function AddItemDialog({
 
   return (
     <Dialog
-      onOpenChange={() => {
-        resetAllForms();
+      onOpenChange={(open) => {
+        if (open) {
+          disableRefreshTree();
+
+          //? Math handler
+          handleMath(dialogAddItemValue);
+          resetAllForms();
+        } else {
+          enableRefreshTree();
+          setMath(false);
+          setTimeout(resetAllForms, 50); //? Thus the old value isn't displayed when we close the dialog
+        }
       }}
     >
       <DialogTrigger
         tabIndex={-1}
         id="addItemDialog"
+        aria-hidden="true"
         className="hidden"
         autoFocus={false}
         onClick={() => {}}
@@ -531,12 +630,12 @@ export function AddItemDialog({
             ? dialogOptionsType === "array" ||
               (dialogAddItemParentType === "array" && dialogAddItemEdit)
               ? "min-h-[18rem]"
-              : "min-h-[25rem]"
+              : "min-h-[23rem]"
             : ""
         }`}
       >
         <DialogHeader className="max-w-full ">
-          <DialogTitle className="text-2xl flex items-center justify-start max-sm:justify-center mb-5">
+          <DialogTitle className="text-2xl flex items-center justify-start max-sm:justify-center mb-2">
             {translateTo(
               lang,
               `${!dialogAddItemEdit ? "Add" : "Edit"} ${
@@ -565,9 +664,9 @@ export function AddItemDialog({
           {dialogAddItemTypeProp === "value" && (
             <Tabs
               defaultValue={dialogAddItemValueType}
-              className=" flex items-center"
+              className=" flex items-center  gap-0"
             >
-              <TabsList className="">
+              <TabsList className="my-1">
                 <TabsTrigger
                   value="string"
                   className="data-[state=active]:text-green-400"
@@ -576,7 +675,17 @@ export function AddItemDialog({
                 </TabsTrigger>
                 <TabsTrigger
                   value="number"
-                  className="data-[state=active]:text-orange-400"
+                  className={`data-[state=active]:text-orange-400 ${
+                    numTabMath ? "text-orange-400" : ""
+                  }`}
+                  style={{
+                    transition: "color 200ms linear",
+                  }}
+                  onFocus={() => {
+                    if (!math) return;
+                    formNumber.setValue("value", mathValue);
+                    formNumber.trigger();
+                  }}
                 >
                   {translateTo(lang, "Number")}
                 </TabsTrigger>
@@ -604,15 +713,15 @@ export function AddItemDialog({
                       name="key"
                       render={({ field }) => (
                         <FormItem
-                          className={
+                          className={`${
                             dialogOptionsType === "array" ||
                             (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
                               ? "hidden"
                               : ""
-                          }
+                          } gap-0`}
                         >
-                          <FormLabel className="text-(--primary)!">
+                          <FormLabel className="text-(--primary)! py-1.5">
                             {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
@@ -641,9 +750,97 @@ export function AddItemDialog({
                       control={formString.control}
                       name="value"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-(--primary)!">
+                        <FormItem className="gap-0">
+                          <FormLabel className="text-(--primary)! relative py-1.5">
                             {translateTo(lang, "Value")}:
+                            {field.value.trim().length !== 0 &&
+                              /^[^0-9]+$/g.test(field.value) &&
+                              field.value.trim().length <= 24 && (
+                                <Badge
+                                  variant="outline"
+                                  className="absolute bottom-[0.2rem] right-0.5 empty:hidden"
+                                >
+                                  <CountryFlagFallback
+                                    countryCode={field.value}
+                                    className={` text-[1.4rem] ${
+                                      field.value.trim().length !== 0 &&
+                                      /^[^0-9]+$/g.test(field.value) &&
+                                      field.value.trim().length <= 24
+                                    }`}
+                                  />
+                                </Badge>
+                              )}
+                            {isValidURL(field.value) && (
+                              <Badge
+                                variant="outline"
+                                className="absolute right-0.5 bottom-1"
+                              >
+                                <GetIcon
+                                  name="Link2"
+                                  className="h-[1rem]! w-[1rem]!"
+                                />
+                              </Badge>
+                            )}
+                            {isValidColor(field.value) && (
+                              <Badge
+                                variant="outline"
+                                className="absolute right-0.5 bottom-1"
+                              >
+                                <GetIcon
+                                  name="Color"
+                                  style={
+                                    {
+                                      color: `${field.value.trim()}`,
+                                    } as React.CSSProperties
+                                  }
+                                  className="h-[1rem]! w-[1rem]!"
+                                />
+                              </Badge>
+                            )}
+                            {!hasOnlyNums(field.value.trim()) &&
+                              hasValidMathChars(field.value.trim()) &&
+                              (() => {
+                                try {
+                                  const expr = field.value.trim();
+
+                                  if (expr.length === 0) return <></>;
+
+                                  const result = evalMath(expr);
+
+                                  if (
+                                    Number.isNaN(result) ||
+                                    result > Number.MAX_SAFE_INTEGER ||
+                                    result < Number.MIN_SAFE_INTEGER
+                                  ) {
+                                    return (
+                                      <Badge
+                                        variant="outline"
+                                        className="absolute right-0.5 bottom-1 text-[0.8rem] text-(--destructive)"
+                                      >
+                                        {translateTo(
+                                          lang,
+                                          result > Number.MAX_SAFE_INTEGER
+                                            ? "This number is too big!"
+                                            : result < Number.MIN_SAFE_INTEGER
+                                            ? "This number is too small!"
+                                            : "NaN"
+                                        )}
+                                      </Badge>
+                                    );
+                                  }
+
+                                  return (
+                                    <Badge
+                                      variant="outline"
+                                      className="absolute right-0.5 bottom-1 text-[0.75rem] text-orange-400"
+                                    >
+                                      {result}
+                                    </Badge>
+                                  );
+                                } catch {
+                                  return null;
+                                }
+                              })()}
                           </FormLabel>
                           <FormControl>
                             <Textarea
@@ -660,12 +857,18 @@ export function AddItemDialog({
                                 isValidColor(field.value)
                                   ? {
                                       color: field.value,
-                                      textShadow: "1.5px 1px 0px #444444",
-
+                                      textShadow: "1px 1px 0px #444444",
                                     }
                                   : {}
                               }
                               {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                field.onChange(value);
+
+                                setNumTabMath(!hasOnlyNums(value));
+                                handleMath(value);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -687,15 +890,15 @@ export function AddItemDialog({
                       name="key"
                       render={({ field }) => (
                         <FormItem
-                          className={
+                          className={`${
                             dialogOptionsType === "array" ||
                             (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
                               ? "hidden"
                               : ""
-                          }
+                          } gap-0`}
                         >
-                          <FormLabel className="text-(--primary)!">
+                          <FormLabel className="text-(--primary)! py-1.5">
                             {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
@@ -724,8 +927,8 @@ export function AddItemDialog({
                       control={formNumber.control}
                       name="value"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-(--primary)!">
+                        <FormItem className="gap-0">
+                          <FormLabel className="text-(--primary)! py-1.5">
                             {translateTo(lang, "Value")}:
                           </FormLabel>
                           <FormControl>
@@ -769,15 +972,15 @@ export function AddItemDialog({
                       name="key"
                       render={({ field }) => (
                         <FormItem
-                          className={
+                          className={`${
                             dialogOptionsType === "array" ||
                             (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
                               ? "hidden"
                               : ""
-                          }
+                          } gap-0`}
                         >
-                          <FormLabel className="text-(--primary)!">
+                          <FormLabel className="text-(--primary)! m-0 py-1.5">
                             {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
@@ -807,17 +1010,21 @@ export function AddItemDialog({
                       name="value"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-red-400!">
-                            <span className="text-(--primary)!">
+                          <FormLabel className="text-red-400! relative py-1.5">
+                            <span className="text-(--primary)! relative">
                               {translateTo(lang, "Value")}:{" "}
                             </span>
+                            <div
+                              className="w-full absolute top-0 h-[4rem]"
+                              aria-hidden="true"
+                            ></div>
                             {field.value.toString()}
                           </FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              className="data-[state=checked]:bg-red-400 "
+                              className="data-[state=checked]:bg-red-400"
                             />
                           </FormControl>
                           <FormMessage className="text-(--destructive)" />
@@ -841,15 +1048,15 @@ export function AddItemDialog({
                       name="key"
                       render={({ field }) => (
                         <FormItem
-                          className={
+                          className={`${
                             dialogOptionsType === "array" ||
                             (dialogAddItemParentType === "array" &&
                               dialogAddItemEdit)
                               ? "hidden"
                               : ""
-                          }
+                          } gap-0`}
                         >
-                          <FormLabel className="text-(--primary)!">
+                          <FormLabel className="text-(--primary)! py-1.5">
                             {translateTo(lang, "Key")}:
                           </FormLabel>
                           <FormControl>
@@ -878,8 +1085,8 @@ export function AddItemDialog({
                       control={formNull.control}
                       name="value"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-(--primary)!">
+                        <FormItem className="gap-0">
+                          <FormLabel className="text-(--primary)! py-1.5">
                             {translateTo(lang, "Value")}:
                           </FormLabel>
                           <FormControl>

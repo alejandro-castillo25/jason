@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{copy_to_clipboard, open_url, pick_file, read_file_content};
+use commands::{copy_to_clipboard, open_url};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -9,12 +9,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            copy_to_clipboard,
-            open_url,
-            pick_file,
-            read_file_content
-        ])
+        .invoke_handler(tauri::generate_handler![copy_to_clipboard, open_url])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -11,6 +11,7 @@ import {
   getPathChild,
   unwrapIndex,
   isValidURL,
+  itemSizeFormatter,
 } from "./util";
 
 import type { Item } from "./util";
@@ -90,6 +91,19 @@ export function Main() {
 
   const [, setJasonMemoObjects] = useAppContext()?.jasonMemoObjects!;
   const [, setJasonMemoValues] = useAppContext()?.jasonMemoValues!;
+
+  const enableRefreshTree = () => {
+    const enableRefreshTreeEvent = new CustomEvent("enableRefreshTree", {
+      detail: {
+        message: "Enable Refresh Tree",
+      },
+      cancelable: false,
+      bubbles: true,
+      composed: true,
+    });
+
+    document.dispatchEvent(enableRefreshTreeEvent);
+  };
 
   const refreshTree = () => {
     const refreshTreeEvent = new CustomEvent("refreshTree", {
@@ -176,7 +190,7 @@ export function Main() {
 
   return (
     <>
-      <main className="min-w-[100%] flex-grow">
+      <main className="min-w-[100vw] flex-grow box-border m-0 overflow-auto">
         <Button
           className="hidden"
           id="optionDialogEditBtn"
@@ -225,8 +239,10 @@ export function Main() {
           dialogAddItemValue={dialogAddItemValue}
           dialogAddItemParentType={dialogAddItemParentType}
         />
+
         <Dialog>
           <DialogTrigger
+            aria-hidden="true"
             tabIndex={-1}
             id="itemOptionsDialog"
             className="hidden"
@@ -285,19 +301,21 @@ export function Main() {
                 dialogAddItemValueType === "string") && (
                 <Badge
                   variant="outline"
-                  className={`absolute top-[-0.65rem] left-[-0.65rem]
-                  ${dialogAddItemValueType === "string" ? "text-green-400" : ""} `}
+                  className={`absolute top-[-0.45rem] left-[-0.45rem]
+                  ${
+                    dialogAddItemValueType === "string" ? "text-green-400" : ""
+                  } `}
                 >
                   <GetIcon
                     name="Length"
                     className="w-[1.15rem]! h-[1.15rem]!"
                   />
 
-                  {dialogObjectSize}
+                  {itemSizeFormatter(lang).format(dialogObjectSize)}
                 </Badge>
               )}
 
-              <DialogTitle className="text-2xl flex items-center justify-center mb-5">
+              <DialogTitle className="text-2xl flex items-center justify-center mb-3">
                 {translateTo(lang, dialogTitle)}
                 {dialogType === "object" ? (
                   <GetIcon
@@ -323,6 +341,7 @@ export function Main() {
                     (dialogType === "object" || dialogType === "array")
                   ) && (
                     <Button
+                      className="flex-auto"
                       onClick={() => {
                         const dataType = optionsDialogRef.current!.getAttribute(
                           "data-type"
@@ -350,73 +369,93 @@ export function Main() {
                         addItemDialogRef.current!.click();
                       }}
                     >
-                      <GetIcon name="Edit" />
+                      <GetIcon name="Edit" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Edit")}
                     </Button>
                   )}
 
                 {dialogType !== "value" && (
                   <>
-                    <Button
-                      variant="default"
-                      onClick={() => {
-                        setDialogAddItemEdit(false);
+                    
+                    <section className="flex flex-row gap-3.5 flex-wrap">
+                      <Button
+                        className="flex-auto"
+                        variant="default"
+                        onClick={() => {
+                          setDialogAddItemEdit(false);
 
-                        if (dialogType === "array") {
-                          const path =
-                            optionsDialogRef.current!.getAttribute(
-                              "data-path"
-                            )!;
+                          if (dialogType === "array") {
+                            const path =
+                              optionsDialogRef.current!.getAttribute(
+                                "data-path"
+                              )!;
 
-                          addJasonItem({
-                            path,
-                            array: true,
-                            value: {},
-                            key: "",
-                          });
+                            enableRefreshTree();
 
+                            addJasonItem({
+                              path,
+                              array: true,
+                              value: {},
+                              key: "",
+                            });
+
+                            setTimeout(refreshTree, 20);
+
+                            optionsDialogRef.current!.click();
+                            return;
+                          }
+                          setDialogAddItemType("object");
+
+                          addItemDialogRef.current!.click();
                           optionsDialogRef.current!.click();
-                          return;
-                        }
-                        setDialogAddItemType("object");
+                        }}
+                      >
+                        <GetIcon
+                          name="ObjectIcon"
+                          className="w-[1rem]! h-[1rem]!"
+                        />
+                        {translateTo(lang, "Add Object")}
+                      </Button>
+                      <Button
+                        className="flex-auto"
+                        variant="default"
+                        onClick={() => {
+                          setDialogAddItemEdit(false);
 
-                        addItemDialogRef.current!.click();
-                        optionsDialogRef.current!.click();
-                      }}
-                    >
-                      <GetIcon name="ObjectIcon" />
-                      {translateTo(lang, "Add Object")}
-                    </Button>
-                    <Button
-                      variant="default"
-                      onClick={() => {
-                        setDialogAddItemEdit(false);
+                          if (dialogType === "array") {
+                            const path =
+                              optionsDialogRef.current!.getAttribute(
+                                "data-path"
+                              )!;
 
-                        if (dialogType === "array") {
-                          const path =
-                            optionsDialogRef.current!.getAttribute(
-                              "data-path"
-                            )!;
+                            enableRefreshTree();
 
-                          addJasonItem({
-                            path,
-                            array: true,
-                            value: [],
-                            key: "",
-                          });
+                            addJasonItem({
+                              path,
+                              array: true,
+                              value: [],
+                              key: "",
+                            });
 
+                            setTimeout(refreshTree, 20);
+
+                            optionsDialogRef.current!.click();
+                            return;
+                          }
+                          setDialogAddItemType("array");
+
+                          addItemDialogRef.current!.click();
                           optionsDialogRef.current!.click();
-                          return;
-                        }
-                        setDialogAddItemType("array");
-
-                        addItemDialogRef.current!.click();
-                        optionsDialogRef.current!.click();
-                      }}
-                    >
-                      <GetIcon name="ArrayIcon" />
-                      {translateTo(lang, "Add Array")}
-                    </Button>
+                        }}
+                      >
+                        <GetIcon
+                          name="ArrayIcon"
+                          className="w-[1rem]! h-[1rem]!"
+                        />
+                        {translateTo(lang, "Add Array")}
+                      </Button>
+                    </section>
+                    
                     <Button
                       variant="default"
                       onClick={() => {
@@ -434,7 +473,7 @@ export function Main() {
                         addItemDialogRef.current!.click();
                       }}
                     >
-                      <GetIcon name="Value" />
+                      <GetIcon name="Value" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Add Value")}
                     </Button>
                     {/* <Button
@@ -443,7 +482,7 @@ export function Main() {
                         setDialogAddItemEdit(false);
                       }}
                     >
-                      <GetIcon name="FromText" />
+                      <GetIcon name="FromText" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Add From Text")}
                     </Button> */}
                   </>
@@ -463,7 +502,7 @@ export function Main() {
                         optionsDialogRef.current!.click();
                       }}
                     >
-                      <GetIcon name="Copy" />
+                      <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Copy Path")}
                     </Button>
                     {dialogType === "value" &&
@@ -472,12 +511,15 @@ export function Main() {
                           variant="secondary"
                           onClick={async () => {
                             await invoke("open_url", {
-                              url: dialogAddItemValue,
+                              url: dialogAddItemValue.trim(),
                             });
                             optionsDialogRef.current!.click();
                           }}
                         >
-                          <GetIcon name="Link" />
+                          <GetIcon
+                            name="Link"
+                            className="w-[1rem]! h-[1rem]!"
+                          />
                           {translateTo(lang, "Open URL")}
                         </Button>
                       )}
@@ -502,7 +544,7 @@ export function Main() {
                         setTimeout(refreshTree, 20);
                       }}
                     >
-                      <GetIcon name="Trash" />
+                      <GetIcon name="Trash" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Remove")}
                     </Button>
                   </>
@@ -511,6 +553,7 @@ export function Main() {
             </DialogHeader>
           </DialogContent>
         </Dialog>
+
         <Jason jason={jason0} />
       </main>
     </>

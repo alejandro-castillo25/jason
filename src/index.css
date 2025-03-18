@@ -16,15 +16,15 @@ html {
   overscroll-behavior: none;
   scrollbar-width: none;
   user-select: none;
+  overflow: hidden !important;
 }
 body {
-  overflow: hidden;
   overscroll-behavior: none;
 }
 
 * {
-  /* outline: 1px solid rgba(50, 205, 50, 0.425); */
-  outline-offset: -1px;
+  /* outline: 1px solid rgba(50, 205, 50, 0.692); */
+  outline-offset: -2px;
 }
 
 :root {
@@ -88,15 +88,30 @@ body {
 
 body {
   background: var(--background);
+
+  background: red;
+
   height: 100vh;
-  height: 100svh;
+  overflow: hidden !important;
+  /* height: 100svh; */
+  /* width: 100vw; */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
 }
 
 #root {
+  overflow: hidden !important;
+
   position: relative;
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
+
 }
 
 input::-webkit-outer-spin-button,

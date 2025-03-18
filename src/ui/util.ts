@@ -1,25 +1,4 @@
-export function getMarginLeft(offset: number): string {
-  const dict: Record<number, string> = {
-    0: "ml-0",
-    1: "ml-1",
-    2: "ml-2",
-    3: "ml-3",
-    4: "ml-4",
-    5: "ml-5",
-    6: "ml-6",
-    7: "ml-7",
-    8: "ml-8",
-    9: "ml-9",
-    10: "ml-10",
-    11: "ml-11",
-    12: "ml-12",
-    13: "ml-13",
-    14: "ml-14",
-    15: "ml-15",
-  };
-
-  return dict[offset] ?? "";
-}
+import type { Lang } from "./lang";
 
 export function isValidPointNotation(k: string): boolean {
   if (/^\d+/.test(k)) return false;
@@ -109,8 +88,7 @@ export function evalFormat(
   value: string | number | null | object | boolean
 ): string {
   if (typeof value === "string") {
-    value = value.replace(/\n/g, "\\n");
-    value = value.replace(/\"/g, '\\"');
+    value = value.replace(/\n/g, "\\n").replace(/\"/g, '\\"').replace(/\\/g, "\\\\");
     return `"${value}"`;
   }
   if (typeof value === "number") return `${value}`;
@@ -120,10 +98,16 @@ export function evalFormat(
   return "";
 }
 
-export const counterFormatter = new Intl.NumberFormat("en", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
+export const counterFormatter = (lang: Lang) =>
+  new Intl.NumberFormat(lang, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
+
+export const itemSizeFormatter = (lang: Lang) =>
+  new Intl.NumberFormat(lang, {
+    useGrouping: true,
+  });
 
 interface EditObjectValueParams {
   obj: Record<string, unknown> | Array<unknown>;
@@ -181,6 +165,8 @@ export function editObjectValue({
 }
 
 export function isValidURL(value: string): boolean {
+  value = value.trim();
+
   if (/\s/.test(value)) return false;
 
   const VALID_PROTOCOLS = [
@@ -205,13 +191,13 @@ export function isValidURL(value: string): boolean {
   return false;
 }
 
-
-export function isValidColor(value: string) : boolean {
-  return isValidHex(value) || isValidKeywordColor(value);
+export function isValidColor(value: string): boolean {
+  value = value.trim();
+  return isValidKeywordColor(value) || isValidHex(value);
 }
 
 export function isValidHex(value: string): boolean {
-  const hex: RegExp = /^#(?:(?:[a-f0-9]{6})|(?:[a-f0-9]{3}))$/i;
+  const hex: RegExp = /^#(?:(?:[a-f0-9]{8})|(?:[a-f0-9]{6})|(?:[a-f0-9]{3}))$/i;
   return hex.test(value);
 }
 
@@ -370,3 +356,133 @@ export function isValidKeywordColor(value: string): boolean {
 
   return false;
 }
+
+export type Workers =
+  | "json5"
+  | "toml"
+  | "csv"
+  | "xml"
+  | "yaml"
+  | "html"
+  | "css";
+
+export function getWorkerType(filename: string): Workers | null {
+  const JSON5 = [".json", ".jsonc", ".json5"] as const;
+
+  for (const extension of JSON5)
+    if (filename.endsWith(extension)) return "json5";
+
+  if (filename.endsWith(".toml")) return "toml";
+  if (filename.endsWith(".csv")) return "csv";
+  if (filename.endsWith(".xml")) return "xml";
+  if (filename.endsWith(".yaml") || filename.endsWith(".yml")) return "yaml";
+  if (filename.endsWith(".html")) return "html";
+  if (filename.endsWith(".css")) return "css";
+
+  return null;
+}
+
+export const BRACKET_GUIDES_COLORS = [
+  "#3F51B5",
+  "#009688",
+  "#ddfd22",
+  "#FFC107",
+  "#4CAF50",
+] as const;
+
+//!THIS took me a while...
+
+export function hasValidMathChars(expr: string): boolean {
+  return /^[0-9\+\-/\s\*\.\(\[\{\)\]\}\^\e]+$/.test(expr);
+}
+
+export function hasOnlyNums(expr: string): boolean {
+  return /^(?:\d|\.)+$/.test(expr);
+}
+
+export const countChars = (word: string, ch: string) => {
+  let counter: number = 0;
+  for (let i = 0; i < word.length; i++) if (word[i] === ch) counter++;
+
+  return counter;
+};
+
+/**
+ *
+ * @param expr Expression
+ * @returns The expression with the parsed values or the same expr if it's not ok
+ */
+const closeUnclosedBrackets = (expr: string) => {
+  const stackA: Array<number> = [];
+  const stackB: Array<number> = [];
+
+  for (let i = 0; i < expr.length; i++) {
+    if (expr[i] === "(") {
+      stackA.push(1);
+    }
+    if (expr[i] === ")") {
+      if (!stackA.pop()) {
+        stackB.push(1);
+      }
+    }
+  }
+  expr = "(".repeat(stackB.length).concat(expr);
+
+  expr = expr.concat(")".repeat(stackA.length));
+
+  return expr;
+};
+
+export function evalMath(expr: string): number {
+  let processedExpr = expr
+    .replace(/\[|\{/g, "(")
+    .replace(/\]|\}/g, ")")
+    .replace(/\^/g, "**")
+    .replace(/([)\d])\s*(?=[(])/g, "$1*")
+    .replace(/([)])\s*(?=[(\d])/g, "$1*");
+
+  if (!/^\(?\d+\)?$/g.test(processedExpr))
+    processedExpr = closeUnclosedBrackets(processedExpr);
+
+  try {
+    return new Function(`return ${processedExpr}`)();
+  } catch (error: any) {
+    throw new Error(`Invalid expression: ${error.message}`);
+  }
+}
+
+type DictLang =
+  | "es"
+  | "en"
+  | "pt"
+  | "fr"
+  | "zh"
+  | "hi"
+  | "ar"
+  | "ru"
+  | "ja"
+  | "de"
+  | "ko"
+  | "it";
+export function getLangIconCode(value: DictLang) {
+  const dict: Record<DictLang, string> = {
+    en: "US",
+    es: "ES",
+    fr: "FR",
+    pt: "BR",
+    zh: "CN",
+    ar: "SA",
+    de: "DE",
+    hi: "IN",
+    ja: "JP",
+    ru: "RU",
+    ko: "KR",
+    it: "IT",
+  };
+
+  return dict[value] ?? "";
+}
+
+export const parseSpecialChars = (key: string) => {
+  return key.replace(/\\/g, "\\\\").replace(/\"/g, '\\"');
+};

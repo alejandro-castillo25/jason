@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import example from "./hud_screen.json";
-
 import type { Lang } from "./ui/lang";
+import example from "./huge.json"
 
 type AppContextProp<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
@@ -10,6 +9,7 @@ type AppContextProps = {
   lang: AppContextProp<Lang>;
   jason: AppContextProp<Record<string, any> | Array<any>>;
   jasonBracketGuides: AppContextProp<boolean>;
+  jasonColorizedBracketsGuides: AppContextProp<boolean>;
   jasonItemsOffset: AppContextProp<number>;
   jasonPaths: AppContextProp<boolean>;
   jasonPathsNearParentOnly: AppContextProp<boolean>; //TODO Fix the typo! (Path -> Parent)
@@ -30,6 +30,7 @@ export function AppContextProvider({
 }) {
   const [lang, setLang] = useState<Lang>("en");
   const [jasonBracketGuides, setJasonBracketGuides] = useState<boolean>(true);
+  const [jasonBracketColorizedGuides, setJasonBracketColorizedGuides] = useState<boolean>(true);
   const [jasonPaths, setJasonPaths] = useState<boolean>(false);
   const [jasonPathsNearParentOnly, setjasonPathsNearParentOnly] =
     useState<boolean>(false);
@@ -70,7 +71,10 @@ export function AppContextProvider({
     function handleKeys(e: KeyboardEvent) {
       const { key } = e;
 
-      if (e.ctrlKey && key === "p") {
+      if (e.ctrlKey && key == "b") {
+        const $openSidebarBtn = document.getElementById("openSidebarBtn");
+        $openSidebarBtn!.click();
+      } else if (e.ctrlKey && key === "p") {
         e.preventDefault();
         setJasonPaths((paths) => !paths);
 
@@ -95,6 +99,33 @@ export function AppContextProvider({
         setJasonMemoValues(new Map());
 
         setTimeout(refreshTree, 20);
+      } else if (
+        document.activeElement!.tagName === "BUTTON" &&
+        key !== "Tab"
+      ) {
+        
+
+        const jasonItems = Array.from(document.querySelectorAll(".jason-item"));
+        const currentIndex = jasonItems.indexOf(
+          document.activeElement as HTMLButtonElement
+        );
+
+        if (currentIndex === -1) return;
+
+        if (key === "ArrowUp") {
+          e.preventDefault();
+          const previousItem = jasonItems[currentIndex - 1] as HTMLButtonElement;
+          if (previousItem) {
+            previousItem.focus();
+          }
+        } else if (key === "ArrowDown") {
+          e.preventDefault();
+
+          const nextItem = jasonItems[currentIndex + 1] as HTMLButtonElement;
+          if (nextItem) {
+            nextItem.focus();
+          }
+        }
       }
     }
 
@@ -112,6 +143,7 @@ export function AppContextProvider({
         jason: [jason, setJason] as any,
         jasonItemsOffset: [jasonItemsOffset, setJasonItemsOffset],
         jasonBracketGuides: [jasonBracketGuides, setJasonBracketGuides],
+        jasonColorizedBracketsGuides: [jasonBracketColorizedGuides, setJasonBracketColorizedGuides],
         jasonPaths: [jasonPaths, setJasonPaths],
         jasonPathsNearParentOnly: [
           jasonPathsNearParentOnly,

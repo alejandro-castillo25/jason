@@ -2,18 +2,17 @@ button {
   cursor: pointer;
 }
 
-#open-sidebar-btn {
+#openSidebarBtn {
   display: grid;
   place-content: center;
 }
 
-#open-sidebar-btn > svg {
+#openSidebarBtn > svg {
   scale: 1.55;
 }
 
 main {
   scrollbar-width: none;
-  overflow: auto;
 }
 
 .jason-item {

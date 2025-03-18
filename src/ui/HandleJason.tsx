@@ -1,24 +1,21 @@
-import { AppContext, useAppContext } from "@/AppContext";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useAppContext } from "@/AppContext";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { GetIcon } from "./Icons";
 import {
   getPathCurrentParentOnly,
   isValidPointNotation,
   getObjectLength,
-  getMarginLeft,
   counterFormatter,
   getPathChild,
   isValidURL,
   isValidColor,
+  BRACKET_GUIDES_COLORS,
 } from "./util";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import ReactCountryFlag from "react-country-flag";
+import iso from "iso-3166-1";
 
 import { VariableSizeTree as Tree } from "react-vtree";
 
@@ -32,6 +29,51 @@ function getFomattedValueTemplate(value: any): string {
     : value;
 }
 
+export const CountryFlagFallback = ({
+  countryCode,
+  className = "",
+  ...props
+}: {
+  countryCode: string;
+  className: string;
+}) => {
+  const [isValid, setIsValid] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const normalizedCode = useMemo(() => {
+    const code = countryCode.trim();
+    let result = "";
+
+    if (code.length === 3 && code.toUpperCase() === code) {
+      result = iso.whereAlpha3(code)?.alpha2 ?? "";
+    } else if (code.length === 2 && code.toUpperCase() === code) {
+      result = iso.whereAlpha2(code)?.alpha2 ?? "";
+    } else if (code.length > 3 && code !== "peru") //? Peru conflict so...
+      result = iso.whereCountry(code)?.alpha2 ?? "";
+
+    setIsValid(Boolean(result));
+
+    return result;
+  }, [countryCode]);
+
+  const handleLoad = () => setIsLoaded(true);
+  const handleError = () => setIsValid(false);
+
+  if (!isValid) return null;
+
+  return (
+    <ReactCountryFlag
+      countryCode={normalizedCode}
+      svg
+      className={`transition-opacity duration-200 ${className}`}
+      style={{ opacity: isLoaded ? 1 : 0 }}
+      {...props}
+      onLoad={handleLoad}
+      onError={handleError}
+    />
+  );
+};
+
 export function GetFomattedValue({
   children,
 }: {
@@ -44,7 +86,7 @@ export function GetFomattedValue({
           <span
             style={{
               color: value,
-              textShadow: "1.5px 1px 0px #444444",
+              textShadow: "1px 1px 0px #444444",
             }}
           >
             {`"`}
@@ -84,12 +126,6 @@ export function GetFomattedValue({
   return <>{Format(children)}</>;
 }
 
-interface HandleJasonProps {
-  jason: Record<string, unknown>;
-  root?: boolean;
-  readonly path?: string;
-}
-
 type ItemValueType =
   | "string"
   | "number"
@@ -109,6 +145,8 @@ interface TreeNodeData {
   nestingLevel: number;
   objectSize: number;
   defaultHeight: number;
+  isLast: boolean;
+  isFirst: boolean;
 }
 
 const Node = ({
@@ -122,18 +160,23 @@ const Node = ({
     dataType,
     dataExactType,
     id,
+    isLast,
+    isFirst,
   },
-  // isOpen,
+  isOpen,
   style,
   toggle,
 }: any) => {
-  const [jasonWordWrap] = useContext(AppContext)?.jasonWordWrap!;
-  const [jasonPaths] = useContext(AppContext)?.jasonPaths!;
-  const [jasonPathsNearParentOnly] =
-    useContext(AppContext)?.jasonPathsNearParentOnly!;
-  const [jasonObjectSize] = useContext(AppContext)?.jasonObjectSize!;
+  const [lang] = useAppContext()?.lang!;
+  const [jasonWordWrap] = useAppContext()?.jasonWordWrap!;
+  const [jasonBracketGuides] = useAppContext()?.jasonBracketGuides!;
+  const [jasonColorizedBracketsGuides] =
+    useAppContext()?.jasonColorizedBracketsGuides!;
+  const [jasonPaths] = useAppContext()?.jasonPaths!;
+  const [jasonPathsNearParentOnly] = useAppContext()?.jasonPathsNearParentOnly!;
+  const [jasonObjectSize] = useAppContext()?.jasonObjectSize!;
 
-  const [jasonItemsOffset] = useContext(AppContext)?.jasonItemsOffset!;
+  const [jasonItemsOffset] = useAppContext()?.jasonItemsOffset!;
 
   const optionsDialogRef = useRef<HTMLElement | null>(null);
 
@@ -145,10 +188,9 @@ const Node = ({
     <div
       style={{
         ...style,
-        width: "95vw",
-        //If i add height: "auto" everything breaks, how do i fix it
+        width: "auto",
       }}
-      className="mt-2.5 ml-2.5"
+      className="mt-2.5 ml-2.5 pr-2.5"
     >
       {!isLeaf ? (
         <Button
@@ -160,11 +202,13 @@ const Node = ({
             wordWrap: "break-word",
             marginLeft: `${nestingLevel * jasonItemsOffset}px`,
           }}
-          className={`jason-item break-all h-auto ${
+          className={`jason-item break-all h-auto relative ${
             jasonWordWrap ? "max-w-[90vw]" : ""
-          } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:bg-secondary/80 focus-visible:bg-secondary/80 ${
-            objectSize === 0 ? "text-foreground/50" : ""
-          } ${id === " " ? "w-[30vw]" : "w-max"}`}
+          } flex gap-0 bg-(--secondary) p-1 m-0 text-[1rem] hover:bg-secondary/80 focus-visible:bg-secondary/80 active:bg-secondary/80 ${
+            objectSize === 0 && id !== " " ? "text-foreground/50" : ""
+          } ${id === " " ? "w-[30vw]" : "w-max"} min-w-[6rem] ${
+            !(isFirst || isOpen) ? "rounded-tl-[0px]" : ""
+          } ${!(isLast || isOpen) ? "rounded-bl-[0px]" : ""}`}
           onContextMenu={(e) => {
             e.preventDefault();
             optionsDialogRef.current!.setAttribute("data-type", dataType);
@@ -190,6 +234,42 @@ const Node = ({
             optionsDialogRef.current!.click();
           }}
         >
+          {jasonBracketGuides &&
+            id !== " " &&
+            new Array(nestingLevel).fill(null).map((_, i) => {
+              return (
+                <div
+                  key={`c-${i}`}
+                  className="absolute w-[1px] h-[calc(100%_+_2px)] z-[-1] opacity-65"
+                  aria-hidden="true"
+                  style={
+                    {
+                      left: `-${
+                        jasonItemsOffset * nestingLevel -
+                        jasonItemsOffset * i -
+                        jasonItemsOffset / 2 -
+                        1
+                      }px`,
+                      "--currentGuideColor": jasonColorizedBracketsGuides
+                        ? `${
+                            BRACKET_GUIDES_COLORS[
+                              i % BRACKET_GUIDES_COLORS.length
+                            ]
+                          }`
+                        : "var(--primary)",
+
+                      background:
+                        isLast &&
+                        i == nestingLevel - 1 &&
+                        (!isOpen || objectSize === 0)
+                          ? "linear-gradient(to bottom, var(--currentGuideColor), var(--background))"
+                          : "var(--currentGuideColor)",
+                    } as React.CSSProperties
+                  }
+                ></div>
+              );
+            })}
+
           <span
             className="relative self-start m-0 mr-3.5 h-[2.9rem] w-[2.9rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
             onClick={(e) => {
@@ -224,9 +304,11 @@ const Node = ({
                 jasonObjectSize
                   ? objectSize >= 10
                     ? objectSize >= 100
-                      ? objectSize >= 10_000
-                        ? "scale-115"
-                        : "scale-105"
+                      ? objectSize >= 1_000
+                        ? objectSize >= 10_000
+                          ? "scale-120"
+                          : "scale-115"
+                        : "scale 105"
                       : "scale-95"
                     : "scale-80"
                   : "scale-75"
@@ -236,39 +318,51 @@ const Node = ({
               <span
                 className={`absolute opacity-60 ${
                   objectSize >= 100
-                    ? objectSize >= 10000
-                      ? "text-[0.65rem]"
-                      : "text-[0.70rem]"
+                    ? objectSize >= 1_000
+                      ? objectSize >= 10000
+                        ? "text-[0.55rem]"
+                        : "text-[0.55rem]"
+                      : "text-[0.7rem]"
                     : "text-[0.85rem]"
                 }`}
               >
-                {counterFormatter.format(objectSize)}
+                {
+                
+                counterFormatter(lang).format(objectSize).replace(/\s+/g, "")
+                }
               </span>
             )}
           </span>
 
-          <span className="mr-auto h-full flex items-center flex-wrap text-wrap text-left">
+          <span className="mr-auto h-full flex items-center flex-wrap text-left whitespace-pre-wrap">
             <span>
               {name}
-              {
-                // isOpen ? <b>{" - "}</b> : <b>{" + "}</b>
-              }
-              <span className="text-gray-300">{" : "}</span>
+              <span className="text-gray-300">
+                {id !== " " ? <>&nbsp;:&nbsp;&nbsp;</> : <>:</>}
+              </span>
             </span>
             {jasonPaths && (
-              <i className="ml-4 opacity-30 font-normal text-[.95rem]">
+              <i className="ml-2.5 opacity-30 font-normal text-[.95rem]">
                 {jasonPathsNearParentOnly ? getPathCurrentParentOnly(id) : id}
               </i>
             )}
+            <GetIcon
+              name="ChevronRight"
+              className={`absolute right-0.5 top-0.5 opacity-35 h-[0.8rem]! w-[0.8rem]! transition-transform duration-200
+                ${isOpen ? "rotate-[90deg]" : ""}
+              `}
+            />
           </span>
         </Button>
       ) : (
         <Button
-          className={`jason-item ${
+          className={`jason-item relative ${
             jasonWordWrap ? "max-w-[90vw]" : ""
-          } bg-(--secondary) p-2 rounded-(--radius) w-max text-[1rem] focus-visible:bg-secondary/80 hover:bg-secondary/80
-           h-auto
-           text-w`}
+          } bg-(--secondary) p-2 rounded-(--radius) w-max text-[1rem]
+           focus-visible:bg-secondary/80 hover:bg-secondary/80 active:bg-secondary/80
+           h-auto text-wrap ${!isFirst ? "rounded-tl-[0px]" : ""} ${
+            !isLast ? "rounded-bl-[0px]" : ""
+          }`}
           variant="secondary"
           style={{
             wordWrap: "break-word",
@@ -299,6 +393,10 @@ const Node = ({
               id === " " ? "true" : "false"
             );
             optionsDialogRef.current!.setAttribute("data-path", id);
+
+            optionsDialogRef.current!.click(); //! Not too genious, but clever
+            optionsDialogRef.current!.click(); //! thus we sent the data at once without changing our dialog
+            
             $optionDialogEditBtn.click();
           }}
           onContextMenu={(e) => {
@@ -331,11 +429,51 @@ const Node = ({
             optionsDialogRef.current!.click();
           }}
         >
+          {jasonBracketGuides &&
+            new Array(nestingLevel).fill(null).map((_, i) => {
+              return (
+                <div
+                  key={`c-${i}`}
+                  className="absolute w-[1px] h-[calc(100%_+_2px)] z-[-1] opacity-65"
+                  aria-hidden="true"
+                  style={
+                    {
+                      left: `-${
+                        jasonItemsOffset * nestingLevel -
+                        jasonItemsOffset * i -
+                        jasonItemsOffset / 2 -
+                        1
+                      }px`,
+                      "--currentGuideColor": jasonColorizedBracketsGuides
+                        ? `${
+                            BRACKET_GUIDES_COLORS[
+                              i % BRACKET_GUIDES_COLORS.length
+                            ]
+                          }`
+                        : "var(--primary)",
+
+                      background:
+                        isLast && i == nestingLevel - 1
+                          ? "linear-gradient(to bottom, var(--currentGuideColor), var(--background))"
+                          : "var(--currentGuideColor)",
+                    } as React.CSSProperties
+                  }
+                ></div>
+              );
+            })}
+
+          {typeof value === "string" && (
+            <CountryFlagFallback
+              countryCode={value}
+              className="absolute top-[0.1rem] right-[0.1rem] text-[0.7rem]"
+            />
+          )}
+
           <div className="w-full h-full text-left text-wrap">
-            <span className="font-semibold">{name}</span>
-            <span className="text-gray-300">{" :  "}</span>
+            <span className="font-semibold whitespace-pre-wrap">{name}</span>
+            <span className="text-gray-300">&nbsp;:&nbsp;</span>
             {jasonPaths && (
-              <i className="ml-4 opacity-30 font-normal text-[.95rem]">
+              <i className="ml-2.5 opacity-30 font-normal text-[.95rem]">
                 {jasonPathsNearParentOnly ? getPathCurrentParentOnly(id) : id}
                 <br />
               </i>
@@ -351,6 +489,21 @@ const Node = ({
 };
 
 export function HandleJason2({ data }: any) {
+  const refreshAllowed = useRef<boolean>(true);
+
+  const jasonValueTemplateRef = useRef({
+    template: document.getElementById("jasonValueTemplate")!,
+    name: document.getElementById("jasonValueTemplate_name")!,
+    value: document.getElementById("jasonValueTemplate_value")!,
+    path: document.getElementById("jasonValueTemplate_path")!,
+  });
+
+  const jasonObjectTemplateRef = useRef({
+    template: document.getElementById("jasonObjectTemplate")!,
+    key: document.getElementById("jasonObjectTemplate_key")!,
+    path: document.getElementById("jasonObjectTemplate_path")!,
+  });
+
   const [treeWidth, setTreeWidth] = useState<number>(window.innerWidth);
   const [treeHeight, setTreeHeight] = useState<number>(
     window.innerHeight
@@ -375,6 +528,8 @@ export function HandleJason2({ data }: any) {
   function* treeWalker(refresh: boolean): any {
     const stack: Array<{
       nestingLevel: number;
+      isFirst: boolean;
+      isLast: boolean;
       node: {
         name: string;
         value: unknown;
@@ -385,6 +540,8 @@ export function HandleJason2({ data }: any) {
     //? This is the root nodeeeee
     stack.push({
       nestingLevel: 0,
+      isFirst: true,
+      isLast: true,
       node: {
         name: "",
         value: data,
@@ -399,6 +556,8 @@ export function HandleJason2({ data }: any) {
       const {
         node: { name, value, path },
         nestingLevel,
+        isFirst,
+        isLast,
       } = entry;
 
       const isObject =
@@ -414,45 +573,33 @@ export function HandleJason2({ data }: any) {
           return jasonMemoValues.get(name)![1]; //? Height
         }
 
-        const $jasonValueTemplateName: HTMLElement = document.getElementById(
-          "jasonValueTemplate_name"
-        )!;
-        $jasonValueTemplateName.innerText = name;
-
-        const $jasonValueTemplatePath: HTMLElement = document.getElementById(
-          "jasonValueTemplate_path"
-        )!;
+        jasonValueTemplateRef.current.name.textContent = name;
 
         if (!jasonPaths) {
-          $jasonValueTemplatePath.style.display = "none";
+          jasonValueTemplateRef.current.path.style.display = "none";
         } else {
-          $jasonValueTemplatePath.style.display = "inline";
+          jasonValueTemplateRef.current.path.style.display = "inline";
 
-          $jasonValueTemplatePath.innerText = (
+          jasonValueTemplateRef.current.path.innerText = (
             jasonPathsNearParentOnly ? getPathCurrentParentOnly(path) : path
           ).concat("\n");
         }
 
-        const $jasonValueTemplateValue: HTMLElement = document.getElementById(
-          "jasonValueTemplate_value"
-        )!;
-
-        $jasonValueTemplateValue.innerText = getFomattedValueTemplate(value);
-
-        const $jasonValueTemplate: HTMLElement =
-          document.getElementById("jasonValueTemplate")!;
+        jasonValueTemplateRef.current.value.innerText =
+          getFomattedValueTemplate(value);
 
         if (jasonWordWrap) {
-          $jasonValueTemplate.style.maxWidth = "90vw";
+          jasonValueTemplateRef.current.template.style.maxWidth = "90vw";
         } else {
-          $jasonValueTemplate.style.maxWidth = "";
+          jasonValueTemplateRef.current.template.style.maxWidth = "";
         }
 
-        $jasonValueTemplate.style.marginLeft = `${
+        jasonValueTemplateRef.current.template.style.marginLeft = `${
           nestingLevel * jasonItemsOffset
         }px`;
 
-        const height = $jasonValueTemplate.getBoundingClientRect().height;
+        const height =
+          jasonValueTemplateRef.current.template.getBoundingClientRect().height;
 
         setJasonMemoValues((memo) => memo.set(path, [value, height]));
 
@@ -464,36 +611,28 @@ export function HandleJason2({ data }: any) {
           return jasonMemoObjects.get(path)!; //? Height
         }
 
-        const $jasonObjectTemplateKey: HTMLElement = document.getElementById(
-          "jasonObjectTemplate_key"
-        )!;
-        $jasonObjectTemplateKey.innerText = name.concat(" : ");
+        jasonObjectTemplateRef.current.key.innerText = name.concat(" :  ");
 
-        const $jasonObjectTemplatePath: HTMLElement = document.getElementById(
-          "jasonObjectTemplate_path"
-        )!;
-
-        if (!jasonPaths) $jasonObjectTemplatePath.style.display = "none";
+        if (!jasonPaths)
+          jasonObjectTemplateRef.current.path.style.display = "none";
         else {
-          $jasonObjectTemplatePath.style.display = "inline";
+          jasonObjectTemplateRef.current.path.style.display = "inline";
 
-          $jasonObjectTemplatePath.innerText = jasonPathsNearParentOnly
-            ? getPathCurrentParentOnly(path)
-            : path;
+          jasonObjectTemplateRef.current.path.innerText =
+            jasonPathsNearParentOnly ? getPathCurrentParentOnly(path) : path;
         }
 
-        const $jasonObjectTemplate: HTMLElement = document.getElementById(
-          "jasonObjectTemplate"
-        )!;
+        if (jasonWordWrap)
+          jasonObjectTemplateRef.current.template.style.maxWidth = "90vw";
+        else jasonObjectTemplateRef.current.template.style.maxWidth = "";
 
-        if (jasonWordWrap) $jasonObjectTemplate.style.maxWidth = "90vw";
-        else $jasonObjectTemplate.style.maxWidth = "";
-
-        $jasonObjectTemplate.style.marginLeft = `${
+        jasonObjectTemplateRef.current.template.style.marginLeft = `${
           nestingLevel * jasonItemsOffset
         }px`;
 
-        const height = $jasonObjectTemplate.getBoundingClientRect().height;
+        const height =
+          jasonObjectTemplateRef.current.template.getBoundingClientRect()
+            .height;
 
         setJasonMemoObjects((memo) => memo.set(path, height));
         return height;
@@ -517,6 +656,8 @@ export function HandleJason2({ data }: any) {
         value,
         isLeaf,
         nestingLevel,
+        isFirst,
+        isLast,
       };
 
       const isOpened = yield refresh ? nodeData : path;
@@ -546,6 +687,8 @@ export function HandleJason2({ data }: any) {
           stack.push({
             nestingLevel: nestingLevel + 1,
             node: children[i],
+            isFirst: i == 0,
+            isLast: i == children.length - 1,
           });
         }
       }
@@ -564,6 +707,8 @@ export function HandleJason2({ data }: any) {
 
   function updateTreeSize() {
     setTreeWidth(window.innerWidth);
+
+    if (!refreshAllowed.current) return;
     setTreeHeight(
       window.innerHeight
       // -Number.parseFloat(getComputedStyle(document.documentElement).fontSize) *
@@ -571,18 +716,28 @@ export function HandleJason2({ data }: any) {
     );
 
     setJasonMemoObjects(new Map());
-
     setJasonMemoValues(new Map());
-
     setTimeout(recomputeTree, 25);
+  }
+
+  function enableRefreshTree() {
+    refreshAllowed.current = true;
+  }
+
+  function disableRefreshTree() {
+    refreshAllowed.current = false;
   }
 
   useEffect(() => {
     window.addEventListener("resize", updateTreeSize);
+    document.addEventListener("enableRefreshTree", enableRefreshTree);
+    document.addEventListener("disableRefreshTree", disableRefreshTree);
     document.addEventListener("refreshTree", recomputeTree);
 
     return () => {
       window.removeEventListener("resize", updateTreeSize);
+      document.removeEventListener("enableRefreshTree", enableRefreshTree);
+      document.removeEventListener("disableRefreshTree", disableRefreshTree);
       document.removeEventListener("refreshTree", recomputeTree);
     };
   }, []);
@@ -596,9 +751,9 @@ export function HandleJason2({ data }: any) {
 
         if (
           scrollOffset > scrollDeltaRef.current + 50 &&
-          $jasonHeader.style.height !== "0px"
+          $jasonHeader.style.maxHeight !== "0px"
         ) {
-          $jasonHeader.style.height = "0px";
+          $jasonHeader.style.maxHeight = "0px";
           $jasonHeader.style.borderBottomWidth = "0px";
           // setTreeHeight(
           //   window.innerHeight +
@@ -610,9 +765,9 @@ export function HandleJason2({ data }: any) {
         } else if (
           scrollOffset === 0 ||
           (scrollOffset + 65 < scrollDeltaRef.current &&
-            $jasonHeader.style.height === "0px")
+            $jasonHeader.style.maxHeight === "0px")
         ) {
-          $jasonHeader.style.height = "4.5rem";
+          $jasonHeader.style.maxHeight = "4.5rem";
           $jasonHeader.style.borderBottomWidth = "4px";
 
           // setTreeHeight(
@@ -631,818 +786,9 @@ export function HandleJason2({ data }: any) {
       treeWalker={treeWalker}
       height={treeHeight}
       width={treeWidth}
+      
     >
       {Node}
     </Tree>
   );
 }
-
-export function HandleJason({
-  jason,
-  root = false,
-  path = " ",
-}: HandleJasonProps) {
-  const res: Array<JSX.Element> = [];
-
-  const [jasonBracketGuides, _setJasonBracketGuides] =
-    useContext(AppContext)?.jasonBracketGuides!;
-  const [jasonItemsOffset, _setJasonItemsOffset] =
-    useContext(AppContext)?.jasonItemsOffset!;
-  const [jasonPaths, _setJasonPaths] = useContext(AppContext)?.jasonPaths!;
-  const [jasonWordWrap, _setJasonWordWrap] =
-    useContext(AppContext)?.jasonWordWrap!;
-  const [jasonPathsOnlyParent, _setJasonPathsOnlyParent] =
-    useContext(AppContext)?.jasonPathsNearParentOnly!;
-  const [jasonObjectSize, _setJasonObjectSize] =
-    useContext(AppContext)?.jasonObjectSize!;
-
-  const optionsDialogRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    optionsDialogRef.current = document.getElementById("itemOptionsDialog");
-  }, []);
-
-  type ObjectType = "array" | "object";
-
-  if (root) {
-    const objType: ObjectType = Array.isArray(jason) ? "array" : "object";
-    const children: Array<JSX.Element> = [];
-
-    const stack: Array<{
-      node: any;
-      path: string;
-      parent: Array<JSX.Element>;
-    }> = [];
-
-    stack.push({ node: jason, path: path, parent: children });
-
-    while (stack.length) {
-      const { node, path: currentPath, parent } = stack.pop()!;
-      const entries = Object.entries(node);
-
-      for (let i = 0; i < entries.length; i++) {
-        const [k, v] = entries[i];
-
-        let itemPath = `${currentPath}.${k}`;
-
-        if (Array.isArray(node)) itemPath = `${currentPath}[${k}]`;
-
-        if (!(isValidPointNotation(k) || Array.isArray(node)))
-          itemPath = `${currentPath}["${k}"]`;
-
-        if (v === null || typeof v !== "object") {
-          parent.push(
-            <Button
-              className={`jason-item ${
-                jasonWordWrap ? "max-w-[90vw]" : ""
-              } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
-              variant="secondary"
-              key={itemPath}
-              onClick={() => {
-                const $optionDialogEditBtn = document.getElementById(
-                  "optionDialogEditBtn"
-                )!;
-
-                optionsDialogRef.current!.setAttribute("data-type", "value");
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(node) ? "array" : "object"
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  v === null ? "null" : typeof v
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-value",
-                  v === null ? "null" : String(v)
-                );
-                optionsDialogRef.current!.setAttribute("data-root", "false");
-                optionsDialogRef.current!.setAttribute("data-path", itemPath);
-                $optionDialogEditBtn.click();
-              }}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                optionsDialogRef.current!.setAttribute("data-type", "value");
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(node) ? "array" : "object"
-                );
-
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  v === null ? "null" : typeof v
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-value",
-                  v === null ? "null" : String(v)
-                );
-                optionsDialogRef.current!.setAttribute("data-root", "false");
-                optionsDialogRef.current!.setAttribute("data-path", itemPath);
-                optionsDialogRef.current!.click();
-              }}
-            >
-              <div className="w-full h-full text-left text-wrap">
-                <span className="font-semibold">{k}</span>
-                <span className="text-gray-300">{" :  "}</span>
-                {jasonPaths && (
-                  <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                    {jasonPathsOnlyParent
-                      ? getPathCurrentParentOnly(itemPath)
-                      : itemPath}
-                    <br />
-                  </i>
-                )}
-                <span className="whitespace-break-spaces">
-                  {<GetFomattedValue>{v as any}</GetFomattedValue>}
-                </span>
-              </div>
-            </Button>
-          );
-        } else {
-          const objType: ObjectType = Array.isArray(v) ? "array" : "object";
-          const isEmpty: boolean = getObjectLength(v) === 0;
-          const childrenContainer: Array<JSX.Element> = [];
-
-          parent.push(
-            <AccordionItem
-              value={itemPath}
-              className="border-b-0 mt-0.5"
-              key={itemPath}
-            >
-              <AccordionTrigger
-                className={`jason-item break-all ${
-                  jasonWordWrap ? "max-w-[90vw]" : ""
-                } flex gap-0 bg-(--secondary) p-0.5 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
-                  isEmpty ? "text-foreground/50" : ""
-                } w-max`}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  optionsDialogRef.current!.setAttribute("data-type", objType);
-                  optionsDialogRef.current!.setAttribute(
-                    "data-parent-type",
-                    Array.isArray(node) ? "array" : "object"
-                  );
-                  optionsDialogRef.current!.setAttribute(
-                    "data-exact-type",
-                    objType
-                  );
-                  optionsDialogRef.current!.setAttribute("data-root", "false");
-                  optionsDialogRef.current!.setAttribute("data-path", itemPath);
-                  optionsDialogRef.current!.click();
-                }}
-              >
-                <span
-                  className="relative m-0 mr-3.5 h-[2.75rem] w-[2.75rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    optionsDialogRef.current!.setAttribute(
-                      "data-type",
-                      objType
-                    );
-                    optionsDialogRef.current!.setAttribute(
-                      "data-exact-type",
-                      objType
-                    );
-                    optionsDialogRef.current!.setAttribute(
-                      "data-parent-type",
-                      Array.isArray(node) ? "array" : "object"
-                    );
-                    optionsDialogRef.current!.setAttribute(
-                      "data-root",
-                      "false"
-                    );
-                    optionsDialogRef.current!.setAttribute(
-                      "data-path",
-                      itemPath
-                    );
-                    optionsDialogRef.current!.click();
-                  }}
-                >
-                  <GetIcon
-                    name={objType === "object" ? "ObjectIcon" : "ArrayIcon"}
-                    className={`${
-                      jasonObjectSize
-                        ? getObjectLength(v) >= 10
-                          ? getObjectLength(v) >= 100
-                            ? "scale-105"
-                            : "scale-95"
-                          : "scale-80"
-                        : "scale-70"
-                    } w-[2.8rem] h-[2.8rem]`}
-                  />
-                  {jasonObjectSize && (
-                    <span
-                      className={`absolute opacity-60 ${
-                        getObjectLength(v) >= 100
-                          ? "text-[0.70rem]"
-                          : "text-[0.85rem]"
-                      }`}
-                    >
-                      {counterFormatter.format(getObjectLength(v))}
-                    </span>
-                  )}
-                </span>
-                <span className="mr-auto h-full flex items-center flex-wrap">
-                  <span>
-                    {k}
-                    <span className="text-gray-300">{" :"}</span>
-                  </span>
-                  {jasonPaths && (
-                    <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                      {jasonPathsOnlyParent
-                        ? getPathCurrentParentOnly(itemPath)
-                        : itemPath}
-                    </i>
-                  )}
-                </span>
-              </AccordionTrigger>
-              {!isEmpty && (
-                <AccordionContent
-                  className={` flex flex-col ${getMarginLeft(
-                    jasonItemsOffset
-                  )} w-max p-0 ${
-                    jasonBracketGuides && "border-l-1"
-                  } border-l-primary/45 group-hover:border-amber-300`}
-                >
-                  {childrenContainer}
-                </AccordionContent>
-              )}
-            </AccordionItem>
-          );
-          stack.push({ node: v, path: itemPath, parent: childrenContainer });
-        }
-      }
-    }
-    return (
-      <>
-        <AccordionItem value={path} className="border-b-0 relative" key="root">
-          <AccordionTrigger
-            className="jason-item min-w-[45vw] bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80"
-            onContextMenu={(e) => {
-              e.preventDefault();
-              optionsDialogRef.current!.setAttribute("data-type", objType);
-              optionsDialogRef.current!.setAttribute(
-                "data-exact-type",
-                objType
-              );
-              optionsDialogRef.current!.setAttribute("data-root", "true");
-              optionsDialogRef.current!.setAttribute("data-path", path);
-              optionsDialogRef.current!.click();
-            }}
-          >
-            <span
-              className="relative m-0 mr-3.5 h-[3.3rem] w-[3.3rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
-              onClick={(e) => {
-                e.preventDefault();
-                optionsDialogRef.current!.setAttribute("data-root", "true");
-                optionsDialogRef.current!.setAttribute("data-type", objType);
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  objType
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(jason) ? "array" : "object"
-                );
-                optionsDialogRef.current!.setAttribute("data-path", path);
-                optionsDialogRef.current!.click();
-              }}
-            >
-              <GetIcon
-                name={objType === "object" ? "ObjectIcon" : "ArrayIcon"}
-                className={`${
-                  jasonObjectSize && getObjectLength(jason) >= 10
-                    ? getObjectLength(jason) >= 100
-                      ? "scale-105"
-                      : "scale-95"
-                    : "scale-85"
-                } w-full h-full`}
-              />
-              {jasonObjectSize && (
-                <span
-                  className={`absolute opacity-75 ${
-                    getObjectLength(jason) < 10000
-                      ? "text-[0.95rem]"
-                      : "text-[0.8rem]"
-                  }`}
-                >
-                  {counterFormatter.format(getObjectLength(jason))}
-                </span>
-              )}
-            </span>
-          </AccordionTrigger>
-          <AccordionContent
-            className={`${getMarginLeft(jasonItemsOffset)} w-max p-0 ${
-              jasonBracketGuides && "border-l-1"
-            } border-l-primary/45 flex flex-col`}
-          >
-            {children}
-          </AccordionContent>
-        </AccordionItem>
-      </>
-    );
-  }
-
-  const stack: Array<{ node: any; path: string; parent: Array<JSX.Element> }> =
-    [];
-
-  stack.push({ node: jason, path: path, parent: res });
-  while (stack.length) {
-    const { node, path: currentPath, parent } = stack.pop()!;
-    const entries = Object.entries(node);
-
-    for (let i = 0; i < entries.length; i++) {
-      const [k, v] = entries[i];
-      let itemPath = `${currentPath}.${k}`;
-      if (Array.isArray(node)) itemPath = `${currentPath}[${k}]`;
-      if (!(isValidPointNotation(k) || Array.isArray(node)))
-        itemPath = `${currentPath}["${k}"]`;
-      if (v === null || typeof v !== "object") {
-        parent.push(
-          <Button
-            className={`jason-item ${
-              jasonWordWrap ? "max-w-[90vw]" : ""
-            } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
-            variant="secondary"
-            key={itemPath}
-            onClick={() => {
-              const $optionDialogEditBtn = document.getElementById(
-                "optionDialogEditBtn"
-              )!;
-              optionsDialogRef.current!.setAttribute("data-type", "value");
-              optionsDialogRef.current!.setAttribute(
-                "data-parent-type",
-                Array.isArray(node) ? "array" : "object"
-              );
-              optionsDialogRef.current!.setAttribute(
-                "data-exact-type",
-                v === null ? "null" : typeof v
-              );
-              optionsDialogRef.current!.setAttribute(
-                "data-value",
-                v === null ? "null" : String(v)
-              );
-              optionsDialogRef.current!.setAttribute("data-root", "false");
-              optionsDialogRef.current!.setAttribute("data-path", itemPath);
-              $optionDialogEditBtn.click();
-            }}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              optionsDialogRef.current!.setAttribute("data-type", "value");
-              optionsDialogRef.current!.setAttribute(
-                "data-parent-type",
-                Array.isArray(node) ? "array" : "object"
-              );
-              optionsDialogRef.current!.setAttribute(
-                "data-exact-type",
-                v === null ? "null" : typeof v
-              );
-              optionsDialogRef.current!.setAttribute(
-                "data-value",
-                v === null ? "null" : String(v)
-              );
-              optionsDialogRef.current!.setAttribute("data-root", "false");
-              optionsDialogRef.current!.setAttribute("data-path", itemPath);
-              optionsDialogRef.current!.click();
-            }}
-          >
-            <div className="w-full h-full text-left text-wrap">
-              <span className="font-semibold">{k}</span>
-              <span className="text-gray-300">{" :  "}</span>
-              {jasonPaths && (
-                <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                  {jasonPathsOnlyParent
-                    ? getPathCurrentParentOnly(itemPath)
-                    : itemPath}
-                  <br />
-                </i>
-              )}
-              <span className="whitespace-break-spaces">
-                {<GetFomattedValue>{v as any}</GetFomattedValue>}
-              </span>
-            </div>
-          </Button>
-        );
-      } else {
-        const objType: ObjectType = Array.isArray(v) ? "array" : "object";
-        const isEmpty: boolean = getObjectLength(v) === 0;
-        const childrenContainer: Array<JSX.Element> = [];
-        parent.push(
-          <AccordionItem
-            value={itemPath}
-            className="border-b-0 mt-0.5"
-            key={itemPath}
-          >
-            <AccordionTrigger
-              className={`jason-item break-all ${
-                jasonWordWrap ? "max-w-[90vw]" : ""
-              } flex gap-0 bg-(--secondary) p-0.5 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
-                isEmpty ? "text-foreground/50" : ""
-              } w-max`}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                optionsDialogRef.current!.setAttribute("data-type", objType);
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(node) ? "array" : "object"
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  objType
-                );
-                optionsDialogRef.current!.setAttribute("data-root", "false");
-                optionsDialogRef.current!.setAttribute("data-path", itemPath);
-                optionsDialogRef.current!.click();
-              }}
-            >
-              <span
-                className="relative m-0 mr-3.5 h-[2.75rem] w-[2.75rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
-                onClick={(e) => {
-                  e.preventDefault();
-                  optionsDialogRef.current!.setAttribute("data-type", objType);
-                  optionsDialogRef.current!.setAttribute(
-                    "data-exact-type",
-                    objType
-                  );
-                  optionsDialogRef.current!.setAttribute(
-                    "data-parent-type",
-                    Array.isArray(node) ? "array" : "object"
-                  );
-                  optionsDialogRef.current!.setAttribute("data-root", "false");
-                  optionsDialogRef.current!.setAttribute("data-path", itemPath);
-                  optionsDialogRef.current!.click();
-                }}
-              >
-                <GetIcon
-                  name={objType === "object" ? "ObjectIcon" : "ArrayIcon"}
-                  className={`${
-                    jasonObjectSize
-                      ? getObjectLength(v) >= 10
-                        ? getObjectLength(v) >= 100
-                          ? "scale-105"
-                          : "scale-95"
-                        : "scale-80"
-                      : "scale-70"
-                  } w-[2.8rem] h-[2.8rem]`}
-                />
-                {jasonObjectSize && (
-                  <span
-                    className={`absolute opacity-60 ${
-                      getObjectLength(v) >= 100
-                        ? "text-[0.70rem]"
-                        : "text-[0.85rem]"
-                    }`}
-                  >
-                    {counterFormatter.format(getObjectLength(v))}
-                  </span>
-                )}
-              </span>
-              <span className="mr-auto h-full flex items-center flex-wrap">
-                <span>
-                  {k}
-                  <span className="text-gray-300">{" :"}</span>
-                </span>
-                {jasonPaths && (
-                  <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                    {jasonPathsOnlyParent
-                      ? getPathCurrentParentOnly(itemPath)
-                      : itemPath}
-                  </i>
-                )}
-              </span>
-            </AccordionTrigger>
-            {!isEmpty && (
-              <AccordionContent
-                className={` flex flex-col ${getMarginLeft(
-                  jasonItemsOffset
-                )} w-max p-0 ${
-                  jasonBracketGuides && "border-l-1"
-                } border-l-primary/45 group-hover:border-amber-300`}
-              >
-                {childrenContainer}
-              </AccordionContent>
-            )}
-          </AccordionItem>
-        );
-        stack.push({ node: v, path: itemPath, parent: childrenContainer });
-      }
-    }
-  }
-  return res;
-}
-
-export const HandleJasonLegacy = ({
-  jason,
-  root = false,
-  path = " ",
-}: HandleJasonProps) => {
-  const res: Array<JSX.Element> = [];
-
-  const [jasonBracketGuides, _setJasonBracketGuides] =
-    useContext(AppContext)?.jasonBracketGuides!;
-  const [jasonItemsOffset, _setJasonItemsOffset] =
-    useContext(AppContext)?.jasonItemsOffset!;
-  const [jasonPaths, _setJasonPaths] = useContext(AppContext)?.jasonPaths!;
-
-  const [jasonWordWrap, _setJasonWordWrap] =
-    useContext(AppContext)?.jasonWordWrap!;
-
-  const [jasonPathsOnlyParent, _setJasonPathsOnlyParent] =
-    useContext(AppContext)?.jasonPathsNearParentOnly!;
-
-  const [jasonObjectSize, _setJasonObjectSize] =
-    useContext(AppContext)?.jasonObjectSize!;
-
-  const optionsDialogRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    optionsDialogRef.current = document.getElementById("itemOptionsDialog");
-  }, []);
-
-  type ObjectType = "array" | "object";
-
-  if (root) {
-    const objType: ObjectType = Array.isArray(jason) ? "array" : "object";
-
-    return (
-      <>
-        <AccordionItem
-          value={path}
-          className="border-b-0 relative"
-          key={"root"}
-        >
-          <AccordionTrigger
-            className="jason-item min-w-[45vw] bg-(--secondary) p-1 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80"
-            onContextMenu={(e) => {
-              e.preventDefault();
-
-              optionsDialogRef.current!.setAttribute("data-type", objType);
-              optionsDialogRef.current!.setAttribute(
-                "data-exact-type",
-                objType
-              );
-
-              optionsDialogRef.current!.setAttribute("data-root", "true");
-
-              optionsDialogRef.current!.setAttribute("data-path", path);
-
-              optionsDialogRef.current!.click();
-            }}
-          >
-            <span
-              className="relative m-0 mr-3.5 h-[3.3rem] w-[3.3rem]  aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
-              onClick={(e) => {
-                e.preventDefault();
-
-                optionsDialogRef.current!.setAttribute("data-root", "true");
-                optionsDialogRef.current!.setAttribute("data-type", objType);
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  objType
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(jason) ? "array" : "object"
-                );
-
-                optionsDialogRef.current!.setAttribute("data-path", path);
-
-                optionsDialogRef.current!.click();
-              }}
-            >
-              <GetIcon
-                name={objType === "object" ? "ObjectIcon" : "ArrayIcon"}
-                className={`${
-                  jasonObjectSize && getObjectLength(jason) >= 10
-                    ? getObjectLength(jason) >= 100
-                      ? "scale-105"
-                      : "scale-95"
-                    : "scale-85"
-                } w-full h-full`}
-              />
-              {jasonObjectSize && (
-                <span
-                  className={`absolute opacity-75 ${
-                    getObjectLength(jason) < 10_000
-                      ? "text-[0.95rem]"
-                      : "text-[0.8rem]"
-                  }`}
-                >
-                  {counterFormatter.format(getObjectLength(jason))}
-                </span>
-              )}
-            </span>
-          </AccordionTrigger>
-
-          <AccordionContent
-            className={`${getMarginLeft(jasonItemsOffset)} w-max p-0 ${
-              jasonBracketGuides && "border-l-1"
-            } border-l-primary/45 flex flex-col`}
-          >
-            <HandleJason jason={jason} path={path} />
-          </AccordionContent>
-        </AccordionItem>
-      </>
-    );
-  }
-
-  for (const [k, v] of Object.entries(jason)) {
-    let itemPath = `${path}.${k}`;
-    if (Array.isArray(jason)) itemPath = `${path}[${k}]`;
-    if (!(isValidPointNotation(k) || Array.isArray(jason)))
-      itemPath = `${path}["${k}"]`;
-
-    if (v === null || typeof v !== "object") {
-      res.push(
-        <Button
-          className={`jason-item ${
-            jasonWordWrap ? "max-w-[90vw]" : ""
-          } bg-[var(--secondary)] p-2 rounded-(--radius) w-max text-[1rem] h-auto mt-0.5 text-w`}
-          variant="secondary"
-          key={itemPath}
-          onClick={() => {
-            //TODO clear attributes when the modal is closed!
-
-            const $optionDialogEditBtn = document.getElementById(
-              "optionDialogEditBtn"
-            )!;
-
-            optionsDialogRef.current!.setAttribute("data-type", "value");
-            optionsDialogRef.current!.setAttribute(
-              "data-parent-type",
-              Array.isArray(jason) ? "array" : "object"
-            );
-
-            optionsDialogRef.current!.setAttribute(
-              "data-exact-type",
-              v === null ? "null" : typeof v
-            );
-
-            optionsDialogRef.current!.setAttribute(
-              "data-value",
-              v === null ? "null" : String(v)
-            );
-
-            optionsDialogRef.current!.setAttribute("data-root", "false");
-            optionsDialogRef.current!.setAttribute("data-path", itemPath);
-
-            $optionDialogEditBtn.click();
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-
-            optionsDialogRef.current!.setAttribute("data-type", "value");
-            optionsDialogRef.current!.setAttribute(
-              "data-parent-type",
-              Array.isArray(jason) ? "array" : "object"
-            );
-
-            optionsDialogRef.current!.setAttribute(
-              "data-exact-type",
-              v === null ? "null" : typeof v
-            );
-
-            optionsDialogRef.current!.setAttribute(
-              "data-value",
-              v === null ? "null" : String(v)
-            );
-
-            optionsDialogRef.current!.setAttribute("data-root", "false");
-            optionsDialogRef.current!.setAttribute("data-path", itemPath);
-
-            optionsDialogRef.current!.click();
-          }}
-        >
-          <div className="w-full h-full text-left text-wrap">
-            <span className="font-semibold">{k}</span>
-            <span className="text-gray-300">{" :  "}</span>
-
-            {jasonPaths && (
-              <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                {jasonPathsOnlyParent
-                  ? getPathCurrentParentOnly(itemPath)
-                  : itemPath}{" "}
-                <br />
-              </i>
-            )}
-
-            <span className={"whitespace-break-spaces"}>
-              {<GetFomattedValue>{v as any}</GetFomattedValue>}
-            </span>
-          </div>
-        </Button>
-      );
-    } else {
-      const objType: ObjectType = Array.isArray(v) ? "array" : "object";
-      const isEmpty: boolean = getObjectLength(v) === 0;
-      res.push(
-        <AccordionItem
-          value={itemPath}
-          className={`border-b-0 mt-0.5`}
-          key={itemPath}
-        >
-          <AccordionTrigger
-            className={`jason-item break-all ${
-              jasonWordWrap ? "max-w-[90vw]" : ""
-            } flex gap-0 bg-(--secondary) p-0.5 m-0 text-[1rem] hover:no-underline hover:bg-secondary/80 ${
-              isEmpty ? "text-foreground/50" : ""
-            } w-max`}
-            onContextMenu={(e) => {
-              e.preventDefault();
-
-              optionsDialogRef.current!.setAttribute("data-type", objType);
-              optionsDialogRef.current!.setAttribute(
-                "data-parent-type",
-                Array.isArray(jason) ? "array" : "object"
-              );
-
-              optionsDialogRef.current!.setAttribute(
-                "data-exact-type",
-                objType
-              );
-
-              optionsDialogRef.current!.setAttribute("data-root", "false");
-              optionsDialogRef.current!.setAttribute("data-path", itemPath);
-
-              optionsDialogRef.current!.click();
-            }}
-          >
-            <span
-              className="relative m-0 mr-3.5 h-[2.75rem] w-[2.75rem] aspect-square bg-black/15 hover:bg-black/25  flex items-center justify-center rounded-(--radius)"
-              onClick={(e) => {
-                e.preventDefault();
-
-                optionsDialogRef.current!.setAttribute("data-type", objType);
-                optionsDialogRef.current!.setAttribute(
-                  "data-exact-type",
-                  objType
-                );
-                optionsDialogRef.current!.setAttribute(
-                  "data-parent-type",
-                  Array.isArray(jason) ? "array" : "object"
-                );
-
-                optionsDialogRef.current!.setAttribute("data-root", "false");
-                optionsDialogRef.current!.setAttribute("data-path", itemPath);
-
-                optionsDialogRef.current!.click();
-              }}
-            >
-              <GetIcon
-                name={objType === "object" ? "ObjectIcon" : "ArrayIcon"}
-                className={`${
-                  jasonObjectSize
-                    ? getObjectLength(v) >= 10
-                      ? getObjectLength(v) >= 100
-                        ? "scale-105"
-                        : "scale-95"
-                      : "scale-80"
-                    : "scale-70"
-                } w-[2.8rem] h-[2.8rem]`}
-              />
-
-              {jasonObjectSize && (
-                <span
-                  className={`absolute opacity-60 ${
-                    getObjectLength(v) >= 100
-                      ? "text-[0.70rem]"
-                      : "text-[0.85rem]"
-                  }`}
-                >
-                  {counterFormatter.format(getObjectLength(v))}
-                </span>
-              )}
-            </span>
-            <span className="mr-auto h-full flex items-center flex-wrap">
-              <span>
-                {k}
-                <span className="text-gray-300">{" :"}</span>
-              </span>
-
-              {jasonPaths && (
-                <i className="ml-4 opacity-30 font-normal text-[.95rem]">
-                  {jasonPathsOnlyParent
-                    ? getPathCurrentParentOnly(itemPath)
-                    : itemPath}
-                </i>
-              )}
-            </span>
-          </AccordionTrigger>
-          {!isEmpty && (
-            <AccordionContent
-              className={` flex flex-col ${getMarginLeft(
-                jasonItemsOffset
-              )} w-max p-0 ${
-                jasonBracketGuides && "border-l-1"
-              } border-l-primary/45 group-hover:border-amber-300`}
-            >
-              <HandleJasonLegacy jason={v as typeof jason} path={itemPath} />
-            </AccordionContent>
-          )}
-        </AccordionItem>
-      );
-    }
-  }
-
-  return res;
-};

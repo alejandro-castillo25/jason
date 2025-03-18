@@ -2,5 +2,9 @@
     <!-- Base application theme. -->
     <style name="Theme.jason" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
+        <!-- background -->
+        <!-- <item name="android:windowBackground"> #2563EB</item> -->
+        <item name="android:statusBarColor"> #2563EB</item>
+
     </style>
 </resources>

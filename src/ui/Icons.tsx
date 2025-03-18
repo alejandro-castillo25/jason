@@ -320,6 +320,66 @@ const LengthIcon = ({ className = "" }) => (
   </svg>
 );
 
+const ChevronRightIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-chevron-right ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M9 6l6 6l-6 6" />
+  </svg>
+);
+
+const Link2Icon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-link ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M9 15l6 -6" />
+    <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
+    <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
+  </svg>
+);
+
+const ColorIcon = ({ className = "", style = {} as React.CSSProperties }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    style={style}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-palette ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+    <path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    <path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+    <path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+  </svg>
+);
+
 const Icons = {
   Burger: BurgerIcon,
   Plus: PlusIcon,
@@ -336,7 +396,10 @@ const Icons = {
   FromText: FromTextIcon,
   Edit: EditIcon,
   Link: LinkIcon,
-  Length: LengthIcon
+  Link2: Link2Icon,
+  Length: LengthIcon,
+  ChevronRight: ChevronRightIcon,
+  Color: ColorIcon
 } as const;
 
 export type IconName = keyof typeof Icons;
@@ -344,8 +407,9 @@ export type IconName = keyof typeof Icons;
 interface GetIconProps {
   name: IconName;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function GetIcon({ name, className = "" }: GetIconProps) {
-  return Icons[name]({ className }) ?? <></>;
+export function GetIcon({ name, className = "", style = {} }: GetIconProps) {
+  return Icons[name]({ className, style }) ?? <></>;
 }
