@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 import type { Lang } from "./ui/lang";
-import example from "./huge.json"
+// import example from "./large-file.json"
 
 type AppContextProp<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
@@ -45,7 +45,7 @@ export function AppContextProvider({
     Map<string, [any, number]>
   >(new Map());
 
-  const [jason, setJason] = useState(example);
+  const [jason, setJason] = useState({});
 
   const refreshTree = () => {
     const refreshTreeEvent = new CustomEvent("refreshTree", {

@@ -32,17 +32,7 @@ import { translateTo } from "./lang";
 import { AddItemDialog } from "./AddItemDialog";
 
 const Jason = memo(({ jason }: { jason: any }) => {
-  return (
-    <>
-      <HandleJason2 data={jason} />
-      {/* <Accordion type="multiple" className="w-max">
-      <HandleJason
-          jason={jason as Record<string, unknown>}
-          root={true}
-        />
-      </Accordion> */}
-    </>
-  );
+  return <HandleJason2 data={jason} />;
 });
 
 export type EditItemType = "object" | "array" | "value";
@@ -301,7 +291,7 @@ export function Main() {
                 dialogAddItemValueType === "string") && (
                 <Badge
                   variant="outline"
-                  className={`absolute top-[-0.45rem] left-[-0.45rem]
+                  className={`absolute top-[-0.55rem] left-[-0.55rem]
                   ${
                     dialogAddItemValueType === "string" ? "text-green-400" : ""
                   } `}
@@ -376,7 +366,6 @@ export function Main() {
 
                 {dialogType !== "value" && (
                   <>
-                    
                     <section className="flex flex-row gap-3.5 flex-wrap">
                       <Button
                         className="flex-auto"
@@ -455,7 +444,7 @@ export function Main() {
                         {translateTo(lang, "Add Array")}
                       </Button>
                     </section>
-                    
+
                     <Button
                       variant="default"
                       onClick={() => {
@@ -490,21 +479,45 @@ export function Main() {
 
                 {!isRoot && (
                   <>
-                    <Button
-                      variant="secondary"
-                      onClick={async () => {
-                        const path =
-                          optionsDialogRef.current!.getAttribute("data-path")!;
+                    <section className="flex flex-row gap-3.5 flex-wrap">
+                      <Button
+                        className="flex-auto"
+                        variant="secondary"
+                        onClick={async () => {
+                          const path =
+                            optionsDialogRef.current!.getAttribute(
+                              "data-path"
+                            )!;
 
-                        await invoke("copy_to_clipboard", {
-                          text: path.substring(1),
-                        });
-                        optionsDialogRef.current!.click();
-                      }}
-                    >
-                      <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
-                      {translateTo(lang, "Copy Path")}
-                    </Button>
+                          await invoke("copy_to_clipboard", {
+                            text: path.substring(1),
+                          });
+                          optionsDialogRef.current!.click();
+                        }}
+                      >
+                        <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
+                        {translateTo(lang, "Copy Path")}
+                      </Button>
+                      {dialogType === "value" && <Button
+                        className="flex-auto"
+                        variant="secondary"
+                        onClick={async () => {
+                          const value =
+                            optionsDialogRef.current!.getAttribute(
+                              "data-value"
+                            )!;
+
+                          await invoke("copy_to_clipboard", {
+                            text: value,
+                          });
+                          optionsDialogRef.current!.click();
+                        }}
+                      >
+                        <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
+                        {translateTo(lang, "Copy Value")}
+                      </Button>}
+                    </section>
+
                     {dialogType === "value" &&
                       isValidURL(dialogAddItemValue) && (
                         <Button

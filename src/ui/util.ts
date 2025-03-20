@@ -88,7 +88,10 @@ export function evalFormat(
   value: string | number | null | object | boolean
 ): string {
   if (typeof value === "string") {
-    value = value.replace(/\n/g, "\\n").replace(/\"/g, '\\"').replace(/\\/g, "\\\\");
+    value = value
+      .replace(/\n/g, "\\n")
+      .replace(/\"/g, '\\"')
+      .replace(/\\/g, "\\\\");
     return `"${value}"`;
   }
   if (typeof value === "number") return `${value}`;
@@ -350,6 +353,7 @@ export function isValidKeywordColor(value: string): boolean {
     "whitesmoke",
     "yellow",
     "yellowgreen",
+    "rebeccapurple"
   ] as const;
 
   for (const color of VALID_COLORS) if (color === value) return true;
@@ -393,11 +397,11 @@ export const BRACKET_GUIDES_COLORS = [
 //!THIS took me a while...
 
 export function hasValidMathChars(expr: string): boolean {
-  return /^[0-9\+\-/\s\*\.\(\[\{\)\]\}\^\e]+$/.test(expr);
+  return /^[0-9\+\-/\s\*\.\(\[\{\)\]\}\^\e_]+$/.test(expr);
 }
 
 export function hasOnlyNums(expr: string): boolean {
-  return /^(?:\d|\.)+$/.test(expr);
+  return /^(?:\d|\.|_)+$/.test(expr);
 }
 
 export const countChars = (word: string, ch: string) => {
@@ -439,7 +443,7 @@ export function evalMath(expr: string): number {
     .replace(/\]|\}/g, ")")
     .replace(/\^/g, "**")
     .replace(/([)\d])\s*(?=[(])/g, "$1*")
-    .replace(/([)])\s*(?=[(\d])/g, "$1*");
+    .replace(/([)])\s*(?=[(\d])/g, "$1*")
 
   if (!/^\(?\d+\)?$/g.test(processedExpr))
     processedExpr = closeUnclosedBrackets(processedExpr);
@@ -451,7 +455,7 @@ export function evalMath(expr: string): number {
   }
 }
 
-type DictLang =
+export type LangDict =
   | "es"
   | "en"
   | "pt"
@@ -464,8 +468,9 @@ type DictLang =
   | "de"
   | "ko"
   | "it";
-export function getLangIconCode(value: DictLang) {
-  const dict: Record<DictLang, string> = {
+
+export function getLangIconCode(value: LangDict): string | null {
+  const dict: Record<LangDict, string> = {
     en: "US",
     es: "ES",
     fr: "FR",
@@ -480,9 +485,15 @@ export function getLangIconCode(value: DictLang) {
     it: "IT",
   };
 
-  return dict[value] ?? "";
+  return dict[value] ?? null;
 }
 
 export const parseSpecialChars = (key: string) => {
   return key.replace(/\\/g, "\\\\").replace(/\"/g, '\\"');
 };
+
+export function isValidDate(value: string): boolean {
+  const date: Date = new Date(value);
+  return date instanceof Date && !Number.isNaN(date.getTime());
+}
+

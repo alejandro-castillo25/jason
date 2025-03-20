@@ -48,6 +48,7 @@ import { Button } from "@/components/ui/button";
 
 import { Badge } from "@/components/ui/badge";
 import { CountryFlagFallback } from "./HandleJason";
+import phone from "phone";
 
 interface JasonEditItem {
   oldKey: string;
@@ -96,7 +97,8 @@ export function AddItemDialog({
 
   const handleMath = (value: string) => {
     const expr = value.trim();
-    if (hasValidMathChars(expr)) {
+
+    if (hasValidMathChars(expr) && !phone(expr).isValid) {
       setNumTabMath(true);
       if (hasOnlyNums(expr)) setNumTabMath(false);
       setMath(true);
@@ -609,9 +611,11 @@ export function AddItemDialog({
           handleMath(dialogAddItemValue);
           resetAllForms();
         } else {
-          enableRefreshTree();
           setMath(false);
-          setTimeout(resetAllForms, 50); //? Thus the old value isn't displayed when we close the dialog
+          setTimeout(() => {
+            enableRefreshTree();
+            resetAllForms();
+          }, 50); //? Thus the old value isn't displayed when we close the dialog
         }
       }}
     >
@@ -753,23 +757,21 @@ export function AddItemDialog({
                         <FormItem className="gap-0">
                           <FormLabel className="text-(--primary)! relative py-1.5">
                             {translateTo(lang, "Value")}:
-                            {field.value.trim().length !== 0 &&
-                              /^[^0-9]+$/g.test(field.value) &&
-                              field.value.trim().length <= 24 && (
-                                <Badge
-                                  variant="outline"
-                                  className="absolute bottom-[0.2rem] right-0.5 empty:hidden"
-                                >
-                                  <CountryFlagFallback
-                                    countryCode={field.value}
-                                    className={` text-[1.4rem] ${
-                                      field.value.trim().length !== 0 &&
-                                      /^[^0-9]+$/g.test(field.value) &&
-                                      field.value.trim().length <= 24
-                                    }`}
-                                  />
-                                </Badge>
-                              )}
+                            {((phone(field.value).isValid &&
+                              !isValidURL(field.value)) ||
+                              (field.value.trim().length !== 0 &&
+                                /^[^0-9]+$/g.test(field.value) &&
+                                field.value.trim().length <= 24)) && (
+                              <Badge
+                                variant="outline"
+                                className="absolute bottom-[0.2rem] right-0.5 empty:hidden"
+                              >
+                                <CountryFlagFallback
+                                  countryCode={field.value}
+                                  className={`text-[1.4rem]`}
+                                />
+                              </Badge>
+                            )}
                             {isValidURL(field.value) && (
                               <Badge
                                 variant="outline"
@@ -797,7 +799,8 @@ export function AddItemDialog({
                                 />
                               </Badge>
                             )}
-                            {!hasOnlyNums(field.value.trim()) &&
+                            {!phone(field.value).isValid &&
+                              !hasOnlyNums(field.value.trim()) &&
                               hasValidMathChars(field.value.trim()) &&
                               (() => {
                                 try {
@@ -1015,7 +1018,7 @@ export function AddItemDialog({
                               {translateTo(lang, "Value")}:{" "}
                             </span>
                             <div
-                              className="w-full absolute top-0 h-[4rem]"
+                              className="w-full absolute top-0 h-[4rem] cursor-pointer"
                               aria-hidden="true"
                             ></div>
                             {field.value.toString()}

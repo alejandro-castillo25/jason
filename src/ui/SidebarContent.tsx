@@ -99,7 +99,7 @@ export function SidebarContent() {
       Clear: () => {
          const $openSidebarBtn = document.getElementById("openSidebarBtn")!;
          $openSidebarBtn.click();
-         
+
         const $jasonAlertDialog = document.getElementById("jasonAlertDialog")!;
         $jasonAlertDialog.click();
       },

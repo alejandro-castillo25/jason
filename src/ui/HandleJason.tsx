@@ -10,6 +10,7 @@ import {
   isValidURL,
   isValidColor,
   BRACKET_GUIDES_COLORS,
+  getLangIconCode,
 } from "./util";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import ReactCountryFlag from "react-country-flag";
 import iso from "iso-3166-1";
 
 import { VariableSizeTree as Tree } from "react-vtree";
+import { phone } from "phone";
 
 function getFomattedValueTemplate(value: any): string {
   return typeof value === "string"
@@ -44,11 +46,29 @@ export const CountryFlagFallback = ({
     const code = countryCode.trim();
     let result = "";
 
+    const { isValid: isValidPhone } = phone(code);
+
+    if (getLangIconCode(code as any) !== null) {
+      setIsValid(true);
+      return getLangIconCode(code as any);
+    } else if (isValidPhone && !/[a-z]/i.test(code)) {
+      setIsValid(true);
+      return phone(code).countryIso2;
+    } else if (
+      code.startsWith("tel:") &&
+      !/\s/.test(code) &&
+      phone(code.substring(4)).isValid && !/[a-z]/i.test(code.substring(4))
+    ) {
+      setIsValid(true);
+      return phone(code.substring(4)).countryIso2;
+    }
+
     if (code.length === 3 && code.toUpperCase() === code) {
       result = iso.whereAlpha3(code)?.alpha2 ?? "";
     } else if (code.length === 2 && code.toUpperCase() === code) {
       result = iso.whereAlpha2(code)?.alpha2 ?? "";
-    } else if (code.length > 3 && code !== "peru") //? Peru conflict so...
+      //? Peru conflict so...
+    } else if (code.length > 3 && code !== "peru")
       result = iso.whereCountry(code)?.alpha2 ?? "";
 
     setIsValid(Boolean(result));
@@ -63,7 +83,7 @@ export const CountryFlagFallback = ({
 
   return (
     <ReactCountryFlag
-      countryCode={normalizedCode}
+      countryCode={normalizedCode!}
       svg
       className={`transition-opacity duration-200 ${className}`}
       style={{ opacity: isLoaded ? 1 : 0 }}
@@ -228,7 +248,7 @@ const Node = ({
             );
             optionsDialogRef.current!.setAttribute(
               "data-root",
-              id === " " ? "true" : "false"
+              String(id === " ")
             );
             optionsDialogRef.current!.setAttribute("data-path", id);
             optionsDialogRef.current!.click();
@@ -272,10 +292,8 @@ const Node = ({
 
           <span
             className="relative self-start m-0 mr-3.5 h-[2.9rem] w-[2.9rem] aspect-square bg-black/15 hover:bg-black/25 flex items-center justify-center rounded-(--radius)"
-            onClick={(e) => {
-              e.preventDefault();
-              toggle(); //! To handle clicks on both the button and the thingy
-
+            onClick={() => {
+              
               optionsDialogRef.current!.setAttribute("data-type", dataType);
               optionsDialogRef.current!.setAttribute(
                 "data-exact-type",
@@ -292,10 +310,11 @@ const Node = ({
               );
               optionsDialogRef.current!.setAttribute(
                 "data-root",
-                id === " " ? "true" : "false"
+                String(id === " ")
               );
               optionsDialogRef.current!.setAttribute("data-path", id);
               optionsDialogRef.current!.click();
+              toggle(); //! To handle clicks on both the button and the thingy
             }}
           >
             <GetIcon
@@ -326,10 +345,7 @@ const Node = ({
                     : "text-[0.85rem]"
                 }`}
               >
-                {
-                
-                counterFormatter(lang).format(objectSize).replace(/\s+/g, "")
-                }
+                {counterFormatter(lang).format(objectSize).replace(/\s/g, "")}
               </span>
             )}
           </span>
@@ -396,7 +412,7 @@ const Node = ({
 
             optionsDialogRef.current!.click(); //! Not too genious, but clever
             optionsDialogRef.current!.click(); //! thus we sent the data at once without changing our dialog
-            
+
             $optionDialogEditBtn.click();
           }}
           onContextMenu={(e) => {
@@ -786,7 +802,6 @@ export function HandleJason2({ data }: any) {
       treeWalker={treeWalker}
       height={treeHeight}
       width={treeWidth}
-      
     >
       {Node}
     </Tree>
