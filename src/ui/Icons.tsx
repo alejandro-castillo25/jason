@@ -47,13 +47,13 @@ const LoadFileIcon = ({ className = "" }) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={`icon icon-tabler icons-tabler-outline icon-tabler-file-upload ${className}`}
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-file-plus ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M14 3v4a1 1 0 0 0 1 1h4" />
     <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-    <path d="M12 11v6" />
-    <path d="M9.5 13.5l2.5 -2.5l2.5 2.5" />
+    <path d="M12 11l0 6" />
+    <path d="M9 14l6 0" />
   </svg>
 );
 
@@ -76,7 +76,7 @@ const PasteIcon = ({ className = "" }) => (
   </svg>
 );
 
-const DownloadIcon = ({ className = "" }) => (
+const SaveIcon = ({ className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={24}
@@ -87,12 +87,12 @@ const DownloadIcon = ({ className = "" }) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className={`icon icon-tabler icons-tabler-outline icon-tabler-download ${className}`}
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-device-floppy ${className}`}
   >
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-    <path d="M7 11l5 5l5 -5" />
-    <path d="M12 4l0 12" />
+    <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+    <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+    <path d="M14 4l0 4l-6 0l0 -4" />
   </svg>
 );
 
@@ -400,12 +400,128 @@ const CodeIcon = ({ className = "" }) => (
   </svg>
 );
 
+const EraseIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-eraser ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3" />
+    <path d="M18 13.3l-6.3 -6.3" />
+  </svg>
+);
+
+export const FileIcon = ({ className = ""}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-file ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+  </svg>
+);
+const InfoIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-info-square ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 9h.01" />
+    <path d="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z" />
+    <path d="M11 12h1v4h1" />
+  </svg>
+);
+
+const CloseFileIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-file-x ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+    <path d="M10 12l4 4m0 -4l-4 4" />
+  </svg>
+);
+
+const CloseIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`con icon-tabler icons-tabler-outline icon-tabler-x ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M18 6l-12 12" />
+    <path d="M6 6l12 12" />
+  </svg>
+);
+
+const ArrowLeftIcon = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`icon icon-tabler icons-tabler-outline icon-tabler-arrow-left ${className}`}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M5 12l14 0" />
+    <path d="M5 12l6 6" />
+    <path d="M5 12l6 -6" />
+  </svg>
+);
+
 const Icons = {
   Burger: BurgerIcon,
   Plus: PlusIcon,
   LoadFile: LoadFileIcon,
   Paste: PasteIcon,
-  Download: DownloadIcon,
+  Save: SaveIcon,
   Settings: SettingsIcon,
   Trash: TrashIcon,
   ArrayIcon,
@@ -420,7 +536,13 @@ const Icons = {
   Length: LengthIcon,
   ChevronRight: ChevronRightIcon,
   Color: ColorIcon,
-  Code: CodeIcon
+  Code: CodeIcon,
+  Erase: EraseIcon,
+  File: FileIcon,
+  Info: InfoIcon,
+  CloseFile: CloseFileIcon,
+  Close: CloseIcon,
+  ArrowLeft: ArrowLeftIcon
 } as const;
 
 export type IconName = keyof typeof Icons;

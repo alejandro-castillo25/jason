@@ -12,6 +12,7 @@ import {
   unwrapIndex,
   isValidURL,
   itemSizeFormatter,
+  editObjectValue,
 } from "./util";
 
 import type { Item } from "./util";
@@ -27,13 +28,44 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import { HandleJason2 } from "./HandleJason";
-import { translateTo } from "./lang";
+import { Lang, translateTo } from "./lang";
 
 import { AddItemDialog } from "./AddItemDialog";
+import { Settings } from "./Settings";
 
-const Jason = memo(({ jason }: { jason: any }) => {
-  return <HandleJason2 data={jason} />;
-});
+const Jason = memo(
+  ({
+    jason,
+    lang,
+    jasonScreen,
+  }: {
+    jason: any;
+    lang: Lang;
+    jasonScreen: "main" | "settings";
+  }) => {
+    return (
+      <>
+        <Settings show={jasonScreen === "settings"} />
+        {jason !== null ? (
+          <HandleJason2 data={jason} />
+        ) : (
+          jasonScreen === "main" && (
+            <section className="h-full w-full bg-(--background) grid place-items-center p-2">
+              <div>
+                <h2 className="text-[1.2rem] text-center opacity-45 text-pretty">
+                  {translateTo(
+                    lang,
+                    "Please create a workflow or load a file to begin editing its contents"
+                  )}
+                </h2>
+              </div>
+            </section>
+          )
+        )}
+      </>
+    );
+  }
+);
 
 export type EditItemType = "object" | "array" | "value";
 
@@ -74,20 +106,21 @@ export function Main() {
   const [dialogObjectSize, setDialogObjectSize] = useState<number>(0);
 
   const [jason0, setJason] = useContext(AppContext)?.jason!;
+  const [jasonScreen] = useAppContext()?.jasonScreen!;
+
   const [lang] = useContext(AppContext)?.lang!;
 
   const optionsDialogRef = useRef<HTMLElement | null>(null);
   const addItemDialogRef = useRef<HTMLElement | null>(null);
 
-  const [, setJasonMemoObjects] = useAppContext()?.jasonMemoObjects!;
-  const [, setJasonMemoValues] = useAppContext()?.jasonMemoValues!;
+  const { jasonMemoObjects, jasonMemoValues } = useAppContext()!;
 
   const enableRefreshTree = () => {
     const enableRefreshTreeEvent = new CustomEvent("enableRefreshTree", {
       detail: {
         message: "Enable Refresh Tree",
       },
-      cancelable: false,
+      cancelable: true,
       bubbles: true,
       composed: true,
     });
@@ -100,7 +133,7 @@ export function Main() {
       detail: {
         message: "Refreshing Tree",
       },
-      cancelable: false,
+      cancelable: true,
       bubbles: true,
       composed: true,
     });
@@ -138,15 +171,8 @@ export function Main() {
       : [...(jason0 as Array<any>)];
 
     const deletePath = (path: string) => {
-      setJasonMemoObjects((memo) => {
-        if (!memo.delete(path))
-          setJasonMemoValues((memoValues) => {
-            memoValues.delete(path);
-            return memoValues;
-          });
-
-        return memo;
-      });
+      if (!jasonMemoObjects.current.delete(path))
+        jasonMemoValues.current.delete(path);
     };
 
     if (!arrayElement) {
@@ -171,6 +197,28 @@ export function Main() {
     setJason(
       !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
     );
+  }
+
+  function clearJasonItem({
+    path,
+    isArray = false,
+  }: {
+    path: string;
+    isArray: boolean;
+  }) {
+    try {
+      let oldJason = !Array.isArray(jason0)
+        ? { ...jason0 }
+        : [...(jason0 as Array<any>)];
+
+      eval(`oldJason${path.substring(1)} = ${!isArray ? "{}" : "[]"}`);
+
+      setJason(
+        !Array.isArray(jason0) ? { ...oldJason } : [...(oldJason as any[])]
+      );
+    } catch (e) {
+      alert(e);
+    }
   }
 
   useEffect(() => {
@@ -230,7 +278,19 @@ export function Main() {
           dialogAddItemParentType={dialogAddItemParentType}
         />
 
-        <Dialog>
+        <Dialog
+          onOpenChange={(open) => {
+            if (!open) {
+              //TODO fix this!
+              // const path = optionsDialogRef.current!.getAttribute("data-path")!;
+              // const previousItem = document.getElementById(path)!;
+              // document
+              //   .getElementById("root")!
+              //   .setAttribute("aria-hidden", "false");
+              // previousItem.focus();
+            }
+          }}
+        >
           <DialogTrigger
             aria-hidden="true"
             tabIndex={-1}
@@ -296,10 +356,7 @@ export function Main() {
                     dialogAddItemValueType === "string" ? "text-green-400" : ""
                   } `}
                 >
-                  <GetIcon
-                    name="Length"
-                    className="w-[1.15rem]! h-[1.15rem]!"
-                  />
+                  <GetIcon name="Length" className="w-[1.1rem]! h-[1.1rem]!" />
 
                   {itemSizeFormatter(lang).format(dialogObjectSize)}
                 </Badge>
@@ -331,7 +388,6 @@ export function Main() {
                     (dialogType === "object" || dialogType === "array")
                   ) && (
                     <Button
-                      className="flex-auto"
                       onClick={() => {
                         const dataType = optionsDialogRef.current!.getAttribute(
                           "data-type"
@@ -368,7 +424,7 @@ export function Main() {
                   <>
                     <section className="flex flex-row gap-3.5 flex-wrap">
                       <Button
-                        className="flex-auto"
+                        className="flex-[1]"
                         variant="default"
                         onClick={() => {
                           setDialogAddItemEdit(false);
@@ -406,7 +462,7 @@ export function Main() {
                         {translateTo(lang, "Add Object")}
                       </Button>
                       <Button
-                        className="flex-auto"
+                        className="flex-[1]"
                         variant="default"
                         onClick={() => {
                           setDialogAddItemEdit(false);
@@ -472,71 +528,94 @@ export function Main() {
                       }}
                     >
                       <GetIcon name="FromText" className="w-[1rem]! h-[1rem]!" />
-                      {translateTo(lang, "Add From Text")}
+                      {translateTo(lang, "Add from Text")}
                     </Button> */}
                   </>
                 )}
 
-                {!isRoot && (
-                  <>
-                    <section className="flex flex-row gap-3.5 flex-wrap">
-                      <Button
-                        className="flex-auto"
-                        variant="secondary"
-                        onClick={async () => {
-                          const path =
-                            optionsDialogRef.current!.getAttribute(
-                              "data-path"
-                            )!;
+                {dialogType === "value" && isValidURL(dialogAddItemValue) && (
+                  <Button
+                    variant="secondary"
+                    onClick={async () => {
+                      await invoke("open_url", {
+                        url: dialogAddItemValue.trim(),
+                      });
+                      optionsDialogRef.current!.click();
+                    }}
+                  >
+                    <GetIcon name="Link" className="w-[1rem]! h-[1rem]!" />
+                    {translateTo(lang, "Open URL")}
+                  </Button>
+                )}
 
-                          await invoke("copy_to_clipboard", {
-                            text: path.substring(1),
-                          });
-                          optionsDialogRef.current!.click();
-                        }}
-                      >
-                        <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
-                        {translateTo(lang, "Copy Path")}
-                      </Button>
-                      {dialogType === "value" && <Button
-                        className="flex-auto"
-                        variant="secondary"
-                        onClick={async () => {
-                          const value =
-                            optionsDialogRef.current!.getAttribute(
-                              "data-value"
-                            )!;
-
-                          await invoke("copy_to_clipboard", {
-                            text: value,
-                          });
-                          optionsDialogRef.current!.click();
-                        }}
-                      >
-                        <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
-                        {translateTo(lang, "Copy Value")}
-                      </Button>}
-                    </section>
-
-                    {dialogType === "value" &&
-                      isValidURL(dialogAddItemValue) && (
-                        <Button
-                          variant="secondary"
-                          onClick={async () => {
-                            await invoke("open_url", {
-                              url: dialogAddItemValue.trim(),
-                            });
-                            optionsDialogRef.current!.click();
-                          }}
-                        >
-                          <GetIcon
-                            name="Link"
-                            className="w-[1rem]! h-[1rem]!"
-                          />
-                          {translateTo(lang, "Open URL")}
-                        </Button>
-                      )}
+                <section className="flex flex-row gap-3.5 flex-wrap empty:hidden">
+                  {!isRoot && (
                     <Button
+                      className="flex-[1]"
+                      variant="secondary"
+                      onClick={async () => {
+                        const path =
+                          optionsDialogRef.current!.getAttribute("data-path")!;
+
+                        await invoke("copy_to_clipboard", {
+                          text: path.substring(1),
+                        });
+                        optionsDialogRef.current!.click();
+                      }}
+                    >
+                      <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
+                      {translateTo(lang, "Copy Path")}
+                    </Button>
+                  )}
+                  {dialogType === "value" && (
+                    <Button
+                      className="flex-[1]"
+                      variant="secondary"
+                      onClick={async () => {
+                        const value =
+                          optionsDialogRef.current!.getAttribute("data-value")!;
+
+                        await invoke("copy_to_clipboard", {
+                          text: value,
+                        });
+                        optionsDialogRef.current!.click();
+                      }}
+                    >
+                      <GetIcon name="Copy" className="w-[1rem]! h-[1rem]!" />
+                      {translateTo(lang, "Copy Value")}
+                    </Button>
+                  )}
+                </section>
+
+                <section className="flex flex-row gap-3.5 flex-wrap empty:hidden">
+                  {dialogType !== "value" && dialogObjectSize > 0 && (
+                    <Button
+                      className="flex-[1]"
+                      variant="destructive"
+                      onClick={() => {
+                        optionsDialogRef.current!.click();
+                        const path =
+                          optionsDialogRef.current!.getAttribute("data-path")!;
+                        const dataType =
+                          optionsDialogRef.current!.getAttribute(
+                            "data-exact-type"
+                          )!;
+
+                        clearJasonItem({
+                          path,
+                          isArray: dataType === "array",
+                        });
+
+                        setTimeout(refreshTree, 15);
+                      }}
+                    >
+                      <GetIcon name="Erase" className="w-[1rem]! h-[1rem]!" />
+                      {translateTo(lang, "Clear")}
+                    </Button>
+                  )}
+                  {!isRoot && (
+                    <Button
+                      className="flex-[1]"
                       variant="destructive"
                       onClick={() => {
                         optionsDialogRef.current!.click();
@@ -552,22 +631,24 @@ export function Main() {
                           arrayElement,
                         });
 
-                        //TODO Take a look at the refreshTree delay
+                        jasonMemoObjects.current.delete(path);
+                        jasonMemoValues.current.delete(path);
 
-                        setTimeout(refreshTree, 20);
+                        //TODO take a look at performance
+                        setTimeout(refreshTree, 15);
                       }}
                     >
                       <GetIcon name="Trash" className="w-[1rem]! h-[1rem]!" />
                       {translateTo(lang, "Remove")}
                     </Button>
-                  </>
-                )}
+                  )}
+                </section>
               </section>
             </DialogHeader>
           </DialogContent>
         </Dialog>
 
-        <Jason jason={jason0} />
+        <Jason jason={jason0} lang={lang} jasonScreen={jasonScreen} />
       </main>
     </>
   );

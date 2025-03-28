@@ -3,7 +3,7 @@ import type { Lang } from "./lang";
 export function isValidPointNotation(k: string): boolean {
   if (/^\d+/.test(k)) return false;
 
-  const UNVALID_CHARS: Array<string> = [
+  const INVALID_CHARS = [
     ".",
     "[",
     "]",
@@ -32,9 +32,10 @@ export function isValidPointNotation(k: string): boolean {
     ")",
     "=",
     "%",
-  ];
+    ":",
+  ] as const;
 
-  for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
+  for (const ch of INVALID_CHARS) if (k.includes(ch)) return false;
 
   return true;
 }
@@ -353,7 +354,7 @@ export function isValidKeywordColor(value: string): boolean {
     "whitesmoke",
     "yellow",
     "yellowgreen",
-    "rebeccapurple"
+    "rebeccapurple",
   ] as const;
 
   for (const color of VALID_COLORS) if (color === value) return true;
@@ -361,37 +362,34 @@ export function isValidKeywordColor(value: string): boolean {
   return false;
 }
 
-export type Workers =
-  | "json5"
-  | "toml"
-  | "csv"
-  | "xml"
-  | "yaml"
-  | "html"
-  | "css";
+export type SupportedFiles = "json" | "toml" | "csv" | "xml" | "yaml";
 
-export function getWorkerType(filename: string): Workers | null {
+export function getFileType(filename: string): SupportedFiles | null {
   const JSON5 = [".json", ".jsonc", ".json5"] as const;
 
   for (const extension of JSON5)
-    if (filename.endsWith(extension)) return "json5";
+    if (filename.endsWith(extension)) return "json";
 
   if (filename.endsWith(".toml")) return "toml";
   if (filename.endsWith(".csv")) return "csv";
-  if (filename.endsWith(".xml")) return "xml";
+  if (
+    filename.endsWith(".xml") ||
+    filename.endsWith(".html") ||
+    filename.endsWith(".svg")
+  )
+    return "xml";
   if (filename.endsWith(".yaml") || filename.endsWith(".yml")) return "yaml";
-  if (filename.endsWith(".html")) return "html";
-  if (filename.endsWith(".css")) return "css";
 
   return null;
 }
 
 export const BRACKET_GUIDES_COLORS = [
-  "#3F51B5",
-  "#009688",
-  "#ddfd22",
-  "#FFC107",
-  "#4CAF50",
+  "var(--primary)",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
 ] as const;
 
 //!THIS took me a while...
@@ -443,7 +441,7 @@ export function evalMath(expr: string): number {
     .replace(/\]|\}/g, ")")
     .replace(/\^/g, "**")
     .replace(/([)\d])\s*(?=[(])/g, "$1*")
-    .replace(/([)])\s*(?=[(\d])/g, "$1*")
+    .replace(/([)])\s*(?=[(\d])/g, "$1*");
 
   if (!/^\(?\d+\)?$/g.test(processedExpr))
     processedExpr = closeUnclosedBrackets(processedExpr);
@@ -494,6 +492,13 @@ export const parseSpecialChars = (key: string) => {
 
 export function isValidDate(value: string): boolean {
   const date: Date = new Date(value);
-  return date instanceof Date && !Number.isNaN(date.getTime());
+  return !Number.isNaN(date);
 }
 
+
+
+export const getFilenameNoExtension = (filename: string): string => {
+  let filename0: Array<string> | string = filename.split(/\./g);
+  filename0.pop();
+  return filename0.join(".");
+}

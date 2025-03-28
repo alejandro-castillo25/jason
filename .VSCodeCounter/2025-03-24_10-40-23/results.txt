@@ -1,0 +1,128 @@
+Date : 2025-03-24 10:40:23
+Directory : c:\Alejandro\Projects\jason
+Total : 64 files,  14556 codes, 342 comments, 1614 blanks, all 16512 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| TOML               |          2 |      5,244 |          6 |        551 |      5,801 |
+| TypeScript JSX     |         24 |      4,683 |        167 |        569 |      5,419 |
+| JSON               |          6 |      2,227 |          0 |          9 |      2,236 |
+| TypeScript         |          6 |        722 |         38 |        121 |        881 |
+| CSS                |          2 |        586 |         48 |         46 |        680 |
+| JSON with Comments |          3 |        334 |          4 |        237 |        575 |
+| YAML               |          2 |        293 |         17 |         17 |        327 |
+| XML                |          9 |        279 |          9 |         11 |        299 |
+| HTML               |          1 |         79 |          3 |          5 |         87 |
+| Batch              |          1 |         39 |         29 |         22 |         90 |
+| Rust               |          4 |         37 |          1 |         10 |         48 |
+| Markdown           |          1 |         21 |          0 |         13 |         34 |
+| Java Properties    |          2 |         10 |         20 |          1 |         31 |
+| Gradle             |          1 |          2 |          0 |          2 |          4 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                       | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                          |         64 |     14,556 |        342 |      1,614 |     16,512 |
+| . (Files)                                                                                                  |          9 |      2,590 |         12 |        261 |      2,863 |
+| src                                                                                                        |         34 |      6,266 |        265 |        750 |      7,281 |
+| src (Files)                                                                                                |          9 |      1,075 |         69 |        111 |      1,255 |
+| src-tauri                                                                                                  |         21 |      5,700 |         65 |        603 |      6,368 |
+| src-tauri (Files)                                                                                          |          4 |      5,283 |          6 |        554 |      5,843 |
+| src-tauri\capabilities                                                                                     |          1 |         53 |          0 |          4 |         57 |
+| src-tauri\gen                                                                                              |         13 |        330 |         58 |         36 |        424 |
+| src-tauri\gen\android                                                                                      |         13 |        330 |         58 |         36 |        424 |
+| src-tauri\gen\android (Files)                                                                              |          3 |         46 |         48 |         24 |        118 |
+| src-tauri\gen\android\app                                                                                  |          9 |        279 |          9 |         11 |        299 |
+| src-tauri\gen\android\app\src                                                                              |          9 |        279 |          9 |         11 |        299 |
+| src-tauri\gen\android\app\src\main                                                                         |          9 |        279 |          9 |         11 |        299 |
+| src-tauri\gen\android\app\src\main (Files)                                                                 |          1 |         34 |          2 |          4 |         40 |
+| src-tauri\gen\android\app\src\main\res                                                                     |          8 |        245 |          7 |          7 |        259 |
+| src-tauri\gen\android\app\src\main\res\drawable                                                            |          1 |        170 |          0 |          1 |        171 |
+| src-tauri\gen\android\app\src\main\res\drawable-v24                                                        |          1 |         30 |          0 |          0 |         30 |
+| src-tauri\gen\android\app\src\main\res\layout                                                              |          1 |         16 |          0 |          2 |         18 |
+| src-tauri\gen\android\app\src\main\res\values                                                              |          3 |         19 |          4 |          2 |         25 |
+| src-tauri\gen\android\app\src\main\res\values-night                                                        |          1 |          5 |          3 |          1 |          9 |
+| src-tauri\gen\android\app\src\main\res\xml                                                                 |          1 |          5 |          0 |          1 |          6 |
+| src-tauri\gen\android\gradle                                                                               |          1 |          5 |          1 |          1 |          7 |
+| src-tauri\gen\android\gradle\wrapper                                                                       |          1 |          5 |          1 |          1 |          7 |
+| src-tauri\src                                                                                              |          3 |         34 |          1 |          9 |         44 |
+| src\components                                                                                             |         15 |      1,007 |          2 |        140 |      1,149 |
+| src\components\ui                                                                                          |         15 |      1,007 |          2 |        140 |      1,149 |
+| src\lib                                                                                                    |          1 |          5 |          0 |          2 |          7 |
+| src\ui                                                                                                     |          9 |      4,179 |        194 |        497 |      4,870 |
++------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                   | language           | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Alejandro\Projects\jason\README.md                                                                      | Markdown           |         21 |          0 |         13 |         34 |
+| c:\Alejandro\Projects\jason\bun.lock                                                                       | JSON with Comments |        298 |          0 |        233 |        531 |
+| c:\Alejandro\Projects\jason\components.json                                                                | JSON               |         21 |          0 |          0 |         21 |
+| c:\Alejandro\Projects\jason\index.html                                                                     | HTML               |         79 |          3 |          5 |         87 |
+| c:\Alejandro\Projects\jason\package-lock.json                                                              | JSON               |      2,040 |          0 |          1 |      2,041 |
+| c:\Alejandro\Projects\jason\package.json                                                                   | JSON               |         67 |          0 |          1 |         68 |
+| c:\Alejandro\Projects\jason\src-tauri\Cargo.lock                                                           | TOML               |      5,225 |          2 |        546 |      5,773 |
+| c:\Alejandro\Projects\jason\src-tauri\Cargo.toml                                                           | TOML               |         19 |          4 |          5 |         28 |
+| c:\Alejandro\Projects\jason\src-tauri\build.rs                                                             | Rust               |          3 |          0 |          1 |          4 |
+| c:\Alejandro\Projects\jason\src-tauri\capabilities\default.json                                            | JSON               |         53 |          0 |          4 |         57 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\AndroidManifest.xml                         | XML                |         34 |          2 |          4 |         40 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\drawable-v24\ic_launcher_foreground.xml | XML                |         30 |          0 |          0 |         30 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\drawable\ic_launcher_background.xml     | XML                |        170 |          0 |          1 |        171 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\layout\activity_main.xml                | XML                |         16 |          0 |          2 |         18 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values-night\themes.xml                 | XML                |          5 |          3 |          1 |          9 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\colors.xml                       | XML                |         10 |          0 |          0 |         10 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\strings.xml                      | XML                |          4 |          0 |          0 |          4 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\themes.xml                       | XML                |          5 |          4 |          2 |         11 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\xml\file_paths.xml                      | XML                |          5 |          0 |          1 |          6 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\gradle.properties                                        | Java Properties    |          5 |         19 |          0 |         24 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\gradle\wrapper\gradle-wrapper.properties                 | Java Properties    |          5 |          1 |          1 |          7 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\gradlew.bat                                              | Batch              |         39 |         29 |         22 |         90 |
+| c:\Alejandro\Projects\jason\src-tauri\gen\android\settings.gradle                                          | Gradle             |          2 |          0 |          2 |          4 |
+| c:\Alejandro\Projects\jason\src-tauri\src\commands.rs                                                      | Rust               |         17 |          0 |          4 |         21 |
+| c:\Alejandro\Projects\jason\src-tauri\src\lib.rs                                                           | Rust               |         13 |          0 |          3 |         16 |
+| c:\Alejandro\Projects\jason\src-tauri\src\main.rs                                                          | Rust               |          4 |          1 |          2 |          7 |
+| c:\Alejandro\Projects\jason\src-tauri\tauri.conf.json                                                      | JSON               |         36 |          0 |          2 |         38 |
+| c:\Alejandro\Projects\jason\src\App.css                                                                    | CSS                |         47 |         43 |         13 |        103 |
+| c:\Alejandro\Projects\jason\src\App.tsx                                                                    | TypeScript JSX     |         19 |          0 |          8 |         27 |
+| c:\Alejandro\Projects\jason\src\AppContext.tsx                                                             | TypeScript JSX     |        157 |          1 |         34 |        192 |
+| c:\Alejandro\Projects\jason\src\a.yaml                                                                     | YAML               |         89 |          8 |          2 |         99 |
+| c:\Alejandro\Projects\jason\src\components\ui\DragSwitch.tsx                                               | TypeScript JSX     |         65 |          2 |         18 |         85 |
+| c:\Alejandro\Projects\jason\src\components\ui\alert-dialog.tsx                                             | TypeScript JSX     |        142 |          0 |         14 |        156 |
+| c:\Alejandro\Projects\jason\src\components\ui\badge.tsx                                                    | TypeScript JSX     |         41 |          0 |          6 |         47 |
+| c:\Alejandro\Projects\jason\src\components\ui\button.tsx                                                   | TypeScript JSX     |         53 |          0 |          6 |         59 |
+| c:\Alejandro\Projects\jason\src\components\ui\dialog.tsx                                                   | TypeScript JSX     |        121 |          0 |         14 |        135 |
+| c:\Alejandro\Projects\jason\src\components\ui\drawer.tsx                                                   | TypeScript JSX     |        118 |          0 |         13 |        131 |
+| c:\Alejandro\Projects\jason\src\components\ui\form.tsx                                                     | TypeScript JSX     |        142 |          0 |         24 |        166 |
+| c:\Alejandro\Projects\jason\src\components\ui\input.tsx                                                    | TypeScript JSX     |         18 |          0 |          4 |         22 |
+| c:\Alejandro\Projects\jason\src\components\ui\label.tsx                                                    | TypeScript JSX     |         19 |          0 |          4 |         23 |
+| c:\Alejandro\Projects\jason\src\components\ui\separator.tsx                                                | TypeScript JSX     |         23 |          0 |          4 |         27 |
+| c:\Alejandro\Projects\jason\src\components\ui\sheet.tsx                                                    | TypeScript JSX     |        125 |          0 |         13 |        138 |
+| c:\Alejandro\Projects\jason\src\components\ui\switch.tsx                                                   | TypeScript JSX     |         26 |          0 |          4 |         30 |
+| c:\Alejandro\Projects\jason\src\components\ui\tabs.tsx                                                     | TypeScript JSX     |         58 |          0 |          7 |         65 |
+| c:\Alejandro\Projects\jason\src\components\ui\textarea.tsx                                                 | TypeScript JSX     |         15 |          0 |          4 |         19 |
+| c:\Alejandro\Projects\jason\src\components\ui\toggle.tsx                                                   | TypeScript JSX     |         41 |          0 |          5 |         46 |
+| c:\Alejandro\Projects\jason\src\idk.jsonc                                                                  | JSON with Comments |         11 |          2 |          1 |         14 |
+| c:\Alejandro\Projects\jason\src\index.css                                                                  | CSS                |        539 |          5 |         33 |        577 |
+| c:\Alejandro\Projects\jason\src\lib\utils.ts                                                               | TypeScript         |          5 |          0 |          2 |          7 |
+| c:\Alejandro\Projects\jason\src\main.tsx                                                                   | TypeScript JSX     |          9 |          0 |          4 |         13 |
+| c:\Alejandro\Projects\jason\src\ui\AddItemDialog.tsx                                                       | TypeScript JSX     |      1,041 |         19 |         90 |      1,150 |
+| c:\Alejandro\Projects\jason\src\ui\HandleJason.tsx                                                         | TypeScript JSX     |        760 |         22 |         92 |        874 |
+| c:\Alejandro\Projects\jason\src\ui\Header.tsx                                                              | TypeScript JSX     |        184 |          2 |         21 |        207 |
+| c:\Alejandro\Projects\jason\src\ui\Icons.tsx                                                               | TypeScript JSX     |        492 |          0 |         26 |        518 |
+| c:\Alejandro\Projects\jason\src\ui\Main.tsx                                                                | TypeScript JSX     |        523 |         17 |         94 |        634 |
+| c:\Alejandro\Projects\jason\src\ui\SidebarContent.tsx                                                      | TypeScript JSX     |        491 |        104 |         60 |        655 |
+| c:\Alejandro\Projects\jason\src\ui\fileTypeMgs.ts                                                          | TypeScript         |        114 |         24 |         13 |        151 |
+| c:\Alejandro\Projects\jason\src\ui\lang.ts                                                                 | TypeScript         |        145 |          0 |         33 |        178 |
+| c:\Alejandro\Projects\jason\src\ui\util.ts                                                                 | TypeScript         |        429 |          6 |         68 |        503 |
+| c:\Alejandro\Projects\jason\src\vite-env.d.ts                                                              | TypeScript         |          0 |          1 |          1 |          2 |
+| c:\Alejandro\Projects\jason\src\yum.yaml                                                                   | YAML               |        204 |          9 |         15 |        228 |
+| c:\Alejandro\Projects\jason\tsconfig.json                                                                  | JSON with Comments |         25 |          2 |          3 |         30 |
+| c:\Alejandro\Projects\jason\tsconfig.node.json                                                             | JSON               |         10 |          0 |          1 |         11 |
+| c:\Alejandro\Projects\jason\vite.config.ts                                                                 | TypeScript         |         29 |          7 |          4 |         40 |
+| Total                                                                                                      |                    |     14,556 |        342 |      1,614 |     16,512 |
++------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

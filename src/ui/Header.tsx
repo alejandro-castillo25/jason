@@ -57,13 +57,13 @@ const FPSCounter = () => {
       style={{
         pointerEvents: "none",
       }}
-      className="fixed top-1 right-12 bg-black/70 text-white p-2 px-4 rounded 
+      className="fixed top-1 right-12 bg-(--background)/70 p-2 px-4 rounded 
                     font-mono text-sm z-[99] backdrop-blur-sm shadow-lg 
                     border border-white/10 overflow-x-hidden m-0 box-border!"
     >
-      <span className="text-blue-500">FPS:</span> {fps}
+      <span className="text-(--primary)">FPS:</span> {fps}
       <div
-        className="absolute bottom-0 left-0 h-1 bg-blue-500/80 
+        className="absolute bottom-0 left-0 h-1 bg-(--primary)/80 
                       transition-all duration-200"
         style={{ width: `${(Math.min(fps, 60) / 60) * 100}%` }}
       />
@@ -73,10 +73,15 @@ const FPSCounter = () => {
 
 export function Header() {
   const [lang] = useAppContext()?.lang!;
-  const [, setJasonMemoObjects] = useAppContext()?.jasonMemoObjects!;
-  const [, setJasonMemoValues] = useAppContext()?.jasonMemoValues!;
+  const jasonMemoObjects = useAppContext()?.jasonMemoObjects!;
+  const jasonMemoValues = useAppContext()?.jasonMemoValues!;
 
-  const [jason, setJason] = useAppContext()?.jason!;
+  const [, setJasonIsNone] = useAppContext()?.jasonIsNone!;
+
+  const [, setJasonFilePath] = useAppContext()?.jasonFilePath!;
+  const [jasonScreen, setJasonScreen] = useAppContext()?.jasonScreen!;
+
+  const [, setJason] = useAppContext()?.jason!;
 
   const refreshTree = () => {
     const refreshTreeEvent = new CustomEvent("refreshTree", {
@@ -94,6 +99,7 @@ export function Header() {
   return (
     <>
       <FPSCounter />
+
       <Dialog>
         <DialogTrigger
           tabIndex={-1}
@@ -116,8 +122,8 @@ export function Header() {
                   className="min-sm:flex-auto"
                   onClick={() => {
                     setJason({});
-                    setJasonMemoObjects(new Map());
-                    setJasonMemoValues(new Map());
+                    jasonMemoObjects.current = new Map();
+                    jasonMemoValues.current = new Map();
                     refreshTree();
 
                     const $jasonDialogCreateNew = document.getElementById(
@@ -125,6 +131,8 @@ export function Header() {
                     )!;
 
                     $jasonDialogCreateNew.click();
+                    setJasonIsNone(false);
+                    setJasonFilePath(null);
                   }}
                 >
                   <GetIcon
@@ -137,8 +145,8 @@ export function Header() {
                   className="min-sm:flex-auto"
                   onClick={() => {
                     setJason([]);
-                    setJasonMemoObjects(new Map());
-                    setJasonMemoValues(new Map());
+                    jasonMemoObjects.current = new Map();
+                    jasonMemoValues.current = new Map();
                     refreshTree();
 
                     const $jasonDialogCreateNew = document.getElementById(
@@ -146,6 +154,8 @@ export function Header() {
                     )!;
 
                     $jasonDialogCreateNew.click();
+                    setJasonIsNone(false);
+                    setJasonFilePath(null);
                   }}
                 >
                   <GetIcon
@@ -159,7 +169,7 @@ export function Header() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-
+      {/* //TODO Reuse this Alert*/}
       <AlertDialog>
         <AlertDialogTrigger
           className="hidden"
@@ -177,17 +187,7 @@ export function Header() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: "destructive" })}
-              onClick={() => {
-                setJason(Array.isArray(jason) ? [] : {});
-                setJasonMemoObjects(new Map());
-                setJasonMemoValues(new Map());
-                refreshTree();
-
-                const $jasonAlertDialog =
-                  document.getElementById("jasonAlertDialog")!;
-
-                $jasonAlertDialog.click();
-              }}
+              onClick={() => {}}
             >
               Continue
             </AlertDialogAction>
@@ -196,16 +196,37 @@ export function Header() {
       </AlertDialog>
       <header
         id="jasonHeader"
-        className="overflow-hidden box-border h-[4.5rem] max-h-[4.5rem] items-center flex flex-row pl-6 bg-(--primary) border-b-4 border-b-(--border) m-0"
+        className="overflow-hidden box-border h-[3.75rem] max-h-[3.75rem] items-center flex flex-row bg-(--primary) border-b-4 border-b-(--border) m-0"
         style={{
           transition:
-            "max-height 200ms linear, height 200ms linear, border 200ms linear",
+            "max-height 200ms linear, height 200ms linear, border 200ms linear, min-height 200ms linear ",
         }}
       >
-        <h1 className=" font-semibold text-4xl text-white">Jason</h1>
+        {jasonScreen === "settings" && (
+          <Button
+            variant={"ghost"}
+            size={"icon"}
+            className="ml-2.5 hover:bg-transparent"
+            onClick={() => {
+              setJasonScreen("main");
+            }}
+          >
+            <GetIcon
+              name="ArrowLeft"
+              className="h-[1.8rem]! w-[1.8rem]! text-(--title-color)"
+            />
+          </Button>
+        )}
+        <h1
+          className={`font-semibold text-[1.8rem] text-(--title-color) ${
+            jasonScreen === "main" ? "ml-6" : "ml-3.5"
+          }`}
+        >
+          Jason
+        </h1>
         <GetIcon
           name="Logo"
-          className="aspect-square w-auto h-full scale-75 text-white"
+          className="aspect-square w-auto h-[95%]! scale-75 text-(--title-color)"
         />
 
         <SidebarContent />

@@ -1,20 +1,25 @@
 {
   "systemName": "DataAggregationPlatform",
-  "version": "2.1.0",
+  "version": "3.5.1",
   "status": "operational",
   "creationTimestamp": "2024-03-20T10:00:00Z",
   "dataSources": [
     {
-      "sourceId": "src-123",
-      "sourceName": "SensorNetworkAlpha",
+      "sourceId": "src-123iuw4wghiorghghiorwhioo",
+      "sourceName": false,
       "sourceType": "sensor",
       "connectionDetails": {
         "protocol": "MQTT",
         "brokerAddress": "mqtt.example.com",
         "topic": "sensors/alpha/#"
       },
-      "dataFields": ["temperature", "humidity", "pressure", "lightLevel"],
-      "isActive": true,
+      "dataFields": [
+        "temperature",
+        "humidity",
+        "pressure",
+        "lightLevel"
+      ],
+      "isActive": false,
       "lastHeartbeat": "2024-03-20T09:58:30Z",
       "errorLog": [],
       "processedDataPoints": 54321
@@ -37,7 +42,10 @@
       "isActive": false,
       "lastHeartbeat": null,
       "errorLog": [
-        { "timestamp": "2024-03-19T18:00:00Z", "message": "API key expired" },
+        {
+          "timestamp": "2024-03-19T18:00:00Z",
+          "message": "API key expired"
+        },
         {
           "timestamp": "2024-03-20T08:00:00Z",
           "message": "Authentication failed"
@@ -74,7 +82,10 @@
       "connectionDetails": {
         "platform": "Twitter",
         "apiCredentials": {},
-        "queryFilters": ["#trending", "#dataanalytics"]
+        "queryFilters": [
+          "#trending",
+          "#dataanalytics"
+        ]
       },
       "dataFields": [
         "tweetId",
@@ -93,7 +104,10 @@
       "sourceName": "InternalLogFiles",
       "sourceType": "log_file",
       "connectionDetails": {
-        "filePaths": ["/var/log/app1.log", "/var/log/app2.log"],
+        "filePaths": [
+          "/var/log/app1.log",
+          "/var/log/app2.log"
+        ],
         "logFormat": "JSON",
         "parsingRules": {}
       },
@@ -114,12 +128,22 @@
     {
       "pipelineId": "pipe-001",
       "pipelineName": "WeatherDataPipeline",
-      "sourceData": ["src-456", "src-123"],
+      "sourceData": [
+        "src-456",
+        "src-123"
+      ],
       "transformations": [
-        { "step": "filter", "field": "temperature", "condition": ">25" },
+        {
+          "step": "filter",
+          "field": "temperature",
+          "condition": ">25 :D"
+        },
         {
           "step": "aggregate",
-          "fields": ["temperature", "humidity"],
+          "fields": [
+            "temperature",
+            "humidity"
+          ],
           "operation": "average"
         }
       ],
@@ -131,7 +155,9 @@
     {
       "pipelineId": "pipe-002",
       "pipelineName": "UserActivityAnalysis",
-      "sourceData": ["src-789"],
+      "sourceData": [
+        "src-789"
+      ],
       "transformations": [
         {
           "step": "calculate",
@@ -141,7 +167,9 @@
         {
           "step": "groupBy",
           "field": "userId",
-          "aggregates": ["avgSessionTime"]
+          "aggregates": [
+            "avgSessionTime"
+          ]
         }
       ],
       "destination": "analyticsDB_UserInsights",
@@ -165,7 +193,9 @@
     {
       "pipelineId": "pipe-003",
       "pipelineName": "SocialMediaInsights",
-      "sourceData": ["src-abc"],
+      "sourceData": [
+        "src-abc"
+      ],
       "transformations": [],
       "destination": "dashboard_SocialTrends",
       "isActive": false,
@@ -175,7 +205,9 @@
     {
       "pipelineId": "pipe-004",
       "pipelineName": "SystemLogAnalysis",
-      "sourceData": ["src-def"],
+      "sourceData": [
+        "src-def"
+      ],
       "transformations": [
         {
           "step": "filter",
@@ -202,9 +234,18 @@
       "location": "us-east-1",
       "dataSchema": {
         "fields": [
-          { "fieldName": "avgTemperature", "dataType": "float" },
-          { "fieldName": "avgHumidity", "dataType": "float" },
-          { "fieldName": "timestamp", "dataType": "datetime" }
+          {
+            "fieldName": "avgTemperature",
+            "dataType": "float"
+          },
+          {
+            "fieldName": "avgHumidity",
+            "dataType": "float"
+          },
+          {
+            "fieldName": "timestamp",
+            "dataType": "datetime"
+          }
         ]
       },
       "accessControlList": [],
@@ -224,12 +265,24 @@
       "location": "eu-central-1",
       "dataSchema": {
         "fields": [
-          { "fieldName": "userId", "dataType": "string" },
-          { "fieldName": "avgSessionTime", "dataType": "integer" }
+          {
+            "fieldName": "userId",
+            "dataType": "string"
+          },
+          {
+            "fieldName": "avgSessionTime",
+            "dataType": "integer"
+          }
         ]
       },
       "accessControlList": [
-        { "userRole": "analyst", "permissions": ["read", "query"] }
+        {
+          "userRole": "analyst",
+          "permissions": [
+            "read",
+            "query"
+          ]
+        }
       ],
       "storageMetrics": {
         "totalStorageUsedGB": 50.2,
@@ -244,8 +297,14 @@
       "location": "local",
       "dataSchema": {
         "fields": [
-          { "fieldName": "trendingTopic", "dataType": "string" },
-          { "fieldName": "averageSentiment", "dataType": "float" }
+          {
+            "fieldName": "trendingTopic",
+            "dataType": "string"
+          },
+          {
+            "fieldName": "averageSentiment",
+            "dataType": "float"
+          }
         ]
       },
       "accessControlList": [],
@@ -259,8 +318,14 @@
       "location": "local",
       "dataSchema": {
         "fields": [
-          { "fieldName": "componentId", "dataType": "string" },
-          { "fieldName": "errorCount", "dataType": "integer" }
+          {
+            "fieldName": "componentId",
+            "dataType": "string"
+          },
+          {
+            "fieldName": "errorCount",
+            "dataType": "integer"
+          }
         ]
       },
       "accessControlList": [],
@@ -269,7 +334,7 @@
     }
   ],
   "systemMetrics": {
-    "cpuUtilization": 0.65,
+    "cpuUtilization": 0.45,
     "memoryUsageGB": 32.1,
     "networkTrafficMbps": 150.8,
     "activeConnections": 235,

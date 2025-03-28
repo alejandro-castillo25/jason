@@ -1,0 +1,66 @@
+"filename", "language", "JSON with Comments", "JSON", "Rust", "TypeScript", "Gradle", "Java Properties", "XML", "Batch", "TOML", "YAML", "CSS", "TypeScript JSX", "Markdown", "HTML", "comment", "blank", "total"
+"c:\Alejandro\Projects\jason\README.md", "Markdown", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 13, 34
+"c:\Alejandro\Projects\jason\bun.lock", "JSON with Comments", 298, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 233, 531
+"c:\Alejandro\Projects\jason\components.json", "JSON", 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21
+"c:\Alejandro\Projects\jason\index.html", "HTML", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 79, 3, 5, 87
+"c:\Alejandro\Projects\jason\package-lock.json", "JSON", 0, 2040, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2041
+"c:\Alejandro\Projects\jason\package.json", "JSON", 0, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 68
+"c:\Alejandro\Projects\jason\src-tauri\Cargo.lock", "TOML", 0, 0, 0, 0, 0, 0, 0, 0, 5225, 0, 0, 0, 0, 0, 2, 546, 5773
+"c:\Alejandro\Projects\jason\src-tauri\Cargo.toml", "TOML", 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 4, 5, 28
+"c:\Alejandro\Projects\jason\src-tauri\build.rs", "Rust", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4
+"c:\Alejandro\Projects\jason\src-tauri\capabilities\default.json", "JSON", 0, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 57
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\AndroidManifest.xml", "XML", 0, 0, 0, 0, 0, 0, 34, 0, 0, 0, 0, 0, 0, 0, 2, 4, 40
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\drawable-v24\ic_launcher_foreground.xml", "XML", 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\drawable\ic_launcher_background.xml", "XML", 0, 0, 0, 0, 0, 0, 170, 0, 0, 0, 0, 0, 0, 0, 0, 1, 171
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\layout\activity_main.xml", "XML", 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 2, 18
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values-night\themes.xml", "XML", 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 3, 1, 9
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\colors.xml", "XML", 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\strings.xml", "XML", 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\values\themes.xml", "XML", 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 4, 2, 11
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\app\src\main\res\xml\file_paths.xml", "XML", 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\gradle.properties", "Java Properties", 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 24
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\gradle\wrapper\gradle-wrapper.properties", "Java Properties", 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 7
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\gradlew.bat", "Batch", 0, 0, 0, 0, 0, 0, 0, 39, 0, 0, 0, 0, 0, 0, 29, 22, 90
+"c:\Alejandro\Projects\jason\src-tauri\gen\android\settings.gradle", "Gradle", 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
+"c:\Alejandro\Projects\jason\src-tauri\src\commands.rs", "Rust", 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 21
+"c:\Alejandro\Projects\jason\src-tauri\src\lib.rs", "Rust", 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 16
+"c:\Alejandro\Projects\jason\src-tauri\src\main.rs", "Rust", 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7
+"c:\Alejandro\Projects\jason\src-tauri\tauri.conf.json", "JSON", 0, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 38
+"c:\Alejandro\Projects\jason\src\App.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 47, 0, 0, 0, 43, 13, 103
+"c:\Alejandro\Projects\jason\src\App.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 8, 27
+"c:\Alejandro\Projects\jason\src\AppContext.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 157, 0, 0, 1, 34, 192
+"c:\Alejandro\Projects\jason\src\a.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 0, 0, 89, 0, 0, 0, 0, 8, 2, 99
+"c:\Alejandro\Projects\jason\src\components\ui\DragSwitch.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 65, 0, 0, 2, 18, 85
+"c:\Alejandro\Projects\jason\src\components\ui\alert-dialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 142, 0, 0, 0, 14, 156
+"c:\Alejandro\Projects\jason\src\components\ui\badge.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41, 0, 0, 0, 6, 47
+"c:\Alejandro\Projects\jason\src\components\ui\button.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 53, 0, 0, 0, 6, 59
+"c:\Alejandro\Projects\jason\src\components\ui\dialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 121, 0, 0, 0, 14, 135
+"c:\Alejandro\Projects\jason\src\components\ui\drawer.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 118, 0, 0, 0, 13, 131
+"c:\Alejandro\Projects\jason\src\components\ui\form.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 142, 0, 0, 0, 24, 166
+"c:\Alejandro\Projects\jason\src\components\ui\input.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 4, 22
+"c:\Alejandro\Projects\jason\src\components\ui\label.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 4, 23
+"c:\Alejandro\Projects\jason\src\components\ui\separator.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 4, 27
+"c:\Alejandro\Projects\jason\src\components\ui\sheet.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 13, 138
+"c:\Alejandro\Projects\jason\src\components\ui\switch.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 4, 30
+"c:\Alejandro\Projects\jason\src\components\ui\tabs.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 7, 65
+"c:\Alejandro\Projects\jason\src\components\ui\textarea.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 4, 19
+"c:\Alejandro\Projects\jason\src\components\ui\toggle.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 41, 0, 0, 0, 5, 46
+"c:\Alejandro\Projects\jason\src\idk.jsonc", "JSON with Comments", 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 14
+"c:\Alejandro\Projects\jason\src\index.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 539, 0, 0, 0, 5, 33, 577
+"c:\Alejandro\Projects\jason\src\lib\utils.ts", "TypeScript", 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"c:\Alejandro\Projects\jason\src\main.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 4, 13
+"c:\Alejandro\Projects\jason\src\ui\AddItemDialog.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1041, 0, 0, 19, 90, 1150
+"c:\Alejandro\Projects\jason\src\ui\HandleJason.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 760, 0, 0, 22, 92, 874
+"c:\Alejandro\Projects\jason\src\ui\Header.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 184, 0, 0, 2, 21, 207
+"c:\Alejandro\Projects\jason\src\ui\Icons.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 492, 0, 0, 0, 26, 518
+"c:\Alejandro\Projects\jason\src\ui\Main.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 523, 0, 0, 17, 94, 634
+"c:\Alejandro\Projects\jason\src\ui\SidebarContent.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 491, 0, 0, 104, 60, 655
+"c:\Alejandro\Projects\jason\src\ui\fileTypeMgs.ts", "TypeScript", 0, 0, 0, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 13, 151
+"c:\Alejandro\Projects\jason\src\ui\lang.ts", "TypeScript", 0, 0, 0, 145, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 33, 178
+"c:\Alejandro\Projects\jason\src\ui\util.ts", "TypeScript", 0, 0, 0, 429, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 68, 503
+"c:\Alejandro\Projects\jason\src\vite-env.d.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Alejandro\Projects\jason\src\yum.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 0, 0, 204, 0, 0, 0, 0, 9, 15, 228
+"c:\Alejandro\Projects\jason\tsconfig.json", "JSON with Comments", 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 30
+"c:\Alejandro\Projects\jason\tsconfig.node.json", "JSON", 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 11
+"c:\Alejandro\Projects\jason\vite.config.ts", "TypeScript", 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 4, 40
+"Total", "-", 334, 2227, 37, 722, 2, 10, 279, 39, 5244, 293, 586, 4683, 21, 79, 342, 1614, 16512

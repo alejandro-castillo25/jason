@@ -1,0 +1,204 @@
+apiVersion: config.company.com/v1
+kind: ApplicationStack
+metadata:
+  name: ecommerce-platform
+  labels:
+    environment: multi-cloud
+    tier: mission-critical
+infrastructure:
+  cloud-providers:
+    - aws:
+        regions:
+          - us-east-1
+          - eu-west-1
+        services:
+          - ec2:
+              instance-type: m5.large
+              count: 12
+          - s3:
+              buckets:
+                - assets-bucket
+                - logs-bucket
+          - rds:
+              engine: aurora-postgresql
+              version: "13.4"
+              storage: 500GB
+    - azure:
+        regions:
+          - eastus
+        services:
+          - azure-kubernetes-service:
+              cluster-name: aks-prod-cluster
+              node-count: 8
+microservices:
+  - service-name: product-catalog
+    version: 2.4.1
+    dependencies:
+      - inventory-service
+      - pricing-service
+    endpoints:
+      - /api/v1/products
+      - /api/v1/categories
+    scaling:
+      min-replicas: 3
+      max-replicas: 10
+      cpu-threshold: 75%
+  - service-name: order-processing
+    version: 1.8.3
+    dependencies:
+      - payment-gateway
+      - shipping-service
+    endpoints:
+      - /api/v1/orders
+      - /api/v1/invoices
+    database:
+      type: postgresql
+      schema-version: 4.2
+      tables:
+        - orders
+        - order_items
+        - customers
+databases:
+  - name: main-db-cluster
+    type: postgresql
+    version: 14.2
+    shards: 6
+    replication:
+      master: db-master-01
+      replicas:
+        - db-replica-01
+        - db-replica-02
+    backup:
+      schedule: 0 2 * * *
+      retention-days: 30
+  - name: redis-cache
+    type: redis
+    version: 6.2
+    memory: 16GB
+    persistence: enabled
+security:
+  iam:
+    roles:
+      - name: api-gateway-role
+        permissions:
+          - s3:read
+          - dynamodb:read
+      - name: lambda-exec-role
+        permissions:
+          - sqs:send
+          - sns:publish
+  encryption:
+    at-rest: aes-256
+    in-transit: tls-1.3
+monitoring:
+  tools:
+    - prometheus:
+        scrape-interval: 15s
+        retention: 15d
+    - grafana:
+        dashboards:
+          - infrastructure
+          - application
+          - business-metrics
+  alerts:
+    - severity: critical
+      conditions:
+        - cpu > 90% for 5m
+        - memory > 95% for 10m
+    - severity: warning
+      conditions:
+        - disk-space < 20%
+        - latency > 500ms
+ci-cd:
+  pipelines:
+    - name: main-branch
+      triggers:
+        - push
+        - pull-request
+      stages:
+        - linting
+        - unit-tests
+        - integration-tests
+        - security-scan
+        - deployment:
+            environments:
+              - staging
+              - production
+  artifact-repository:
+    url: artifacts.company.com
+    retention-policy: 30-days
+dependencies:
+  third-party:
+    - name: payment-gateway
+      provider: stripe
+      version: 2023-08
+      endpoints:
+        - /v1/charges
+        - /v1/refunds
+    - name: email-service
+      provider: sendgrid
+      version: 7.4
+environments:
+  development:
+    url: dev.ecommerce.company.com
+    scaling: manual
+    database-size: 10GB
+  staging:
+    url: staging.ecommerce.company.com
+    scaling: auto
+    database-size: 50GB
+  production:
+    url: shop.company.com
+    scaling: auto
+    database-size: 2TB
+api-documentation:
+  openapi: 3.0.1
+  endpoints: 142
+  schemas: 89
+  examples: 235
+  securitySchemes:
+    - oauth2:
+        flows:
+          authorizationCode:
+            authorizationUrl: https://auth.company.com/oauth2/authorize
+            tokenUrl: https://auth.company.com/oauth2/token
+compliance:
+  standards:
+    - pci-dss: v3.2.1
+    - gdpr: enabled
+    - soc2: certified
+  audit:
+    schedule: quarterly
+    last-audit: 2023-06-15
+network:
+  vpc:
+    cidr: 10.0.0.0/16
+    subnets:
+      - public:
+          - 10.0.1.0/24
+          - 10.0.2.0/24
+      - private:
+          - 10.0.3.0/24
+          - 10.0.4.0/24
+  security-groups:
+    - web-tier:
+        ingress:
+          - 80/tcp
+          - 443/tcp
+    - database-tier:
+        ingress:
+          - 5432/tcp
+          - 6379/tcp
+maintenance:
+  schedule:
+    - day: sunday
+      time: 02:00-04:00 UTC
+      type: critical-updates
+    - day: wednesday
+      time: 01:00-02:00 UTC
+      type: routine-maintenance
+  blackout-periods:
+    - start: 2023-12-24
+      end: 2023-12-26
+    - start: 2024-07-01
+      end: 2024-07-07
