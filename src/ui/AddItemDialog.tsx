@@ -49,6 +49,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CountryFlagFallback } from "./HandleJason";
 import phone from "phone";
+import { invoke } from "@tauri-apps/api/core";
+// import { DragSwitch } from "@/components/ui/DragSwitch";
+
+// import { DragSwitch } from "react-dragswitch";
+// import "react-dragswitch/dist/index.css";
 
 interface JasonEditItem {
   oldKey: string;
@@ -287,7 +292,6 @@ export function AddItemDialog({
   }
 
   function onSubmitObject(values: z.infer<typeof formSchemaObject>) {
-    enableRefreshTree();
 
     const { key } = values;
     const { path, dataType } = getOptionsDialogData();
@@ -314,7 +318,6 @@ export function AddItemDialog({
   }
 
   function onSubmitString(values: z.infer<typeof formSchemaString>) {
-    enableRefreshTree();
 
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
@@ -343,7 +346,6 @@ export function AddItemDialog({
   }
 
   function onSubmitNumber(values: z.infer<typeof formSchemaNumber>) {
-    enableRefreshTree();
 
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
@@ -371,7 +373,6 @@ export function AddItemDialog({
   }
 
   function onSubmitBoolean(values: z.infer<typeof formSchemaBoolean>) {
-    enableRefreshTree();
 
     const { key, value } = values;
     const { path, dataType } = getOptionsDialogData();
@@ -399,7 +400,6 @@ export function AddItemDialog({
   }
 
   function onSubmitNull(values: z.infer<typeof formSchemaNull>) {
-    enableRefreshTree();
 
     values.value = null;
     const { key, value } = values;
@@ -549,31 +549,7 @@ export function AddItemDialog({
     }
   }
 
-  const disableRefreshTree = () => {
-    const disableRefreshTreeEvent = new CustomEvent("disableRefreshTree", {
-      detail: {
-        message: "Disable Refresh Tree",
-      },
-      cancelable: false,
-      bubbles: true,
-      composed: true,
-    });
-
-    document.dispatchEvent(disableRefreshTreeEvent);
-  };
-
-  const enableRefreshTree = () => {
-    const enableRefreshTreeEvent = new CustomEvent("enableRefreshTree", {
-      detail: {
-        message: "Enable Refresh Tree",
-      },
-      cancelable: false,
-      bubbles: true,
-      composed: true,
-    });
-
-    document.dispatchEvent(enableRefreshTreeEvent);
-  };
+  
 
   useEffect(() => {
     formString.setValue("key", sharedKey);
@@ -605,15 +581,23 @@ export function AddItemDialog({
     <Dialog
       onOpenChange={(open) => {
         if (open) {
-          disableRefreshTree();
-
           //? Math handler
           handleMath(dialogAddItemValue);
           resetAllForms();
         } else {
+          //TODO Fix this!
+          // const path = document
+          //   .getElementById("itemOptionsDialog")!
+          //   .getAttribute("data-path")!;
+
+          // const previousItem = document.getElementById(path)!;
+          //   document
+          //     .getElementById("root")!
+          //     .setAttribute("aria-hidden", "false");
+
+          // previousItem.focus();
           setMath(false);
           setTimeout(() => {
-            enableRefreshTree();
             resetAllForms();
           }, 50); //? Thus the old value isn't displayed when we close the dialog
         }
@@ -668,12 +652,12 @@ export function AddItemDialog({
           {dialogAddItemTypeProp === "value" && (
             <Tabs
               defaultValue={dialogAddItemValueType}
-              className=" flex items-center  gap-0"
+              className=" flex items-center gap-0"
             >
               <TabsList className="my-1">
                 <TabsTrigger
                   value="string"
-                  className="data-[state=active]:text-green-400"
+                  className="data-[state=active]:text-green-400 transition-colors duration-200 linear"
                 >
                   {translateTo(lang, "String")}
                 </TabsTrigger>
@@ -681,10 +665,7 @@ export function AddItemDialog({
                   value="number"
                   className={`data-[state=active]:text-orange-400 ${
                     numTabMath ? "text-orange-400" : ""
-                  }`}
-                  style={{
-                    transition: "color 200ms linear",
-                  }}
+                  } transition-colors duration-200 linear`}
                   onFocus={() => {
                     if (!math) return;
                     formNumber.setValue("value", mathValue);
@@ -695,13 +676,13 @@ export function AddItemDialog({
                 </TabsTrigger>
                 <TabsTrigger
                   value="boolean"
-                  className="data-[state=active]:text-red-400"
+                  className="data-[state=active]:text-red-400 transition-colors duration-200 linear"
                 >
                   {translateTo(lang, "Boolean")}
                 </TabsTrigger>
                 <TabsTrigger
                   value="null"
-                  className="data-[state=active]:text-red-500"
+                  className="data-[state=active]:text-red-500 transition-colors duration-200 linear"
                 >
                   {translateTo(lang, "Null")}
                 </TabsTrigger>
@@ -730,6 +711,7 @@ export function AddItemDialog({
                           </FormLabel>
                           <FormControl>
                             <Input
+                              className="selection:bg-(--primary)/60"
                               placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
@@ -775,7 +757,13 @@ export function AddItemDialog({
                             {isValidURL(field.value) && (
                               <Badge
                                 variant="outline"
-                                className="absolute right-0.5 bottom-1"
+                                className="absolute right-0.5 bottom-1 cursor-pointer z-[10]"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  await invoke("open_url", {
+                                    url: field.value.trim(),
+                                  });
+                                }}
                               >
                                 <GetIcon
                                   name="Link2"
@@ -799,9 +787,9 @@ export function AddItemDialog({
                                 />
                               </Badge>
                             )}
-                            {!phone(field.value).isValid &&
+                            {(!phone(field.value).isValid &&
                               !hasOnlyNums(field.value.trim()) &&
-                              hasValidMathChars(field.value.trim()) &&
+                              hasValidMathChars(field.value.trim())) && 
                               (() => {
                                 try {
                                   const expr = field.value.trim();
@@ -855,7 +843,7 @@ export function AddItemDialog({
                                 isValidURL(field.value)
                                   ? "text-blue-400"
                                   : "text-green-400"
-                              }`}
+                              } selection:bg-(--primary)/60`}
                               style={
                                 isValidColor(field.value)
                                   ? {
@@ -906,6 +894,7 @@ export function AddItemDialog({
                           </FormLabel>
                           <FormControl>
                             <Input
+                              className="selection:bg-(--primary)/60"
                               placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
@@ -942,7 +931,7 @@ export function AddItemDialog({
                               autoComplete="off"
                               spellCheck={false}
                               placeholder={translateTo(lang, "Number")}
-                              className="text-orange-400"
+                              className="text-orange-400 selection:bg-(--primary)/60"
                               {...field}
                               onChange={(e) => {
                                 if (e.target.value.length == 0) {
@@ -988,6 +977,7 @@ export function AddItemDialog({
                           </FormLabel>
                           <FormControl>
                             <Input
+                              className="selection:bg-(--primary)/60"
                               placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}
@@ -1013,7 +1003,15 @@ export function AddItemDialog({
                       name="value"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-red-400! relative py-1.5">
+                          <FormLabel
+                            className="text-red-400! relative py-1.5"
+                            // onClick={() => {
+                            //   const $dragSwitch =
+                            //     document.getElementById("dragSwitch");
+
+                            //   $dragSwitch!.click();
+                            // }}
+                          >
                             <span className="text-(--primary)! relative">
                               {translateTo(lang, "Value")}:{" "}
                             </span>
@@ -1064,6 +1062,7 @@ export function AddItemDialog({
                           </FormLabel>
                           <FormControl>
                             <Input
+                              className="selection:bg-(--primary)/60"
                               placeholder={translateTo(lang, "Key")}
                               autoComplete="off"
                               spellCheck={false}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,9 +8,7 @@
   </head>
 
   <body style="background: #000000">
-    <!--
-    // TODO FIX THIS
-    -->
+ 
     <div
       aria-hidden="true"
       class="pt-2.5 pl-2.5 w-full h-auto bg-transparent absolute top-0 left-0 overflow-hidden"
@@ -28,7 +26,10 @@
         style="word-wrap: break-word"
       >
         <div class="w-full h-full text-left text-wrap">
-          <span class="font-semibold whitespace-pre-wrap" id="jasonValueTemplate_name">name</span
+          <span
+            class="font-semibold whitespace-pre-wrap"
+            id="jasonValueTemplate_name"
+            >name</span
           ><span class="text-gray-300">&nbsp;:&nbsp;</span
           ><i
             class="ml-2.5 opacity-30 font-normal text-[.95rem]"
@@ -76,6 +77,7 @@
       </button>
     </div>
 
+  
     <div id="root"></div>
 
     <script type="module" src="/src/main.tsx"></script>

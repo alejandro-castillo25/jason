@@ -1,3 +1,21 @@
+.titlebar {
+  z-index: 55 !important;
+  user-select: none;
+  /* position: fixed;
+  top: 0;
+  left: 0;
+  right: 0; */
+  pointer-events: auto !important;
+}
+.titlebar-button {
+  display: grid;
+  place-content: center;
+  width: 46px;
+  /* cursor: pointer; */
+}
+
+
+
 button {
   cursor: pointer;
 }
@@ -24,55 +42,35 @@ main {
   animation-timing-function: ease-out;
 }
 
+
+.file-type-msg {
+  text-align: center;
+  text-wrap: pretty;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  width: 100%;
+  padding: 0.3rem;
+  display: grid;
+  place-items: center;
+  border: solid 1px var(--border);
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.sidebar-content > button{
+  animation: spawn 325ms linear;
+}
+
+
+
 @keyframes spawn {
   from {
     opacity: 0;
-    transform: scale(0);
   }
 }
 
 
-/* 
-.jason-item:hover > span > *:not(svg, span:nth-child(2)) {
-  transform: scale(98%);
-}
-
-.jason-item:focus-visible > span > *:not(svg, span:nth-child(2)) {
-  transform: scale(98%);
-}
-.jason-item:hover > div {
-  transform: scale(98%);
-}
-
-.jason-item:focus-visible > div {
-  transform: scale(98%);
-}
-.jason-item > div {
-  transition: transform 0.2s ease-out, background 0.2s ease-out;
-}
-.jason-item > span > * {
-  transition: transform 0.2s ease-out background 0.2s ease-out;
-}
-
-.jason-item > div,
-.jason-item > span > *:not(svg, span:nth-child(2)) {
-  transform-origin: top;
-}
-
-.jason-item > span > *:is(svg) {
-  transition: transform 0s linear, background 0.2s ease-out;
-} */
-
 .jason2container {
   scrollbar-width: none;
 }
-
-/* .jason-item::before {
-  content: '';
-  position: absolute;
-  height: 105%;
-  width: 1px;
-  left: -5px;
-  background: blue;
-  opacity: 0.35;
-} */

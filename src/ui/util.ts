@@ -3,7 +3,7 @@ import type { Lang } from "./lang";
 export function isValidPointNotation(k: string): boolean {
   if (/^\d+/.test(k)) return false;
 
-  const UNVALID_CHARS: Array<string> = [
+  const INVALID_CHARS = [
     ".",
     "[",
     "]",
@@ -32,9 +32,10 @@ export function isValidPointNotation(k: string): boolean {
     ")",
     "=",
     "%",
-  ];
+    ":",
+  ] as const;
 
-  for (const ch of UNVALID_CHARS) if (k.includes(ch)) return false;
+  for (const ch of INVALID_CHARS) if (k.includes(ch)) return false;
 
   return true;
 }
@@ -353,7 +354,7 @@ export function isValidKeywordColor(value: string): boolean {
     "whitesmoke",
     "yellow",
     "yellowgreen",
-    "rebeccapurple"
+    "rebeccapurple",
   ] as const;
 
   for (const color of VALID_COLORS) if (color === value) return true;
@@ -361,37 +362,34 @@ export function isValidKeywordColor(value: string): boolean {
   return false;
 }
 
-export type Workers =
-  | "json5"
-  | "toml"
-  | "csv"
-  | "xml"
-  | "yaml"
-  | "html"
-  | "css";
+export type SupportedFiles = "json" | "toml" | "csv" | "xml" | "yaml";
 
-export function getWorkerType(filename: string): Workers | null {
+export function getFileType(filename: string): SupportedFiles | null {
   const JSON5 = [".json", ".jsonc", ".json5"] as const;
 
   for (const extension of JSON5)
-    if (filename.endsWith(extension)) return "json5";
+    if (filename.endsWith(extension)) return "json";
 
   if (filename.endsWith(".toml")) return "toml";
   if (filename.endsWith(".csv")) return "csv";
-  if (filename.endsWith(".xml")) return "xml";
+  if (
+    filename.endsWith(".xml") ||
+    filename.endsWith(".html") ||
+    filename.endsWith(".svg")
+  )
+    return "xml";
   if (filename.endsWith(".yaml") || filename.endsWith(".yml")) return "yaml";
-  if (filename.endsWith(".html")) return "html";
-  if (filename.endsWith(".css")) return "css";
 
   return null;
 }
 
 export const BRACKET_GUIDES_COLORS = [
-  "#3F51B5",
-  "#009688",
-  "#ddfd22",
-  "#FFC107",
-  "#4CAF50",
+  "var(--primary)",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
 ] as const;
 
 //!THIS took me a while...
@@ -443,7 +441,7 @@ export function evalMath(expr: string): number {
     .replace(/\]|\}/g, ")")
     .replace(/\^/g, "**")
     .replace(/([)\d])\s*(?=[(])/g, "$1*")
-    .replace(/([)])\s*(?=[(\d])/g, "$1*")
+    .replace(/([)])\s*(?=[(\d])/g, "$1*");
 
   if (!/^\(?\d+\)?$/g.test(processedExpr))
     processedExpr = closeUnclosedBrackets(processedExpr);
@@ -494,6 +492,74 @@ export const parseSpecialChars = (key: string) => {
 
 export function isValidDate(value: string): boolean {
   const date: Date = new Date(value);
-  return date instanceof Date && !Number.isNaN(date.getTime());
+  return !Number.isNaN(date);
 }
 
+export const getFilenameNoExtension = (filename: string): string => {
+  let filename0: Array<string> | string = filename.split(/\./g);
+  filename0.pop();
+  return filename0.join(".");
+};
+
+
+export function hslToHex(h: number, s: number, l: number) {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  const toHex = (x: number) => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  };
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * @see https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+ * 
+ * 
+ */
+
+export function lightenDarkenColor(col: string, amt: number): string {
+  let usePound = false;
+  if (col[0] == "#") {
+    col = col.slice(1);
+    usePound = true;
+  }
+
+  let num = parseInt(col, 16);
+
+  let r = (num >> 16) + amt;
+
+  if (r > 255) r = 255;
+  else if (r < 0) r = 0;
+
+  let b = ((num >> 8) & 0x00ff) + amt;
+
+  if (b > 255) b = 255;
+  else if (b < 0) b = 0;
+
+  let g = (num & 0x0000ff) + amt;
+
+  if (g > 255) g = 255;
+  else if (g < 0) g = 0;
+
+  return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+}

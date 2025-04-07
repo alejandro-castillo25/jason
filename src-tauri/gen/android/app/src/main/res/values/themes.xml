@@ -3,8 +3,7 @@
     <style name="Theme.jason" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <!-- background -->
-        <!-- <item name="android:windowBackground"> #2563EB</item> -->
-        <item name="android:statusBarColor"> #2563EB</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
     </style>
 </resources>
