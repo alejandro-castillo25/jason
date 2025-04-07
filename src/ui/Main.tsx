@@ -12,6 +12,7 @@ import {
   unwrapIndex,
   isValidURL,
   itemSizeFormatter,
+  editObjectValue,
 } from "./util";
 
 import type { Item } from "./util";
